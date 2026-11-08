@@ -1,0 +1,606 @@
+// Pakistan Biotechnology Gateway — schema
+// Dev: SQLite · Prod: PostgreSQL (switch provider + url via env)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED") // migrations bypass Neon's pooled endpoint
+}
+
+// ---------- auth (better-auth core) ----------
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  SUPPLIER
+  ADMIN
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  phone         String?
+  image         String?
+  role          Role     @default(CUSTOMER)
+  twoFactorEnabled Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions        Session[]
+  accounts        Account[]
+  twoFactors      TwoFactor[]
+  providerProfile ProviderProfile?
+  supplierProfile SupplierProfile?
+  customerProfile CustomerProfile?
+  subscription    Subscription?
+  rfqs            Rfq[]
+  customerProjects  Project[] @relation("CustomerProjects")
+  providerProjects  Project[] @relation("ProviderProjects")
+  messages        Message[]
+  enquiries       Enquiry[]
+  auditLogs       AuditLog[]
+  complaints      Complaint[]
+  statusChanges   StatusHistory[]
+  resultFiles     ResultFile[]
+  reviews         Review[]
+  notifications   Notification[]
+}
+
+// in-app notification feed (emails are a copy, not the only channel)
+model Notification {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  subject   String
+  body      String
+  href      String?   // deep link into the portal
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  expiresAt     DateTime
+  token         String   @unique
+  ipAddress     String?
+  userAgent     String?
+  impersonatedBy String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ---------- org profiles ----------
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+model ProviderProfile {
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgName           String
+  city              String
+  platforms         String   // comma-separated: Illumina NovaSeq, ONT, PacBio...
+  sampleTypes       String   // comma-separated
+  serviceCategories String   // comma-separated
+  hpcCapacity       String?
+  website           String?
+  establishedYear   Int?
+  accreditations    String?
+  contactPerson     String?
+  bio               String?
+  status            VerificationStatus @default(PENDING)
+  statusNote        String?
+  verifiedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  quotes   Quote[]
+  projects Project[]
+  services ServiceListing[]
+  declines RfqDecline[]
+  invites  RfqInvite[]
+  reviews  Review[]
+}
+
+// provider storefront — structured, priced service catalog (Genohub-style)
+model ServiceListing {
+  id             String   @id @default(cuid())
+  provider       ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId     String
+  name           String
+  category       String   // WGS, RNA-Seq, Bioinformatics...
+  platform       String?
+  description    String?
+  priceFrom      Float?   // PKR starting price
+  unit           String?  // per sample / per lane / per project
+  // who can see priceFrom: PUBLIC (anyone) / MEMBERS (signed-in customers) / QUOTE_ONLY (hidden — quote per RFQ)
+  priceVisibility String  @default("PUBLIC")
+  turnaroundDays Int?
+  // admin review gate — listings are hidden from the marketplace until APPROVED
+  moderation     String   @default("APPROVED") // PENDING | APPROVED | REJECTED
+  moderationNote String?
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+}
+
+model SupplierProfile {
+  id          String             @id @default(cuid())
+  userId      String             @unique
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgName     String
+  city        String
+  categories  String   // comma-separated
+  website     String?
+  establishedYear Int?
+  contactPerson String?
+  bio         String?
+  status      VerificationStatus @default(PENDING)
+  statusNote  String?
+  verifiedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products  Product[]
+  enquiries Enquiry[]
+}
+
+// ---------- marketplace ----------
+
+model Product {
+  id         String   @id @default(cuid())
+  supplierId String
+  supplier   SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  name       String
+  category   String
+  spec       String?
+  catalogNo  String?  // supplier SKU / catalog number
+  price      Float?
+  unit       String?
+  stockStatus String  @default("IN_STOCK") // IN_STOCK LOW_STOCK BACKORDER OUT_OF_STOCK
+  leadTimeDays Int?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  enquiries Enquiry[]
+}
+
+enum EnquiryStatus {
+  OPEN
+  QUOTED
+  FULFILLED
+  ANSWERED
+  CLOSED
+}
+
+model Enquiry {
+  id         String        @id @default(cuid())
+  product    Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  supplier   SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId String
+  buyer      User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  buyerId    String
+  message    String
+  qty        Int           @default(1)
+  // supplier's quoted response (Quartzy offer flow)
+  quotedPrice  Float?
+  leadTimeDays Int?
+  reply        String?
+  status     EnquiryStatus @default(OPEN)
+  createdAt  DateTime      @default(now())
+}
+
+// ---------- RFQ / quoting ----------
+
+enum RfqStatus {
+  OPEN
+  AWARDED
+  CANCELLED
+  CLOSED
+}
+
+model Rfq {
+  id               String    @id @default(cuid())
+  refNo            String    @unique
+  customer         User      @relation(fields: [customerId], references: [id])
+  customerId       String
+  title            String
+  organism         String
+  sampleCount      Int
+  sampleType       String
+  serviceCategory  String
+  requestedOutput  String
+  analysisType     String?
+  deadline         DateTime?
+  budgetHint       String?
+  attachmentName   String?
+  attachmentKey    String?
+  status           RfqStatus @default(OPEN)
+  // ROUTED = capability-matched + invited labs only · BOARD = open request board (all verified labs)
+  visibility       String   @default("ROUTED")
+  // moderation gate for BOARD visibility — PENDING stays hidden from labs until admin approves
+  moderation       String   @default("APPROVED") // PENDING | APPROVED | REJECTED
+  moderationNote   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  quotes  Quote[]
+  project Project?
+  declines RfqDecline[]
+  invites  RfqInvite[]
+}
+
+// customer-invited providers (targeted routing alongside auto-match)
+model RfqInvite {
+  id         String   @id @default(cuid())
+  rfq        Rfq      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  rfqId      String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+  createdAt  DateTime @default(now())
+
+  @@unique([rfqId, providerId])
+}
+
+// provider opt-out — labs stay independent on project acceptance
+model RfqDecline {
+  id         String   @id @default(cuid())
+  rfq        Rfq      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  rfqId      String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId String
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@unique([rfqId, providerId])
+}
+
+enum QuoteStatus {
+  SUBMITTED
+  SELECTED
+  DECLINED
+  WITHDRAWN
+}
+
+model Quote {
+  id             String      @id @default(cuid())
+  rfq            Rfq         @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  rfqId          String
+  provider       ProviderProfile @relation(fields: [providerId], references: [id])
+  providerId     String
+  price          Float
+  taxAmount      Float       @default(0)
+  turnaroundDays Int          // guaranteed max TAT (drives the SLA due date)
+  estTurnaround  Int?         // estimated TAT — lab's best-guess, shown to customer
+  platform       String
+  deliverables   String?  // SOW-lite: what the lab will deliver
+  scope          String?  // in-scope work description
+  validUntil     DateTime? // quote validity
+  exclusions     String?
+  notes          String?
+  status         QuoteStatus @default(SUBMITTED)
+  createdAt      DateTime    @default(now())
+
+  project        Project?
+
+  @@unique([rfqId, providerId])
+}
+
+// ---------- projects ----------
+
+enum ProjectStatus {
+  OFFER_SELECTED
+  SAMPLE_AWAITED
+  SAMPLE_RECEIVED
+  WORK_IN_PROGRESS
+  RESULTS_AVAILABLE
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id         String        @id @default(cuid())
+  refNo      String        @unique
+  rfq        Rfq           @relation(fields: [rfqId], references: [id])
+  rfqId      String        @unique
+  quote      Quote         @relation(fields: [quoteId], references: [id])
+  quoteId    String        @unique
+  customer   User          @relation("CustomerProjects", fields: [customerId], references: [id])
+  customerId String
+  providerUser User        @relation("ProviderProjects", fields: [providerUserId], references: [id])
+  providerUserId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  providerId String
+  poNumber   String? // customer purchase-order reference at award
+  acceptedAt DateTime? // provider must accept the award (independence)
+  dueAt      DateTime? // SLA: acceptedAt + guaranteed TAT (moves on resume)
+  // lab internals — never rendered to the customer
+  internalId  String?   // lab's own LIMS / accession ref
+  storageLoc  String?   // where the samples sit in the lab
+  disposalAt  DateTime? // scheduled sample disposal / return date
+  // pause clock — Genohub service-order math: dueAt += pause duration on resume
+  pausedAt    DateTime?
+  pausedFor   String?   // LAB / CUSTOMER — whose clock the wait sits on
+  pauseReason String?
+  // sample logistics — chain of custody
+  shipmentCourier String?
+  trackingNo      String?
+  shippedAt       DateTime?
+  sampleQc        String?  // PASS / PARTIAL / FAIL on receipt
+  sampleQcNote    String?
+  status     ProjectStatus @default(OFFER_SELECTED)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  history     StatusHistory[]
+  messages    Message[]
+  resultFiles ResultFile[]
+  transaction Transaction?
+  complaints  Complaint[]
+  milestones  Milestone[]
+  review      Review?
+  workStages  WorkStage[]
+  qcRecords   QcRecord[]
+}
+
+// inside-the-lab pipeline — customer-visible stage ladder (LIMS-lite)
+model WorkStage {
+  id        String   @id @default(cuid())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  key       String   // ACCESSIONING SAMPLE_QC LIBRARY_PREP LIBRARY_QC SEQUENCING DATA_PROCESSING ANALYSIS REPORT_REVIEW
+  status    String   @default("PENDING") // PENDING ACTIVE DONE SKIPPED
+  sort      Int
+  operator  String?  // technician / instrument that ran it
+  note      String?
+  startedAt DateTime?
+  doneAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, key])
+}
+
+// QC gate — structured metrics + customer decision loop on flagged results
+model QcRecord {
+  id            String    @id @default(cuid())
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  stage         String    // SAMPLE_QC / LIBRARY_QC
+  result        String    // PASS / PARTIAL / FAIL
+  concentration Float?    // ng/µL (Qubit)
+  rin           Float?    // RIN or DV200
+  ratio         Float?    // 260/280
+  instrument    String?   // Qubit 4, BioAnalyzer 2100, TapeStation…
+  note          String?
+  decision      String?   // flagged QC → customer decision: PROCEED (disclaimer) / RESEND / CANCEL — null = awaiting
+  decidedAt     DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+enum MilestoneStatus {
+  PLANNED
+  INVOICED
+  PAID
+}
+
+// partial invoicing per milestone (Science Exchange model)
+model Milestone {
+  id        String          @id @default(cuid())
+  project   Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  title     String
+  amount    Float
+  status    MilestoneStatus @default(PLANNED)
+  dueDate   DateTime?
+  paidAt    DateTime?
+  createdAt DateTime        @default(now())
+}
+
+// post-completion customer review — feeds registry trust signal
+model Review {
+  id         String          @id @default(cuid())
+  project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String          @unique
+  customer   User            @relation(fields: [customerId], references: [id])
+  customerId String
+  provider   ProviderProfile @relation(fields: [providerId], references: [id])
+  providerId String
+  rating     Int             // 1–5
+  comment    String?
+  createdAt  DateTime        @default(now())
+}
+
+model StatusHistory {
+  id         String        @id @default(cuid())
+  project    Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  status     ProjectStatus
+  note       String?
+  changedBy  User          @relation(fields: [changedById], references: [id])
+  changedById String
+  createdAt  DateTime      @default(now())
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  sender         User     @relation(fields: [senderId], references: [id])
+  senderId       String
+  body           String
+  attachmentName String?
+  attachmentKey  String?
+  createdAt      DateTime @default(now())
+}
+
+model ResultFile {
+  id           String   @id @default(cuid())
+  storageKey   String?
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  filename     String
+  sizeBytes    Int
+  note         String?
+  version      Int      @default(1)
+  released     Boolean  @default(false) // staged delivery — invisible to customer until released
+  releasedAt   DateTime?
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt    DateTime @default(now())
+}
+
+// ---------- governance ----------
+
+enum TxnStatus {
+  PENDING
+  INVOICED
+  PAID
+  WAIVED
+}
+
+model Transaction {
+  id          String    @id @default(cuid())
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String    @unique
+  quotedValue Float
+  feePercent  Float
+  feeAmount   Float
+  status      TxnStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+model Complaint {
+  id          String          @id @default(cuid())
+  project     Project?        @relation(fields: [projectId], references: [id])
+  projectId   String?
+  filedBy     User            @relation(fields: [filedById], references: [id])
+  filedById   String
+  subject     String
+  details     String
+  status      ComplaintStatus @default(OPEN)
+  resolution  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     User     @relation(fields: [actorId], references: [id])
+  actorId   String
+  action    String   // e.g. PROVIDER_APPROVED, QUOTE_SELECTED, STATUS_CHANGED
+  entity    String
+  entityId  String
+  meta      String?
+  createdAt DateTime @default(now())
+}
+
+// ---------- platform settings ----------
+
+model PlatformSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model TwoFactor {
+  id                      String    @id @default(cuid())
+  secret                  String
+  backupCodes             String
+  verified                Boolean   @default(false)
+  failedVerificationCount Int       @default(0)
+  lockedUntil             DateTime?
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+}
+
+// ---------- profiles & subscriptions ----------
+
+model CustomerProfile {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String   @unique
+  orgName     String?
+  orgType     String?  // University, Hospital, Research Institute, Agri/Livestock, Pharma, Individual
+  city        String?
+  address     String?
+  department  String?
+  designation String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Plan {
+  BASIC
+  PRO
+  CUSTOM
+}
+
+enum SubscriptionStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String             @unique
+  plan      Plan               @default(BASIC)
+  priceUsd  Float              @default(100)
+  status    SubscriptionStatus @default(PENDING_PAYMENT)
+  startedAt DateTime?
+  expiresAt DateTime?
+  renewRequestedAt DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+}

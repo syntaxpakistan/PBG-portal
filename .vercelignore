@@ -1,0 +1,16 @@
+# research / reference downloads — local-only, never ship to Vercel
+zzz/
+*.html
+
+# local artifacts
+uploads/
+prisma/dev.db
+prisma/migrations_sqlite_legacy/
+*.jar
+
+# env + tooling (never upload secrets)
+.env*
+.neon
+.vercel
+node_modules
+.next
