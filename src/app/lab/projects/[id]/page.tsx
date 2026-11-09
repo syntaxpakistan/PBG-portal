@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StageTracker, StatusBadge, StageLadder } from "@/components/portal/ui";
 import { HistoryTimeline, MessageThread } from "@/components/portal/project-parts";
+import { FileLink } from "@/components/portal/file-link";
 import { PauseCircle, Lock, FlaskConical } from "lucide-react";
 import { advanceProjectStatus, addResultFile, addMilestone, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
 import { pkr, STAGE_LABELS, PROJECT_STAGES, stageIndex, slaInfo, QC_STAGE_LABELS, QC_DECISION_LABELS, WORK_STAGE_LABELS } from "@/lib/constants";
@@ -57,6 +58,13 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
           </div>
         )}
       </div>
+
+      {/* original RFQ attachment — stays accessible after award since the RFQ page closes */}
+      {project.rfq.attachmentName && (
+        <div className="mb-6">
+          <FileLink storageKey={project.rfq.attachmentKey} filename={project.rfq.attachmentName} label={`RFQ attachment: ${project.rfq.attachmentName}`} />
+        </div>
+      )}
 
       {/* pause banner / controls */}
       {paused && live && (

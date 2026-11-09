@@ -112,6 +112,7 @@ export default async function LabRfqsPage({
                     <Link href={`/lab/rfqs/${r.id}`} className="font-medium text-ink hover:text-blue">{r.title}</Link>
                     <div className="mt-0.5 text-[11px] text-muted">
                       {r.refNo} · {r.serviceCategory} · {r.organism} · posted {r.createdAt.toLocaleDateString()}
+                      {r.attachmentName && <span className="ml-1.5" title={r.attachmentName}>📎</span>}
                     </div>
                     <div className="mt-0.5 text-[11px] text-muted">Output: {r.requestedOutput}</div>
                   </td>

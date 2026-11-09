@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { selectQuote } from "@/lib/actions/marketplace";
 import { StatusBadge, PageHead } from "@/components/portal/ui";
+import { FileLink } from "@/components/portal/file-link";
 import { pkr } from "@/lib/constants";
 import { QuoteSelectButton } from "./select-button";
 import { DeleteRfqButton } from "../delete-button";
@@ -59,9 +60,9 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
         <Info label="Deadline" value={rfq.deadline ? rfq.deadline.toLocaleDateString() : "—"} />
       </div>
       {rfq.attachmentName && (
-        <a href={`/api/files/${rfq.attachmentKey}`} className="mb-6 inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-[13px] font-medium text-ink hover:bg-paper-2">
-          📎 {rfq.attachmentName}
-        </a>
+        <div className="mb-6">
+          <FileLink storageKey={rfq.attachmentKey} filename={rfq.attachmentName} />
+        </div>
       )}
 
       <h2 className="mb-3 text-[15px] font-semibold text-ink">

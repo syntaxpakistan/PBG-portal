@@ -1,5 +1,6 @@
 import { postMessage } from "@/lib/actions/marketplace";
 import { StatusBadge } from "./ui";
+import { FileLink } from "./file-link";
 import { MessageSquare, FileDown, Send } from "lucide-react";
 import type { Message, StatusHistory, ResultFile, User } from "@prisma/client";
 
@@ -60,9 +61,10 @@ export function MessageThread({
                 </div>
                 {m.body}
                 {m.attachmentName && (
-                  <a href={m.attachmentKey ? `/api/files/${m.attachmentKey}` : "#"} className="mt-1.5 flex items-center gap-1.5 rounded-md bg-black/10 px-2 py-1 text-[11px] hover:bg-black/20">
-                    <FileDown className="size-3" /> {m.attachmentName}
-                  </a>
+                  <span className="mt-1.5 flex items-center gap-1.5 text-[11px]">
+                    <FileDown className="size-3" />
+                    <FileLink storageKey={m.attachmentKey} filename={m.attachmentName} compact />
+                  </span>
                 )}
               </div>
             </div>
@@ -114,7 +116,7 @@ export function ResultFilesCard({ files, showDrafts }: { files: ResultFile[]; sh
                 </div>
               </div>
               {f.storageKey ? (
-                <a href={`/api/files/${f.storageKey}`} className="btn-outline !px-3 !py-1.5 text-[11.5px]">Download</a>
+                <FileLink storageKey={f.storageKey} filename={f.filename} />
               ) : (
                 <span className="text-[11px] text-muted">legacy record</span>
               )}

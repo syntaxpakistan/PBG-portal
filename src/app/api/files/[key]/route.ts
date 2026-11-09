@@ -8,8 +8,9 @@ import { readUpload } from "@/lib/files";
  * legitimate party: project customer / assigned lab / admin — or, for RFQ
  * attachments, the customer / any approved provider / admin.
  */
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ key: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
+  const inline = req.nextUrl.searchParams.get("inline") === "1";
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const uid = session.user.id;
@@ -69,10 +70,18 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ key
 
   try {
     const buf = await readUpload(key);
+    const ext = key.split(".").pop()?.toLowerCase() ?? "";
+    const type =
+      ext === "pdf" ? "application/pdf"
+      : ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) ? `image/${ext === "jpg" ? "jpeg" : ext}`
+      : ["txt", "csv"].includes(ext) ? "text/plain"
+      : "application/octet-stream";
+    const previewable = type !== "application/octet-stream";
     return new NextResponse(new Uint8Array(buf), {
       headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${filename ?? key}"`,
+        "Content-Type": type,
+        // ?inline=1 renders in-browser for previewable types; everything else downloads
+        "Content-Disposition": `${inline && previewable ? "inline" : "attachment"}; filename="${filename ?? key}"`,
       },
     });
   } catch {

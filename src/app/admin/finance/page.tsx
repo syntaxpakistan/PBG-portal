@@ -3,6 +3,7 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
+import { FileLink } from "@/components/portal/file-link";
 import {
   ConfirmPaymentButton, RejectPaymentButton, AdminRecordPaymentForm,
   VoidInvoiceButton, PayoutForm, PayoutStatusButtons,
@@ -65,7 +66,7 @@ export default async function FinancePage() {
               <span className="font-mono font-semibold text-ink">{p.invoice.number}</span>
               <span className="ml-2 text-body">{p.invoice.billedOrg} ({p.invoice.billedUser.email})</span>
               <span className="ml-2 text-muted">{money(p.amount, p.invoice.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
-              {p.receiptKey && <a href={`/api/files/${p.receiptKey}`} className="ml-2 text-blue hover:underline">receipt</a>}
+              {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
             </div>
             <div className="flex gap-2">
               <ConfirmPaymentButton paymentId={p.id} label="Confirm receipt" />

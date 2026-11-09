@@ -7,6 +7,7 @@ import { submitQuote, declineRfq, withdrawQuote } from "@/lib/actions/marketplac
 import { isPriorityClientSubscription } from "@/lib/entitlements";
 import { getGraceDays } from "@/lib/settings";
 import { PageHead } from "@/components/portal/ui";
+import { FileLink } from "@/components/portal/file-link";
 
 const input =
   "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3";
@@ -64,9 +65,9 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
         <Info label="Competing quotes" value={`${quoteCount} (sealed)`} />
       </div>
       {rfq.attachmentName && (
-        <a href={`/api/files/${rfq.attachmentKey}`} className="mb-6 inline-flex items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2.5 text-[13px] font-medium text-ink hover:bg-paper-2">
-          📎 {rfq.attachmentName}
-        </a>
+        <div className="mb-6">
+          <FileLink storageKey={rfq.attachmentKey} filename={rfq.attachmentName} label={`RFQ attachment: ${rfq.attachmentName}`} />
+        </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">

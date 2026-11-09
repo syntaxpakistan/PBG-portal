@@ -1,4 +1,5 @@
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
+import { FileLink } from "@/components/portal/file-link";
 import { PLANS } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/settings";
 import type { PartnerAccess } from "@/lib/entitlements";
@@ -109,7 +110,7 @@ export async function BillingView({
                   <span className="font-medium text-ink">{p.invoice.number}</span>
                   <span className="ml-2 text-body">{p.invoice.billedOrg} · {money(p.amount, p.invoice.currency)}</span>
                   <span className="ml-2 text-[11.5px] text-muted">{METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ref ${p.reference}` : ""}</span>
-                  {p.receiptKey && <a href={`/api/files/${p.receiptKey}`} className="ml-2 text-[11.5px] font-medium text-blue hover:underline">receipt</a>}
+                  {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                 </div>
                 {canConfirm && (
                   <div className="flex gap-2">
@@ -153,7 +154,7 @@ export async function BillingView({
                     <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                       <StatusBadge status={p.status} />
                       <span>{money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
-                      {p.receiptKey && <a href={`/api/files/${p.receiptKey}`} className="text-blue hover:underline">receipt</a>}
+                      {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       {p.status === "PENDING" && p.recordedById && <AttachReceiptForm paymentId={p.id} />}
                     </div>
                   ))}
@@ -190,7 +191,7 @@ export async function BillingView({
                       <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                         <StatusBadge status={p.status} />
                         <span>{money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
-                        {p.receiptKey && <a href={`/api/files/${p.receiptKey}`} className="text-blue hover:underline">receipt</a>}
+                        {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       </div>
                     ))}
                   </div>
