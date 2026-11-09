@@ -78,6 +78,19 @@ export async function createRfq(formData: FormData) {
     throw new Error("Too many RFQs — please try again tomorrow.");
   }
 
+  // server-side duplicate guard — repeated clicks/submits must not create twins
+  const dupe = await prisma.rfq.findFirst({
+    where: {
+      customerId: session.user.id,
+      title: String(formData.get("title")),
+      organism: String(formData.get("organism")),
+      status: { not: "CANCELLED" },
+      createdAt: { gt: new Date(Date.now() - 10 * 60e3) },
+    },
+    select: { id: true },
+  });
+  if (dupe) throw new Error("This looks like a duplicate — you already submitted the same request moments ago.");
+
   const inviteIds = formData.getAll("inviteIds").map(String).filter(Boolean);
   const board = formData.get("visibility") === "BOARD";
   const count = await prisma.rfq.count();
@@ -140,6 +153,24 @@ export async function createRfq(formData: FormData) {
     await notifyProvidersForRfq(rfq);
   }
   redirect(`/dashboard/rfqs/${rfq.id}`);
+}
+
+// hard-delete an RFQ — only before a quote is awarded (quotes/invites/declines cascade)
+export async function deleteRfq(rfqId: string) {
+  const session = await getSession();
+  if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  const rfq = await prisma.rfq.findUniqueOrThrow({
+    where: { id: rfqId },
+    include: { project: { select: { id: true } } },
+  });
+  if (rfq.customerId !== session.user.id) throw new Error("Not your RFQ");
+  if (rfq.project || rfq.status === "AWARDED") {
+    throw new Error("This request already has an awarded project — it can't be deleted.");
+  }
+  await prisma.rfq.delete({ where: { id: rfqId } });
+  await audit(session.user.id, "RFQ_DELETED", "Rfq", rfqId, rfq.refNo);
+  revalidatePath("/dashboard/rfqs");
+  redirect("/dashboard/rfqs");
 }
 
 export async function selectQuote(quoteId: string, poNumber?: string) {

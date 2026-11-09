@@ -7,6 +7,7 @@ import { selectQuote } from "@/lib/actions/marketplace";
 import { StatusBadge, PageHead } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 import { QuoteSelectButton } from "./select-button";
+import { DeleteRfqButton } from "../delete-button";
 
 export default async function RfqDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,7 +29,12 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
       <PageHead
         title={rfq.title}
         sub={`${rfq.refNo} · ${rfq.organism} · ${rfq.sampleCount} × ${rfq.sampleType}`}
-        action={<StatusBadge status={rfq.status} />}
+        action={
+          <div className="flex items-center gap-2">
+            <StatusBadge status={rfq.status} />
+            {!rfq.project && rfq.status !== "AWARDED" && <DeleteRfqButton rfqId={rfq.id} refNo={rfq.refNo} />}
+          </div>
+        }
       />
 
       {rfq.visibility === "BOARD" && rfq.moderation === "PENDING" && (
