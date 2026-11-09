@@ -1,5 +1,6 @@
 export const instant = false
 
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
@@ -52,8 +53,8 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
 
       {/* view tabs */}
       <div className="mb-6 inline-flex rounded-full border border-line bg-surface p-1">
-        <a href="/dashboard/marketplace?view=services" className={`rounded-full px-5 py-2 text-[12.5px] font-medium transition-colors ${isServices ? "bg-ink text-paper" : "text-body hover:text-ink"}`}>Lab services</a>
-        <a href="/dashboard/marketplace" className={`rounded-full px-5 py-2 text-[12.5px] font-medium transition-colors ${!isServices ? "bg-ink text-paper" : "text-body hover:text-ink"}`}>Supplies</a>
+        <Link href="/dashboard/marketplace?view=services" className={`rounded-full px-5 py-2 text-[12.5px] font-medium transition-colors ${isServices ? "bg-ink text-paper" : "text-body hover:text-ink"}`}>Lab services</Link>
+        <Link href="/dashboard/marketplace" className={`rounded-full px-5 py-2 text-[12.5px] font-medium transition-colors ${!isServices ? "bg-ink text-paper" : "text-body hover:text-ink"}`}>Supplies</Link>
       </div>
 
       {isServices ? (
@@ -64,11 +65,11 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
             <input name="q" defaultValue={q ?? ""} placeholder="Search services, platforms or facilities…" className="w-full max-w-md rounded-full border border-line bg-surface px-5 py-2.5 text-[13.5px] outline-none focus:border-navy-3" />
           </form>
           <div className="mb-6 flex flex-wrap gap-2">
-            <a href={`/dashboard/marketplace?view=services${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium ${!cat ? "bg-ink text-paper" : "border border-line text-body hover:bg-paper-2"}`}>All</a>
+            <Link href={`/dashboard/marketplace?view=services${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium ${!cat ? "bg-ink text-paper" : "border border-line text-body hover:bg-paper-2"}`}>All</Link>
             {categories.map((c) => (
-              <a key={c} href={`/dashboard/marketplace?view=services&cat=${encodeURIComponent(c)}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium ${cat === c ? "bg-ink text-paper" : "border border-line text-body hover:bg-paper-2"}`}>
+              <Link key={c} href={`/dashboard/marketplace?view=services&cat=${encodeURIComponent(c)}${q ? `&q=${encodeURIComponent(q)}` : ""}`} className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium ${cat === c ? "bg-ink text-paper" : "border border-line text-body hover:bg-paper-2"}`}>
                 {c}
-              </a>
+              </Link>
             ))}
           </div>
           <div className="pb-24">

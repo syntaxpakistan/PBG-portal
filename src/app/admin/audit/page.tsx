@@ -1,5 +1,6 @@
 export const instant = false
 
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
 
@@ -20,7 +21,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <PageHead title="Audit log" sub={`Immutable record of every administrative and workflow action — ${logs.length} shown (latest 100).`}
-        action={<a href="/api/admin/export/audit" className="btn-outline !py-2 text-[12.5px]">Export CSV</a>}
+        action={<Link href="/api/admin/export/audit" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search detail…" className="w-44 rounded-full border border-line bg-surface px-4 py-2 text-[12.5px] outline-none focus:border-navy-3" />

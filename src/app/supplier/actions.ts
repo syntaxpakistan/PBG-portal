@@ -2,12 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { assertPartnerActive } from "@/lib/entitlements";
 
 export async function addProduct(formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") throw new Error("Suppliers only");
   const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
   if (profile.status !== "APPROVED") throw new Error("Not verified");
+  await assertPartnerActive(session.user.id);
   await prisma.product.create({
     data: {
       supplierId: profile.id,
@@ -43,6 +45,7 @@ export async function updateProduct(productId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") throw new Error("Suppliers only");
   const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  await assertPartnerActive(session.user.id);
   const product = await prisma.product.findUniqueOrThrow({ where: { id: productId } });
   if (product.supplierId !== profile.id) throw new Error("Not your product");
   await prisma.product.update({ where: { id: productId }, data: productData(formData) });

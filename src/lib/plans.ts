@@ -36,6 +36,20 @@ export const PLANS = {
 
 export type PlanKey = keyof typeof PLANS;
 
+// what each plan actually unlocks — enforced in lib/entitlements.ts + actions
+export const PLAN_FLAGS: Record<PlanKey, {
+  priorityRouting: boolean;   // PRO+ see every capability-matched RFQ, not just text matches
+  featuredBadge: boolean;     // highlighted in the public registry
+  analytics: boolean;         // /lab/analytics dashboard
+  dedicatedManager: boolean;  // CUSTOM — named Syntax contact
+}> = {
+  BASIC: { priorityRouting: false, featuredBadge: false, analytics: false, dedicatedManager: false },
+  PRO: { priorityRouting: true, featuredBadge: true, analytics: true, dedicatedManager: false },
+  CUSTOM: { priorityRouting: true, featuredBadge: true, analytics: true, dedicatedManager: true },
+};
+
+export const GRACE_DAYS = 7; // paid-through expiry + grace before lockdown
+
 export const ORG_TYPES = [
   "University",
   "Hospital / Clinical",

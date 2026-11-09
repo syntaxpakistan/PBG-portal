@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight, CircleCheck, MapPin } from "lucide-react";
 import { Reveal } from "@/components/motion-primitives";
 

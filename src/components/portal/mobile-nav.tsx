@@ -26,8 +26,12 @@ export function PortalMobileNav({
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // close on navigation + lock body scroll while open
-  useEffect(() => setOpen(false), [pathname]);
+  // close on navigation (render-phase state adjustment) + lock body scroll while open
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    setOpen(false);
+  }
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };

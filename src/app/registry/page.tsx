@@ -4,16 +4,19 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { FlaskConical, MapPin, Cpu, TestTubes, BadgeCheck, Star } from "lucide-react";
+import { FlaskConical, MapPin, Cpu, TestTubes, BadgeCheck, Star, Sparkles } from "lucide-react";
 
 export const metadata = { title: "National Facility Registry — Pakistan Biotechnology Gateway" };
+
+const isFeatured = (sub: { plan: string; status: string; expiresAt: Date | null } | null | undefined) =>
+  !!sub && sub.status === "ACTIVE" && (sub.plan === "PRO" || sub.plan === "CUSTOM");
 
 export default async function RegistryPage({ searchParams }: { searchParams: Promise<{ q?: string; city?: string; cat?: string }> }) {
   const { q, city, cat } = await searchParams;
   const providers = await prisma.providerProfile.findMany({
     where: { status: "APPROVED" },
     include: {
-      user: { select: { name: true } },
+      user: { select: { name: true, subscription: { select: { plan: true, status: true, expiresAt: true } } } },
       _count: { select: { projects: true, quotes: true, services: { where: { active: true, moderation: "APPROVED" } } } },
       reviews: { select: { rating: true } },
     },
@@ -26,6 +29,8 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
     if (cat && !p.serviceCategories.toLowerCase().includes(cat.toLowerCase())) return false;
     return true;
   });
+  // featured (PRO/CUSTOM partners) rank first
+  filtered.sort((a, b) => Number(isFeatured(b.user.subscription)) - Number(isFeatured(a.user.subscription)));
   const cities = [...new Set(providers.map((p) => p.city))];
   const cats = [...new Set(providers.flatMap((p) => p.serviceCategories.split(",").map((c) => c.trim())).filter(Boolean))];
 
@@ -66,6 +71,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
         <div className="grid gap-5 md:grid-cols-2">
           {filtered.map((p) => {
             const avg = p.reviews.length ? p.reviews.reduce((n, r) => n + r.rating, 0) / p.reviews.length : null;
+            const featured = isFeatured(p.user.subscription);
             return (
             <Link key={p.id} href={`/registry/${p.id}`} className="card card-hover block p-6">
               <div className="flex items-start justify-between">
@@ -81,9 +87,16 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
                     </p>
                   </div>
                 </div>
-                <span className="flex items-center gap-1 rounded-full border border-(--st-green-bd) bg-(--st-green-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-green-fg)">
-                  <BadgeCheck className="size-3.5" /> Syntax-verified*
-                </span>
+                <div className="flex flex-col items-end gap-1.5">
+                  {featured && (
+                    <span className="flex items-center gap-1 rounded-full bg-[#fdf3d7] px-2.5 py-1 text-[10.5px] font-semibold text-[#8a6d1f]">
+                      <Sparkles className="size-3" /> Featured partner
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 rounded-full border border-(--st-green-bd) bg-(--st-green-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-green-fg)">
+                    <BadgeCheck className="size-3.5" /> Syntax-verified*
+                  </span>
+                </div>
               </div>
               {p.bio && <p className="mt-4 text-[13px] leading-relaxed text-body">{p.bio}</p>}
               <dl className="mt-4 space-y-2 border-t border-line pt-4 text-[12.5px]">

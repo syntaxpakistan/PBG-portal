@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { AnimatedCounter, Reveal } from "@/components/motion-primitives";
 
 const STATS = [

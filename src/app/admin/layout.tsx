@@ -1,6 +1,6 @@
 export const instant = false
 
-import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, ShieldCheck, Landmark } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 
@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/moderation", label: "Moderation", icon: <ShieldCheck className="size-4" /> },
   { href: "/admin/users", label: "Users & orgs", icon: <Users className="size-4" /> },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: <CreditCard className="size-4" /> },
+  { href: "/admin/finance", label: "Finance", icon: <Landmark className="size-4" /> },
   { href: "/admin/rfqs", label: "RFQs", icon: <FileText className="size-4" /> },
   { href: "/admin/transactions", label: "Transactions & fees", icon: <Receipt className="size-4" /> },
   { href: "/admin/marketplace", label: "Marketplace", icon: <Store className="size-4" /> },

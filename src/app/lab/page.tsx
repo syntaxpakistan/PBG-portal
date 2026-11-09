@@ -282,8 +282,8 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       </h2>
       <div className="card mb-8 overflow-hidden">
         <div className="divide-y divide-line">
-          {!approved && <p className="px-5 py-8 text-center text-[13px] text-muted">RFQs appear here once you're verified.</p>}
-          {approved && inbox.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No open RFQs right now — you'll be emailed when one routes to you.</p>}
+          {!approved && <p className="px-5 py-8 text-center text-[13px] text-muted">RFQs appear here once you&rsquo;re verified.</p>}
+          {approved && inbox.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No open RFQs right now — you&rsquo;ll be emailed when one routes to you.</p>}
           {approved && inbox.map((r) => (
             <Link key={r.id} href={`/lab/rfqs/${r.id}`} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-paper-2">
               <div>

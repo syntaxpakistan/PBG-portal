@@ -28,7 +28,7 @@ export default async function AdminRfqsPage({
       <PageHead
         title="RFQ oversight"
         sub={`${rfqs.length} requests${status ? ` · filtered: ${status.toLowerCase()}` : ""}.`}
-        action={<a href="/api/admin/export/rfqs" className="btn-outline !py-2 text-[12.5px]">Export CSV</a>}
+        action={<Link href="/api/admin/export/rfqs" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <div className="mb-4 flex flex-wrap gap-2">
         <Link href="/admin/rfqs" className={`rounded-full px-3.5 py-1.5 text-[12px] font-medium ${!status ? "bg-ink text-paper" : "border border-line text-body hover:bg-paper-2"}`}>All</Link>

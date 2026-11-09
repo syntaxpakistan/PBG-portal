@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { PLANS } from "@/lib/plans";
 import { SubButtons } from "./buttons";
+import { getPlanPrices } from "@/lib/settings";
 
 export default async function SubscriptionsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; plan?: string }> }) {
   const { q, status, plan } = await searchParams;
@@ -36,12 +37,14 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
   const mrr = subs.filter((s) => s.status === "ACTIVE").reduce((n, s) => n + s.priceUsd, 0);
   const pending = subs.filter((s) => s.status === "PENDING_PAYMENT").length;
   const renewals = subs.filter((s) => s.renewRequestedAt).length;
+  const planChanges = subs.filter((s) => s.planChangeRequestedAt).length;
+  const planPrices = await getPlanPrices();
 
   return (
     <>
       <PageHead
         title="Subscriptions"
-        sub={`${subs.length} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ~$${mrr.toLocaleString()}/mo active MRR`}
+        sub={`${subs.length} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ${planChanges} plan-change requests · ~$${mrr.toLocaleString()}/mo active MRR`}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search org, name or email…" className="w-full max-w-xs rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3" />
@@ -82,15 +85,22 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
                     <div className="font-medium text-ink">{org?.orgName ?? s.user.name}</div>
                     <div className="text-[11px] text-muted">{s.user.email}</div>
                   </td>
-                  <td className="px-5 py-3 text-body">{s.user.role === "PROVIDER" ? "Lab" : "Supplier"}</td>
-                  <td className="px-5 py-3 font-medium text-ink">{PLANS[s.plan].label}</td>
+                  <td className="px-5 py-3 text-body">{s.user.role === "PROVIDER" ? "Lab" : s.user.role === "SUPPLIER" ? "Supplier" : "Client"}</td>
+                  <td className="px-5 py-3 font-medium text-ink">
+                    {PLANS[s.plan].label}
+                    {s.requestedPlan && (
+                      <div className="mt-0.5 text-[10.5px] font-medium text-(--st-amber-fg)">
+                        → {PLANS[s.requestedPlan as keyof typeof PLANS]?.label ?? s.requestedPlan} requested
+                      </div>
+                    )}
+                  </td>
                   <td className="px-5 py-3 text-body">${s.priceUsd}/mo</td>
                   <td className="px-5 py-3 text-muted">
                     {s.expiresAt ? `until ${s.expiresAt.toLocaleDateString()}` : "—"}
                     {s.renewRequestedAt && <div className="mt-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">renewal requested</div>}
                   </td>
                   <td className="px-5 py-3"><StatusBadge status={s.status} /></td>
-                  <td className="px-5 py-3"><SubButtons id={s.id} status={s.status} plan={s.plan} renewRequested={!!s.renewRequestedAt} /></td>
+                  <td className="px-5 py-3"><SubButtons id={s.id} status={s.status} plan={s.plan} renewRequested={!!s.renewRequestedAt} requestedPlan={s.requestedPlan} prices={planPrices} /></td>
                 </tr>
               );
             })}

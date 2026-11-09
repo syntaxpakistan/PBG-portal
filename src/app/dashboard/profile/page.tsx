@@ -3,6 +3,7 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
+import { SubscriptionCard } from "@/components/portal/subscription-card";
 import { updateCustomerProfile } from "@/lib/actions/profiles";
 import { ORG_TYPES } from "@/lib/plans";
 
@@ -10,12 +11,16 @@ const input = "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 tex
 
 export default async function CustomerProfilePage() {
   const session = await requireRole("CUSTOMER");
-  const profile = await prisma.customerProfile.findUnique({ where: { userId: session.user.id } });
+  const [profile, subscription] = await Promise.all([
+    prisma.customerProfile.findUnique({ where: { userId: session.user.id } }),
+    prisma.subscription.findUnique({ where: { userId: session.user.id } }),
+  ]);
 
   return (
-    <div className="max-w-2xl">
-      <PageHead title="Your profile" sub="Used on RFQs and by labs to understand who's requesting work." />
-      <form action={updateCustomerProfile} className="card space-y-5 p-6">
+    <div className="grid max-w-5xl gap-6 xl:grid-cols-[1fr_320px]">
+      <div>
+        <PageHead title="Your profile" sub="Used on RFQs and by labs to understand who's requesting work." />
+        <form action={updateCustomerProfile} className="card space-y-5 p-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Full name</label>
@@ -65,7 +70,18 @@ export default async function CustomerProfilePage() {
           <input name="address" defaultValue={profile?.address ?? ""} className={input} />
         </div>
         <button type="submit" className="btn-secondary !py-2.5">Save profile</button>
-      </form>
+        </form>
+      </div>
+      <div className="space-y-5">
+        <SubscriptionCard sub={subscription} />
+        <div className="card p-5">
+          <h3 className="text-[14px] font-semibold text-ink">Account</h3>
+          <dl className="mt-3 space-y-2 text-[12.5px]">
+            <div className="flex justify-between"><dt className="text-muted">Contact</dt><dd className="text-ink">{session.user.email}</dd></div>
+            <div className="flex justify-between"><dt className="text-muted">Phone</dt><dd className="text-ink">{session.user.phone ?? "—"}</dd></div>
+          </dl>
+        </div>
+      </div>
     </div>
   );
 }

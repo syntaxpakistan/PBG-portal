@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
+import { isPriorityClientSubscription } from "@/lib/entitlements";
+import { getGraceDays } from "@/lib/settings";
 
 export default async function LabRfqsPage({
   searchParams,
@@ -44,8 +46,8 @@ export default async function LabRfqsPage({
           }),
     },
     include: {
-      // masked context only — org type, never the buyer's name/org
-      customer: { select: { customerProfile: { select: { orgType: true, city: true } } } },
+      // masked context only — org type, never the buyer's name/org (+ plan for priority badge)
+      customer: { select: { customerProfile: { select: { orgType: true, city: true } }, subscription: { select: { plan: true, status: true, expiresAt: true } } } },
       _count: { select: { quotes: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -57,7 +59,12 @@ export default async function LabRfqsPage({
         )
       )
     : openRfqs;
-  const inbox = isBoard ? openRfqs : (routed.length ? routed : openRfqs).filter((r) => !invited || invitedIds.has(r.id));
+  const graceDays = await getGraceDays();
+  const inbox = (isBoard ? openRfqs : (routed.length ? routed : openRfqs).filter((r) => !invited || invitedIds.has(r.id)))
+    .slice()
+    .sort((a, b) => Number(isPriorityClientSubscription(b.customer.subscription, graceDays)) - Number(isPriorityClientSubscription(a.customer.subscription, graceDays)));
+
+  const isPriorityClient = (r: (typeof openRfqs)[number]) => isPriorityClientSubscription(r.customer.subscription, graceDays);
 
   return (
     <>
@@ -93,7 +100,7 @@ export default async function LabRfqsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {!approved && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">RFQs appear here once you're verified.</td></tr>}
+              {!approved && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">RFQs appear here once you&rsquo;re verified.</td></tr>}
               {approved && inbox.length === 0 && (
                 <tr><td colSpan={7} className="px-5 py-10 text-center text-muted">
                   {isBoard ? "No open board requests right now — new posts appear here after admin approval." : `No open RFQs${invited ? " matching this filter" : ""} — you'll be notified when one routes to you.`}
@@ -110,6 +117,7 @@ export default async function LabRfqsPage({
                   </td>
                   <td className="px-4 py-3.5 align-top">
                     <span className="text-body">Verified customer</span>
+                    {isPriorityClient(r) && <span className="ml-1.5 rounded-full bg-[#fdf3d7] px-2 py-0.5 text-[10px] font-semibold text-[#8a6d1f]">Priority client</span>}
                     <div className="mt-0.5 text-[11px] text-muted">
                       {[r.customer.customerProfile?.orgType, r.customer.customerProfile?.city].filter(Boolean).join(" · ") || "identity masked until award"}
                     </div>

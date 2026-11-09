@@ -16,10 +16,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ key
   const isAdmin = session.user.role === "ADMIN";
 
   // check which entity owns this key
-  const [resultFile, message, rfq] = await Promise.all([
+  const [resultFile, message, rfq, payment] = await Promise.all([
     prisma.resultFile.findFirst({ where: { storageKey: key }, include: { project: true } }),
     prisma.message.findFirst({ where: { attachmentKey: key }, include: { project: true } }),
     prisma.rfq.findFirst({ where: { attachmentKey: key } }),
+    prisma.payment.findFirst({ where: { receiptKey: key }, include: { invoice: { include: { billedUser: { select: { role: true } } } } } }),
   ]);
 
   let filename: string | null = null;
@@ -49,6 +50,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ key
       if (!invited) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
     filename = rfq.attachmentName;
+  } else if (payment) {
+    const inv = payment.invoice;
+    // payer, admin, or the invoice issuer may view the receipt
+    const issuer =
+      inv.issuerType === "PROVIDER" && inv.issuerId
+        ? await prisma.providerProfile.findUnique({ where: { id: inv.issuerId }, select: { userId: true } })
+        : inv.issuerType === "SUPPLIER" && inv.issuerId
+          ? await prisma.supplierProfile.findUnique({ where: { id: inv.issuerId }, select: { userId: true } })
+          : null;
+    const issuerUid = issuer && "userId" in issuer ? issuer.userId : null;
+    if (!isAdmin && uid !== inv.billedUserId && uid !== issuerUid)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    filename = `receipt-${inv.number}`;
   } else {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

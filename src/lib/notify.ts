@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
 
 /**
  * Transactional notifications. Always persisted in-app (bell feed); sends a
@@ -12,20 +13,13 @@ export async function notify(opts: { toUserId: string; subject: string; body: st
     data: { userId: opts.toUserId, subject: opts.subject, body: opts.body, href: opts.href ?? null },
   });
 
-  const key = process.env.RESEND_API_KEY;
-  if (key) {
+  if (process.env.RESEND_API_KEY) {
     try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: process.env.MAIL_FROM ?? "Pakistan Biotechnology Gateway <noreply@biogateway.pk>",
-          to: user.email,
-          subject: opts.subject,
-          text: `Assalam-o-alaikum ${user.name},\n\n${opts.body}\n\n— Pakistan Biotechnology Gateway (Syntax of Life)`,
-        }),
+      await sendEmail({
+        to: user.email,
+        subject: opts.subject,
+        text: `Assalam-o-alaikum ${user.name},\n\n${opts.body}\n\n— Pakistan Biotechnology Gateway (Syntax of Life)`,
       });
-      if (!res.ok) throw new Error(await res.text());
       return;
     } catch (e) {
       console.error("[notify] Resend failed:", e);

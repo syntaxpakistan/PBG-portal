@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { submitQuote, declineRfq, withdrawQuote } from "@/lib/actions/marketplace";
+import { isPriorityClientSubscription } from "@/lib/entitlements";
+import { getGraceDays } from "@/lib/settings";
 import { PageHead } from "@/components/portal/ui";
 
 const input =
@@ -16,7 +18,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
   // BLIND ISOLATION: only safe buyer context (org type/city) — identity masked until award
   const rfq = await prisma.rfq.findUnique({
     where: { id },
-    include: { customer: { select: { customerProfile: { select: { orgType: true, city: true } } } } },
+    include: { customer: { select: { customerProfile: { select: { orgType: true, city: true } }, subscription: { select: { plan: true, status: true, expiresAt: true } } } } },
   });
   // BLIND ISOLATION: never fetch other providers' quotes here — only existence count
   if (!rfq || rfq.status !== "OPEN") notFound();
@@ -43,6 +45,11 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
       {invited && (
         <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-(--st-blue-bd) bg-(--st-blue-bg) px-4 py-3 text-[13px] font-medium text-(--st-blue-fg)">
           You were specifically invited to quote on this RFQ by the customer.
+        </div>
+      )}
+      {isPriorityClientSubscription(rfq.customer.subscription, await getGraceDays()) && (
+        <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-[#e8d9a8] bg-[#fdf6e3] px-4 py-3 text-[13px] font-medium text-[#8a6d1f]">
+          Priority client — this customer is on a paid {rfq.customer.subscription!.plan === "CUSTOM" ? "Custom" : "Pro"} plan.
         </div>
       )}
 

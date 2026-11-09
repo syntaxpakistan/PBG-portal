@@ -1,9 +1,11 @@
 export const instant = false
 
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 import { TxnButtons } from "./buttons";
+import { IssueFeeButton } from "@/components/portal/billing-buttons";
 
 export default async function TransactionsPage() {
   const txns = await prisma.transaction.findMany({
@@ -17,6 +19,7 @@ export default async function TransactionsPage() {
           provider: { select: { orgName: true } },
         },
       },
+      invoice: { select: { id: true } },
     },
   });
   const totals = txns.reduce(
@@ -33,7 +36,7 @@ export default async function TransactionsPage() {
       <PageHead
         title="Transactions & platform fees"
         sub={`Total volume ${pkr(totals.volume)} · fees accrued ${pkr(totals.fees)} · ${pkr(totals.pending)} pending.`}
-        action={<a href="/api/admin/export/transactions" className="btn-outline !py-2 text-[12.5px]">Export CSV</a>}
+        action={<Link href="/api/admin/export/transactions" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <div className="card overflow-hidden">
         <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-[13px]">
@@ -51,13 +54,18 @@ export default async function TransactionsPage() {
             {txns.map((t) => (
               <tr key={t.id} className="hover:bg-paper-2/60">
                 <td className="px-5 py-3 font-medium text-ink">
-                  <a href={`/admin/projects/${t.project.id}`} className="hover:text-blue hover:underline">{t.project.refNo}</a>
+                  <Link href={`/admin/projects/${t.project.id}`} className="hover:text-blue hover:underline">{t.project.refNo}</Link>
                 </td>
                 <td className="px-5 py-3 text-body">{t.project.customer.name} → {t.project.provider.orgName}</td>
                 <td className="px-5 py-3 font-medium text-ink">{pkr(t.quotedValue)}</td>
                 <td className="px-5 py-3 text-body">{pkr(t.feeAmount)} ({t.feePercent}%)</td>
                 <td className="px-5 py-3"><StatusBadge status={t.status} /></td>
-                <td className="px-5 py-3"><TxnButtons id={t.id} status={t.status} /></td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    {!t.invoice && t.status === "PENDING" && <IssueFeeButton transactionId={t.id} />}
+                    <TxnButtons id={t.id} status={t.status} />
+                  </div>
+                </td>
               </tr>
             ))}
             {txns.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No transactions yet — they appear when quotes are awarded.</td></tr>}

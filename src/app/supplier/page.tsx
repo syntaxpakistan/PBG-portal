@@ -1,6 +1,6 @@
 export const instant = false
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Clock3 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
@@ -8,8 +8,11 @@ import { StatusBadge, PageHead, StatCard } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 import { respondEnquiry, fulfilEnquiry } from "@/lib/actions/marketplace";
 import { SubscriptionCard } from "@/components/portal/subscription-card";
+import { getPartnerAccess } from "@/lib/entitlements";
+import Link from "next/link";
 import { SupplierProfileForm } from "./profile-form";
 import { ProductForm, ProductRow } from "./product-form";
+import { SupplierShell } from "./shell";
 
 export default async function SupplierPage() {
   const session = await requireRole("SUPPLIER");
@@ -29,17 +32,27 @@ export default async function SupplierPage() {
   });
   if (!profile) notFound();
   const approved = profile.status === "APPROVED";
+  const access = await getPartnerAccess(session.user.id);
   const openEnq = profile.enquiries.filter((e) => e.status === "OPEN").length;
   const quotedEnq = profile.enquiries.filter((e) => e.status === "QUOTED").length;
   const fulfilledEnq = profile.enquiries.filter((e) => e.status === "FULFILLED").length;
   const lowStock = profile.products.filter((p) => p.stockStatus === "LOW_STOCK" || p.stockStatus === "OUT_OF_STOCK").length;
 
   return (
-    <Shell title="Supplier portal" name={session.user.name} email={session.user.email}>
+    <SupplierShell title="Supplier portal" name={session.user.name}>
       <PageHead title={profile.orgName} sub={`${profile.city} · ${profile.categories}`} action={<StatusBadge status={profile.status} />} />
       {profile.status !== "APPROVED" && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
           <Clock3 className="size-4" /> {profile.status === "PENDING" ? "Verification in progress — you'll be able to list products once approved." : `Status: ${profile.status}${profile.statusNote ? ` — ${profile.statusNote}` : ""}`}
+        </div>
+      )}
+      {!access.active && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
+          <span>
+            Subscription {access.status === "PENDING_PAYMENT" ? "awaiting payment" : access.inGrace ? "expired — grace period" : "inactive"}.
+            {" "}Product listings and enquiry responses are paused.
+          </span>
+          <Link href="/supplier/billing" className="rounded-full bg-navy px-3.5 py-1.5 text-[12px] font-semibold text-yellow hover:bg-navy-2">Go to billing</Link>
         </div>
       )}
       <div className="mb-8 grid gap-4 sm:grid-cols-5">
@@ -117,37 +130,6 @@ export default async function SupplierPage() {
           );
         })}
       </div>
-    </Shell>
-  );
-}
-
-// lightweight shell reuse — supplier is a single-screen portal for MVP
-import Link from "next/link";
-import { SignOutButton } from "@/components/portal/signout";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { PlatformMarkText } from "@/components/platform-mark";
-
-function Shell({ title, name, email, children }: { title: string; name?: string | null; email: string; children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-paper-2">
-      <header className="sticky top-0 z-40 border-b border-line bg-navy">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <Link href="/" className="flex shrink-0 items-center" aria-label="Syntax of Life home">
-              <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-10 w-auto sm:h-11" />
-            </Link>
-            <span className="hidden h-6 w-px shrink-0 bg-white/15 sm:block" />
-            <PlatformMarkText className="hidden shrink-0 sm:block" />
-            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5c7a95] md:block">{title}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle onDark />
-            <span className="hidden max-w-28 truncate text-[12px] text-[#9fb9cd] sm:block">{name}</span>
-            <SignOutButton />
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
-    </div>
+    </SupplierShell>
   );
 }

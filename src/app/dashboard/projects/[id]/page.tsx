@@ -1,6 +1,6 @@
 export const instant = false
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StageTracker, StatusBadge, StageLadder } from "@/components/portal/ui";
@@ -189,8 +189,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     <div className="flex items-center gap-2">
                       <StatusBadge status={m.status} />
                       {m.status === "INVOICED" && (
-                        <form action={payMilestone.bind(null, m.id)}>
-                          <button type="submit" className="btn-primary !px-3 !py-1.5 text-[11px]">Mark paid</button>
+                        <form action={payMilestone.bind(null, m.id)} className="flex items-center gap-1.5">
+                          <select name="method" required defaultValue="" className="rounded-md border border-line bg-surface px-2 py-1 text-[11px] text-ink outline-none focus:border-navy-3">
+                            <option value="" disabled>Method…</option>
+                            <option value="BANK_TRANSFER">Bank</option>
+                            <option value="JAZZCASH">JazzCash</option>
+                            <option value="EASYPAISA">EasyPaisa</option>
+                            <option value="CARD">Card</option>
+                            <option value="CASH">Cash</option>
+                            <option value="OTHER">Other</option>
+                          </select>
+                          <input name="reference" placeholder="Ref (optional)" className="w-24 rounded-md border border-line bg-surface px-2 py-1 text-[11px] text-ink outline-none focus:border-navy-3" />
+                          <button type="submit" className="btn-primary !px-3 !py-1.5 text-[11px]">Report paid</button>
                         </form>
                       )}
                     </div>

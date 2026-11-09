@@ -78,7 +78,7 @@ export function AboutPage() {
             </p>
             <p>
               Advanced bioinformatics and AI-assisted analysis turn complex datasets into clear biological
-              patterns, while Syntax's independent verification keeps every provider accountable. The result:
+              patterns, while Syntax&rsquo;s independent verification keeps every provider accountable. The result:
               end-to-end solutions for drug discovery, translational research and precision medicine — built in
               Pakistan, benchmarked to international standards.
             </p>

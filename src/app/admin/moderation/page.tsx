@@ -109,7 +109,7 @@ export default async function ModerationPage() {
       <div className="card overflow-hidden">
         <div className="border-b border-line px-5 py-3.5">
           <h2 className="text-[14px] font-semibold text-ink">Service listings <span className="font-normal text-muted">({pendingServices.length} pending)</span></h2>
-          <p className="mt-0.5 text-[12px] text-muted">Approved listings appear on the public marketplace, the customer Services tab, and the lab's registry storefront.</p>
+          <p className="mt-0.5 text-[12px] text-muted">Approved listings appear on the public marketplace, the customer Services tab, and the lab&rsquo;s registry storefront.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-[12.5px]">

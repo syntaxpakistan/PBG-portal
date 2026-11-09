@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { PLANS, type PlanKey } from "@/lib/plans";
+import { issueInvoice } from "@/lib/actions/billing";
+import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Plan } from "@prisma/client";
 
 export async function createOrgProfile(input: {
@@ -26,6 +28,8 @@ export async function createOrgProfile(input: {
   plan?: string;
 }) {
   const planKey = (input.plan && input.plan in PLANS ? input.plan : "BASIC") as PlanKey;
+  const planPrice = await getPlanPrice(planKey);
+  const dueIn = (await getInvoiceDueDays()) * 864e5;
 
   if (input.role === "PROVIDER") {
     await prisma.providerProfile.create({
@@ -44,8 +48,17 @@ export async function createOrgProfile(input: {
         bio: input.bio,
       },
     });
-    await prisma.subscription.create({
-      data: { userId: input.userId, plan: planKey as Plan, priceUsd: PLANS[planKey].price },
+    const sub = await prisma.subscription.create({
+      data: { userId: input.userId, plan: planKey as Plan, priceUsd: planPrice },
+    });
+    await issueInvoice({
+      billedUserId: input.userId,
+      issuerType: "PLATFORM",
+      subscriptionId: sub.id,
+      currency: "USD",
+      dueAt: new Date(Date.now() + dueIn),
+      note: `${PLANS[planKey].label} plan — first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — monthly`, unitPrice: planPrice }],
     });
   } else if (input.role === "SUPPLIER") {
     await prisma.supplierProfile.create({
@@ -60,8 +73,17 @@ export async function createOrgProfile(input: {
         bio: input.bio,
       },
     });
-    await prisma.subscription.create({
-      data: { userId: input.userId, plan: planKey as Plan, priceUsd: PLANS[planKey].price },
+    const sub = await prisma.subscription.create({
+      data: { userId: input.userId, plan: planKey as Plan, priceUsd: planPrice },
+    });
+    await issueInvoice({
+      billedUserId: input.userId,
+      issuerType: "PLATFORM",
+      subscriptionId: sub.id,
+      currency: "USD",
+      dueAt: new Date(Date.now() + dueIn),
+      note: `${PLANS[planKey].label} plan — first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — monthly`, unitPrice: planPrice }],
     });
   } else if (input.role === "CUSTOMER") {
     await prisma.customerProfile.create({
@@ -74,6 +96,19 @@ export async function createOrgProfile(input: {
         department: input.department,
         designation: input.designation,
       },
+    });
+    // clients subscribe too — same plans as partners; perks: priority lab matching + analytics
+    const sub = await prisma.subscription.create({
+      data: { userId: input.userId, plan: planKey as Plan, priceUsd: planPrice },
+    });
+    await issueInvoice({
+      billedUserId: input.userId,
+      issuerType: "PLATFORM",
+      subscriptionId: sub.id,
+      currency: "USD",
+      dueAt: new Date(Date.now() + dueIn),
+      note: `${PLANS[planKey].label} plan — first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — monthly`, unitPrice: planPrice }],
     });
   }
 }

@@ -4,11 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import type { ProjectStatus } from "@prisma/client";
+import type { PaymentMethod, ProjectStatus } from "@prisma/client";
 import { saveUpload } from "@/lib/files";
 import { getFeePercent } from "@/lib/settings";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { WORK_STAGE_KEYS } from "@/lib/constants";
+import { assertPartnerActive, isPriorityClientSubscription } from "@/lib/entitlements";
+import { getGraceDays, getRfqRateLimit } from "@/lib/settings";
+import { rateLimit } from "@/lib/rate-limit";
+import { issueInvoice } from "@/lib/actions/billing";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
   await prisma.auditLog.create({ data: { actorId, action, entity, entityId, meta } });
@@ -19,7 +23,7 @@ async function nextRef(prefix: string, count: number) {
 }
 
 // capability routing — notify approved providers matching the RFQ's category + explicit invitees
-export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; title: string; organism: string; sampleCount: number; sampleType: string; serviceCategory: string; requestedOutput?: string | null; deadline?: Date | null; budgetHint?: string | null }, board = false) {
+export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; title: string; organism: string; sampleCount: number; sampleType: string; serviceCategory: string; requestedOutput?: string | null; deadline?: Date | null; budgetHint?: string | null; customerId: string }, board = false) {
   const cat = rfq.serviceCategory.toLowerCase();
   const providers = await prisma.providerProfile.findMany({ where: { status: "APPROVED" } });
   const routed = providers.filter((p) =>
@@ -32,17 +36,33 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
   const targets = new Map(
     [...(routed.length ? routed : providers), ...providers.filter((p) => invitedSet.has(p.id))].map((p) => [p.id, p])
   );
+  // PRO/CUSTOM partners get priority routing — every capability-matched RFQ reaches them
+  const prioritySubs = await prisma.subscription.findMany({
+    where: { userId: { in: providers.map((p) => p.userId) }, status: "ACTIVE", plan: { in: ["PRO", "CUSTOM"] } },
+    select: { userId: true },
+  });
+  const priorityUsers = new Set(prioritySubs.map((s) => s.userId));
+  for (const p of providers) {
+    if (priorityUsers.has(p.userId) && (routed.some((r) => r.id === p.id) || invitedSet.has(p.id))) targets.set(p.id, p);
+  }
+  // Pro/Custom clients get priority matching — their RFQs are flagged so labs see them first
+  const clientSub = await prisma.subscription.findUnique({
+    where: { userId: rfq.customerId },
+    select: { plan: true, status: true, expiresAt: true },
+  });
+  const priorityClient = isPriorityClientSubscription(clientSub, await getGraceDays());
   const details = [
     `${rfq.title}`,
     `${rfq.serviceCategory} · ${rfq.organism} · ${rfq.sampleCount} × ${rfq.sampleType}`,
     rfq.requestedOutput ? `Output: ${rfq.requestedOutput}` : null,
     rfq.deadline ? `Deadline: ${rfq.deadline.toLocaleDateString()}` : null,
     rfq.budgetHint ? `Budget hint: ${rfq.budgetHint}` : null,
+    priorityClient ? "Priority client — paid plan member" : null,
   ].filter(Boolean).join(" — ");
   for (const p of targets.values()) {
     await notify({
       toUserId: p.userId,
-      subject: invitedSet.has(p.id) ? `You were invited to quote: ${rfq.refNo}` : board ? `New request on the board: ${rfq.refNo}` : `New RFQ routed to you: ${rfq.refNo}`,
+      subject: `${priorityClient ? "Priority client — " : ""}${invitedSet.has(p.id) ? `You were invited to quote: ${rfq.refNo}` : board ? `New request on the board: ${rfq.refNo}` : `New RFQ routed to you: ${rfq.refNo}`}`,
       body: `${details}. Open your lab portal to review the full request and submit a sealed quote.`,
       href: `/lab/rfqs/${rfq.id}`,
     });
@@ -54,6 +74,9 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
 export async function createRfq(formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  if (!rateLimit(`rfq:${session.user.id}`, await getRfqRateLimit(), 24 * 3600e3)) {
+    throw new Error("Too many RFQs — please try again tomorrow.");
+  }
 
   const inviteIds = formData.getAll("inviteIds").map(String).filter(Boolean);
   const board = formData.get("visibility") === "BOARD";
@@ -225,6 +248,7 @@ export async function submitQuote(rfqId: string, formData: FormData) {
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
   const profile = await prisma.providerProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
   if (profile.status !== "APPROVED") throw new Error("Not verified");
+  await assertPartnerActive(session.user.id);
   await assertRfqQuotable(rfqId, profile.id);
 
   const data = {
@@ -727,6 +751,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") redirect("/login");
   const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  await assertPartnerActive(session.user.id);
   const e = await prisma.enquiry.findUniqueOrThrow({ where: { id: enquiryId }, include: { product: true, buyer: { select: { role: true } } } });
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
   await prisma.enquiry.update({
@@ -752,6 +777,7 @@ export async function fulfilEnquiry(enquiryId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") redirect("/login");
   const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  await assertPartnerActive(session.user.id);
   const e = await prisma.enquiry.findUniqueOrThrow({
     where: { id: enquiryId },
     include: { product: { select: { name: true } }, buyer: { select: { role: true } } },
@@ -790,6 +816,7 @@ export async function saveService(formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
   const profile = await prisma.providerProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  await assertPartnerActive(session.user.id);
   const data = {
     name: String(formData.get("name")),
     category: String(formData.get("category")),
@@ -860,25 +887,94 @@ export async function addMilestone(projectId: string, formData: FormData) {
 export async function invoiceMilestone(milestoneId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
-  const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: true } });
+  const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: { include: { provider: true } } } });
   if (m.project.providerUserId !== session.user.id) throw new Error("Not your project");
   await prisma.milestone.update({ where: { id: milestoneId }, data: { status: "INVOICED" } });
-  await notify({ toUserId: m.project.customerId, subject: `${m.project.refNo}: invoice — ${m.title}`, body: `The lab invoiced a milestone for ${m.title} (PKR ${m.amount.toLocaleString()}). Review it in your project.`, href: `/dashboard/projects/${m.projectId}` });
+  // raise a proper invoice to the customer — payment is confirmed by the lab, not self-attested
+  const existing = await prisma.invoice.findFirst({ where: { milestoneId } });
+  if (!existing) {
+    await issueInvoice({
+      billedUserId: m.project.customerId,
+      issuerType: "PROVIDER",
+      issuerId: m.project.providerId,
+      milestoneId,
+      currency: "PKR",
+      dueAt: m.dueDate ?? new Date(Date.now() + 14 * 864e5),
+      note: `Milestone on ${m.project.refNo}`,
+      items: [{ description: `${m.project.refNo} — ${m.title}`, unitPrice: m.amount }],
+    });
+  }
+  await notify({ toUserId: m.project.customerId, subject: `${m.project.refNo}: invoice — ${m.title}`, body: `The lab invoiced a milestone for ${m.title} (PKR ${m.amount.toLocaleString()}). Review it in your project and report payment once sent.`, href: `/dashboard/projects/${m.projectId}` });
   revalidatePath(`/lab/projects/${m.projectId}`);
   revalidatePath(`/dashboard/projects/${m.projectId}`);
+  revalidatePath("/lab/billing");
+  revalidatePath("/dashboard/billing");
 }
 
-export async function payMilestone(milestoneId: string) {
+const PAYMENT_METHODS = ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH", "OTHER"] as const;
+
+// customer reports a milestone payment — stays PENDING until the lab verifies it
+export async function payMilestone(milestoneId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
-  const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: true } });
+  const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: { include: { provider: true } } } });
   if (m.project.customerId !== session.user.id) throw new Error("Not your project");
   if (m.status !== "INVOICED") throw new Error("Milestone is not invoiced yet");
-  await prisma.milestone.update({ where: { id: milestoneId }, data: { status: "PAID", paidAt: new Date() } });
-  await notify({ toUserId: m.project.providerUserId, subject: `${m.project.refNo}: milestone paid`, body: `The customer marked "${m.title}" as paid.`, href: `/lab/projects/${m.projectId}` });
-  await audit(session.user.id, "MILESTONE_PAID", "Milestone", milestoneId, `${m.project.refNo} · ${m.title}`);
+  const method = String(formData.get("method") || "");
+  if (!PAYMENT_METHODS.includes(method as (typeof PAYMENT_METHODS)[number])) throw new Error("Select a payment method");
+  const reference = String(formData.get("reference") || "") || null;
+  // ensure the invoice exists (legacy milestones predating billing get one now)
+  let invoice = await prisma.invoice.findFirst({ where: { milestoneId } });
+  if (!invoice) {
+    invoice = await issueInvoice({
+      billedUserId: m.project.customerId,
+      issuerType: "PROVIDER",
+      issuerId: m.project.providerId,
+      milestoneId,
+      currency: "PKR",
+      dueAt: m.dueDate ?? new Date(Date.now() + 14 * 864e5),
+      note: `Milestone on ${m.project.refNo}`,
+      items: [{ description: `${m.project.refNo} — ${m.title}`, unitPrice: m.amount }],
+    });
+  }
+  const confirmed = await prisma.payment.aggregate({
+    where: { invoiceId: invoice.id, status: "CONFIRMED" },
+    _sum: { amount: true },
+  });
+  const outstanding = invoice.total - (confirmed._sum.amount ?? 0);
+  if (outstanding <= 0) throw new Error("Invoice already settled");
+  const alreadyPending = await prisma.payment.findFirst({
+    where: { invoiceId: invoice.id, status: "PENDING", recordedById: session.user.id },
+  });
+  if (!alreadyPending) {
+    await prisma.payment.create({
+      data: {
+        invoiceId: invoice.id,
+        amount: outstanding,
+        method: method as PaymentMethod,
+        reference,
+        note: `Milestone payment — ${m.project.refNo} · ${m.title}`,
+        recordedById: session.user.id,
+      },
+    });
+  }
+  await notify({
+    toUserId: m.project.providerUserId,
+    subject: `${m.project.refNo}: milestone payment reported`,
+    body: `The customer reported payment for "${m.title}" (PKR ${outstanding.toLocaleString()}). Syntax verifies receipt into the platform account — the milestone settles once confirmed. Track it under Billing.`,
+    href: "/lab/billing",
+  });
+  // escrow — admin must verify the money landed in the Syntax account
+  await notifyAllAdmins(
+    `Milestone payment to verify: ${m.project.refNo}`,
+    `${m.project.refNo} · "${m.title}" — customer reported PKR ${outstanding.toLocaleString()}. Confirm receipt in Finance to release the milestone.`,
+    "/admin/finance"
+  );
+  await audit(session.user.id, "MILESTONE_PAYMENT_REPORTED", "Milestone", milestoneId, `${m.project.refNo} · ${m.title}`);
   revalidatePath(`/dashboard/projects/${m.projectId}`);
   revalidatePath(`/lab/projects/${m.projectId}`);
+  revalidatePath("/dashboard/billing");
+  revalidatePath("/lab/billing");
 }
 
 // ---------- reviews ----------
@@ -909,7 +1005,7 @@ export async function submitReview(projectId: string, formData: FormData) {
 
 export async function requestRenewal() {
   const session = await getSession();
-  if (!session || !["PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
+  if (!session || !["CUSTOMER", "PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
   const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
   if (!sub) throw new Error("No subscription");
   await prisma.subscription.update({ where: { id: sub.id }, data: { renewRequestedAt: new Date() } });
@@ -919,6 +1015,7 @@ export async function requestRenewal() {
     await notify({ toUserId: a.id, subject: "Subscription renewal requested", body: `${session.user.name} (${session.user.email}) requested renewal of the ${sub.plan} plan.`, href: "/admin/subscriptions" });
   }
   await audit(session.user.id, "RENEWAL_REQUESTED", "Subscription", sub.id, sub.plan);
+  revalidatePath("/dashboard/profile");
   revalidatePath("/lab/profile");
   revalidatePath("/supplier");
 }

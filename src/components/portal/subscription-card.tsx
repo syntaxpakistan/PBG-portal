@@ -23,7 +23,7 @@ export function SubscriptionCard({ sub }: { sub: Subscription | null }) {
       <div className="p-5">
         <div className="flex items-baseline justify-between">
           <span className="text-[16px] font-semibold text-ink">{plan.label}</span>
-          <span className="font-display text-[24px] font-medium text-ink">${plan.price}<span className="text-[12px] font-normal text-muted">/mo</span></span>
+          <span className="font-display text-[24px] font-medium text-ink">${sub.priceUsd}<span className="text-[12px] font-normal text-muted">/mo</span></span>
         </div>
         <ul className="mt-3 space-y-1.5">
           {plan.features.map((f) => (
