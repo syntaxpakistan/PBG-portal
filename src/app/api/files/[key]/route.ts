@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { readUpload } from "@/lib/files";
+import JSZip from "jszip";
+
+/** docx is a zip of XML — pull the text out of word/document.xml for preview */
+async function docxText(buf: Buffer): Promise<string | null> {
+  try {
+    const zip = await JSZip.loadAsync(buf);
+    const doc = zip.file("word/document.xml");
+    if (!doc) return null;
+    const xml = await doc.async("string");
+    return xml
+      .replace(/<\/w:p>/g, "\n")
+      .replace(/<w:tab\s*\/>/g, "\t")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Secure document download. A storage key is only served if the caller is a
@@ -71,12 +89,28 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
   try {
     const buf = await readUpload(key);
     const ext = key.split(".").pop()?.toLowerCase() ?? "";
+
+    // docx can't render natively — extract text and show a read-only preview page
+    if (inline && ext === "docx") {
+      const text = await docxText(buf);
+      if (text != null) {
+        const esc = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return new NextResponse(
+          `<!doctype html><html><head><meta charset="utf-8"><title>${(filename ?? "document").replace(/"/g, "")}</title>
+<style>body{font-family:system-ui,sans-serif;max-width:820px;margin:40px auto;padding:0 20px;color:#1a1a1a}h1{font-size:18px}pre{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;background:#f6f6f4;border:1px solid #e5e2da;border-radius:10px;padding:20px}a{color:#1d4ed8}</style></head>
+<body><h1>${(filename ?? "Document").replace(/&/g, "&amp;").replace(/</g, "&lt;")}</h1><pre>${esc || "(no extractable text — download to view)"}</pre>
+<p><a href="/api/files/${key}">⬇ Download original file</a></p></body></html>`,
+          { headers: { "Content-Type": "text/html; charset=utf-8" } }
+        );
+      }
+    }
+
     const type =
       ext === "pdf" ? "application/pdf"
       : ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) ? `image/${ext === "jpg" ? "jpeg" : ext}`
       : ["txt", "csv"].includes(ext) ? "text/plain"
       : "application/octet-stream";
-    const previewable = type !== "application/octet-stream";
+    const previewable = type !== "application/octet-stream" || ext === "docx";
     return new NextResponse(new Uint8Array(buf), {
       headers: {
         "Content-Type": type,
