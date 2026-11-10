@@ -118,7 +118,7 @@ export default async function LabRfqsPage({
                   </td>
                   <td className="px-4 py-3.5 align-top">
                     <span className="text-body">Verified customer</span>
-                    {isPriorityClient(r) && <span className="ml-1.5 rounded-full bg-[#fdf3d7] px-2 py-0.5 text-[10px] font-semibold text-[#8a6d1f]">Priority client</span>}
+                    {isPriorityClient(r) && <span className="ml-1.5 rounded-full bg-(--st-amber-bg) px-2 py-0.5 text-[10px] font-semibold text-(--st-amber-fg)">Priority client</span>}
                     <div className="mt-0.5 text-[11px] text-muted">
                       {[r.customer.customerProfile?.orgType, r.customer.customerProfile?.city].filter(Boolean).join(" · ") || "identity masked until award"}
                     </div>

@@ -3,14 +3,20 @@ export const instant = false
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf } from "@/components/portal/pagination";
 import { pkr } from "@/lib/constants";
 import { TxnButtons } from "./buttons";
 import { IssueFeeButton } from "@/components/portal/billing-buttons";
 
-export default async function TransactionsPage() {
-  const txns = await prisma.transaction.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
+export default async function TransactionsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const sp = await searchParams;
+  const page = pageOf(sp);
+  const [txns, total, agg, pendingAgg] = await Promise.all([
+    prisma.transaction.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
       project: {
         select: {
           id: true,
@@ -19,17 +25,27 @@ export default async function TransactionsPage() {
           provider: { select: { orgName: true } },
         },
       },
+      enquiry: {
+        select: {
+          id: true,
+          qty: true,
+          product: { select: { name: true } },
+          buyer: { select: { name: true } },
+          supplier: { select: { orgName: true } },
+        },
+      },
       invoice: { select: { id: true } },
-    },
-  });
-  const totals = txns.reduce(
-    (acc, t) => ({
-      volume: acc.volume + t.quotedValue,
-      fees: acc.fees + t.feeAmount,
-      pending: acc.pending + (t.status === "PENDING" ? t.feeAmount : 0),
+      },
     }),
-    { volume: 0, fees: 0, pending: 0 }
-  );
+    prisma.transaction.count(),
+    prisma.transaction.aggregate({ _sum: { quotedValue: true, feeAmount: true } }),
+    prisma.transaction.aggregate({ where: { status: "PENDING" }, _sum: { feeAmount: true } }),
+  ]);
+  const totals = {
+    volume: agg._sum.quotedValue ?? 0,
+    fees: agg._sum.feeAmount ?? 0,
+    pending: pendingAgg._sum.feeAmount ?? 0,
+  };
 
   return (
     <>
@@ -54,9 +70,17 @@ export default async function TransactionsPage() {
             {txns.map((t) => (
               <tr key={t.id} className="hover:bg-paper-2/60">
                 <td className="px-5 py-3 font-medium text-ink">
-                  <Link href={`/admin/projects/${t.project.id}`} className="hover:text-blue hover:underline">{t.project.refNo}</Link>
+                  {t.project ? (
+                    <Link href={`/admin/projects/${t.project.id}`} className="hover:text-blue hover:underline">{t.project.refNo}</Link>
+                  ) : (
+                    <span className="text-body">Supply sale{t.enquiry ? ` · ${t.enquiry.product.name} × ${t.enquiry.qty}` : ""}</span>
+                  )}
                 </td>
-                <td className="px-5 py-3 text-body">{t.project.customer.name} → {t.project.provider.orgName}</td>
+                <td className="px-5 py-3 text-body">
+                  {t.project
+                    ? `${t.project.customer.name} → ${t.project.provider.orgName}`
+                    : t.enquiry ? `${t.enquiry.buyer.name} → ${t.enquiry.supplier.orgName}` : "—"}
+                </td>
                 <td className="px-5 py-3 font-medium text-ink">{pkr(t.quotedValue)}</td>
                 <td className="px-5 py-3 text-body">{pkr(t.feeAmount)} ({t.feePercent}%)</td>
                 <td className="px-5 py-3"><StatusBadge status={t.status} /></td>
@@ -71,6 +95,7 @@ export default async function TransactionsPage() {
             {txns.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No transactions yet — they appear when quotes are awarded.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={page} total={total} base="/admin/transactions" />
       </div>
     </>
   );

@@ -85,7 +85,7 @@ export function PortalMobileNav({
               <div className="border-t border-white/10 px-5 py-3.5">
                 <PlatformMark />
               </div>
-              <div className="px-5 pb-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5c7a95]">{title}</div>
+              <div className="px-5 pb-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">{title}</div>
               <div className="min-h-0 flex-1 overflow-y-auto">
                 <SideNav items={items} unread={unread} />
               </div>
@@ -96,7 +96,7 @@ export function PortalMobileNav({
                   </span>
                   <div className="min-w-0">
                     <div className="truncate text-[13px] font-medium text-white">{name}</div>
-                    <div className="truncate text-[11px] text-[#5c7a95]">{email}</div>
+                    <div className="truncate text-[11px] text-[#a2c1d7]">{email}</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">

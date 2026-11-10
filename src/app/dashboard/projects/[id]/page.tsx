@@ -8,6 +8,7 @@ import { HistoryTimeline, MessageThread, ResultFilesCard } from "@/components/po
 import { PauseCircle, FlaskConical } from "lucide-react";
 import { completeProject, fileComplaint, payMilestone, submitReview, shipSamples, resolveQc } from "@/lib/actions/marketplace";
 import { pkr, slaInfo, QC_STAGE_LABELS } from "@/lib/constants";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -91,15 +92,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <form action={resolveQc.bind(null, q.id, "PROCEED")}>
-                    <button type="submit" className="btn-primary !py-2 text-[12px]">Proceed anyway — sign disclaimer</button>
+                    <SubmitButton className="btn-primary !py-2 text-[12px]">Proceed anyway — sign disclaimer</SubmitButton>
                   </form>
                   {q.stage === "SAMPLE_QC" && (
                     <form action={resolveQc.bind(null, q.id, "RESEND")}>
-                      <button type="submit" className="btn-outline !py-2 text-[12px]">I&apos;ll send replacement samples</button>
+                      <SubmitButton className="btn-outline !py-2 text-[12px]">I&apos;ll send replacement samples</SubmitButton>
                     </form>
                   )}
                   <form action={resolveQc.bind(null, q.id, "CANCEL")}>
-                    <button type="submit" className="rounded-lg border border-(--st-red-bd) px-4 py-2 text-[12px] font-medium text-(--st-red-fg) hover:bg-(--st-red-bg)">Cancel project</button>
+                    <SubmitButton className="rounded-lg border border-(--st-red-bd) px-4 py-2 text-[12px] font-medium text-(--st-red-fg) hover:bg-(--st-red-bg)">Cancel project</SubmitButton>
                   </form>
                 </div>
               </div>
@@ -128,7 +129,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 <label className="mb-1 block text-[11.5px] font-medium text-ink">Tracking #</label>
                 <input name="trackingNo" placeholder="e.g. 7788991234" className="w-48 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3" />
               </div>
-              <button type="submit" className="btn-primary !py-2.5">Mark samples shipped</button>
+              <SubmitButton className="btn-primary !py-2.5">Mark samples shipped</SubmitButton>
             </form>
           )}
         </div>
@@ -200,7 +201,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                             <option value="OTHER">Other</option>
                           </select>
                           <input name="reference" placeholder="Ref (optional)" className="w-24 rounded-md border border-line bg-surface px-2 py-1 text-[11px] text-ink outline-none focus:border-navy-3" />
-                          <button type="submit" className="btn-primary !px-3 !py-1.5 text-[11px]">Report paid</button>
+                          <SubmitButton className="btn-primary !px-3 !py-1.5 text-[11px]">Report paid</SubmitButton>
                         </form>
                       )}
                     </div>
@@ -226,7 +227,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     </select>
                     <input name="comment" placeholder="How was the work? (optional)" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3" />
                   </div>
-                  <button type="submit" className="btn-outline !py-2 text-[12.5px]">Submit review</button>
+                  <SubmitButton className="btn-outline !py-2 text-[12.5px]">Submit review</SubmitButton>
                 </form>
               )}
               <p className="mt-2 text-[11px] text-muted">Reviews appear on the provider&apos;s public registry profile.</p>
@@ -252,7 +253,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       <div className="mt-6 flex flex-wrap gap-3">
         {canComplete && (
           <form action={complete}>
-            <button type="submit" className="btn-primary !py-2.5">Mark completed</button>
+            <SubmitButton className="btn-primary !py-2.5">Mark completed</SubmitButton>
           </form>
         )}
         <details className="card px-5 py-3">
@@ -260,7 +261,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           <form action={complain} className="mt-3 space-y-3">
             <input name="subject" required placeholder="Subject" className="w-72 rounded-lg border border-line px-3 py-2 text-[13px] outline-none focus:border-navy-3" />
             <textarea name="details" required rows={3} placeholder="What went wrong?" className="w-72 rounded-lg border border-line px-3 py-2 text-[13px] outline-none focus:border-navy-3" />
-            <button type="submit" className="btn-outline block !py-2 text-[12.5px]">Submit complaint</button>
+            <SubmitButton className="btn-outline block !py-2 text-[12.5px]">Submit complaint</SubmitButton>
           </form>
         </details>
       </div>

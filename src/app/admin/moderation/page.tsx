@@ -6,13 +6,14 @@ import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 import { setRfqBoardModeration, setServiceModeration } from "@/lib/actions/admin";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 function ModerateForm({ action, approveLabel = "Approve", rejectLabel = "Reject" }: { action: (fd: FormData) => Promise<void>; approveLabel?: string; rejectLabel?: string }) {
   return (
     <form action={action} className="flex items-center gap-2">
       <input name="note" placeholder="Note (optional — sent to the org)" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12px] text-ink outline-none focus:border-navy-3" />
-      <button name="decision" value="APPROVED" className="rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] font-semibold text-(--st-green-fg) hover:brightness-95">{approveLabel}</button>
-      <button name="decision" value="REJECTED" className="rounded-lg bg-(--st-red-bg) px-3 py-2 text-[12px] font-semibold text-(--st-red-fg) hover:brightness-95">{rejectLabel}</button>
+      <SubmitButton name="decision" value="APPROVED" className="rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] font-semibold text-(--st-green-fg) hover:brightness-95">{approveLabel}</SubmitButton>
+      <SubmitButton name="decision" value="REJECTED" className="rounded-lg bg-(--st-red-bg) px-3 py-2 text-[12px] font-semibold text-(--st-red-fg) hover:brightness-95">{rejectLabel}</SubmitButton>
     </form>
   );
 }
@@ -36,11 +37,13 @@ export default async function ModerationPage() {
       where: { visibility: "BOARD", moderation: "PENDING" },
       include: { customer: { select: { name: true, email: true, customerProfile: { select: { orgName: true, orgType: true, city: true } } } }, _count: { select: { invites: true } } },
       orderBy: { createdAt: "asc" },
+      take: 100,
     }),
     prisma.serviceListing.findMany({
       where: { moderation: "PENDING" },
       include: { provider: { select: { orgName: true, city: true, status: true } } },
       orderBy: { createdAt: "asc" },
+      take: 100,
     }),
     prisma.serviceListing.findMany({
       where: { moderation: "REJECTED" },

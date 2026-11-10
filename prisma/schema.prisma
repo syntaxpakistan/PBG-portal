@@ -215,6 +215,8 @@ model Product {
 enum EnquiryStatus {
   OPEN
   QUOTED
+  INVOICED // buyer accepted the supplier's quote — invoice issued
+  PAID     // Syntax confirmed receipt (escrow)
   FULFILLED
   ANSWERED
   CLOSED
@@ -236,6 +238,9 @@ model Enquiry {
   reply        String?
   status       EnquiryStatus   @default(OPEN)
   createdAt    DateTime        @default(now())
+
+  invoice     Invoice?
+  transaction Transaction?
 
   @@index([supplierId, status])
   @@index([buyerId])
@@ -534,8 +539,10 @@ enum TxnStatus {
 
 model Transaction {
   id          String    @id @default(cuid())
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId   String    @unique
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String?   @unique
+  enquiry     Enquiry?  @relation(fields: [enquiryId], references: [id])
+  enquiryId   String?   @unique
   quotedValue Float
   feePercent  Float
   feeAmount   Float
@@ -696,6 +703,7 @@ model Invoice {
   subscriptionId String?
   milestoneId    String?       @unique
   transactionId  String?       @unique // platform-fee invoice
+  enquiryId      String?       @unique // supplier product sale
   // money
   subtotal       Float
   taxAmount      Float         @default(0)
@@ -713,6 +721,7 @@ model Invoice {
   payments      Payment[]
   milestones    Milestone[]
   transactions  Transaction[]
+  enquiry       Enquiry?       @relation(fields: [enquiryId], references: [id])
   subscription  Subscription? @relation("SubscriptionInvoices", fields: [subscriptionId], references: [id])
 
   @@index([billedUserId, status])
@@ -777,4 +786,25 @@ model Payout {
 model InvoiceSequence {
   year Int @id
   last Int @default(0)
+}
+
+enum LeadType {
+  QUOTE
+  CONTACT
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  type      LeadType
+  firstName String
+  lastName  String?
+  org       String?
+  email     String
+  interest  String?
+  message   String?
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([type, handled])
+  @@index([createdAt])
 }

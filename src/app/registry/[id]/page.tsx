@@ -145,7 +145,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                   To engage this facility, submit an RFQ — verified providers quote blind and you compare offers side-by-side.
                 </div>
               </dl>
-              <Link href="/biogateway" className="btn-primary mt-4 w-full justify-center !py-2.5 text-[13px]">Submit an RFQ →</Link>
+              <Link href="/dashboard/rfqs/new" className="btn-primary mt-4 w-full justify-center !py-2.5 text-[13px]">Submit an RFQ →</Link>
             </div>
           </div>
         </div>

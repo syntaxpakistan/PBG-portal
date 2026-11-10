@@ -17,7 +17,7 @@ export default function Page() {
       <Navbar />
       <main className="flex-1">
         <ContactPage />
-        <CtaForm />
+        <CtaForm type="contact" />
       </main>
       <Footer />
     </>

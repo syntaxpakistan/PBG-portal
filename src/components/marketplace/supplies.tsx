@@ -1,6 +1,9 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
+import { acceptEnquiryQuote } from "@/lib/actions/marketplace";
+import { SubmitButton } from "@/components/portal/submit-button";
 import { EnquiryForm } from "./enquiry-form";
 
 // supplies browse — shared by customers (/dashboard/marketplace) and providers (/lab/supplies)
@@ -36,10 +39,28 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                 </div>
                 {e.message && e.message !== "—" && <p className="mt-1 text-[12px] text-muted">You: &ldquo;{e.message}&rdquo;</p>}
                 {e.status === "QUOTED" && (
-                  <div className="mt-2 rounded-lg bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
-                    Offer: {e.quotedPrice != null ? `${pkr(e.quotedPrice)}` : "price on request"}
-                    {e.leadTimeDays != null && ` · ${e.leadTimeDays}d lead time`}
-                    {e.reply && <span className="block mt-1 text-(--st-blue-fg)">{e.reply}</span>}
+                  <div className="mt-2 flex flex-wrap items-center gap-3 rounded-lg bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
+                    <span>
+                      Offer: {e.quotedPrice != null ? `${pkr(e.quotedPrice)}` : "price on request"}
+                      {e.leadTimeDays != null && ` · ${e.leadTimeDays}d lead time`}
+                      {e.reply && <span className="block mt-1 text-(--st-blue-fg)">{e.reply}</span>}
+                    </span>
+                    {e.quotedPrice != null && (
+                      <form action={acceptEnquiryQuote.bind(null, e.id)} className="ml-auto">
+                        <SubmitButton className="rounded-md bg-(--st-blue-fg) px-3 py-1.5 text-[11.5px] font-semibold text-white hover:opacity-90">Accept &amp; get invoice</SubmitButton>
+                      </form>
+                    )}
+                  </div>
+                )}
+                {e.status === "INVOICED" && (
+                  <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-(--st-amber-bg,#fef3c7) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg,#92400e)">
+                    <span>Invoice issued — pay through Billing and Syntax will verify it with the supplier.</span>
+                    <Link href={basePath.startsWith("/lab") ? "/lab/billing" : "/dashboard/billing"} className="shrink-0 font-semibold underline underline-offset-2">Go to Billing</Link>
+                  </div>
+                )}
+                {e.status === "PAID" && (
+                  <div className="mt-2 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
+                    Payment verified by Syntax — the supplier is fulfilling your order.
                   </div>
                 )}
                 {e.status === "FULFILLED" && (

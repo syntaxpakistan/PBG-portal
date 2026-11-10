@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { SubscriptionCard } from "@/components/portal/subscription-card";
 import { updateProviderProfile } from "@/lib/actions/profiles";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const input = "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none focus:border-navy-3";
 const label = "mb-1.5 block text-[12.5px] font-medium text-ink";
@@ -71,14 +72,14 @@ export default async function LabProfilePage() {
             </div>
             <div>
               <label className={label}>Website</label>
-              <input name="website" type="url" defaultValue={profile.website ?? ""} className={input} />
+              <input name="website" type="text" placeholder="casngs.com" defaultValue={profile.website ?? ""} className={input} />
             </div>
           </div>
           <div>
             <label className={label}>Bio</label>
             <textarea name="bio" rows={4} defaultValue={profile.bio ?? ""} className={input} />
           </div>
-          <button type="submit" className="btn-secondary !py-2.5">Save profile</button>
+          <SubmitButton className="btn-secondary !py-2.5">Save profile</SubmitButton>
         </form>
       </div>
       <div className="space-y-5">

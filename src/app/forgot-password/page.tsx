@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
               If an account exists for <strong>{email}</strong>, we&apos;ve sent a password reset link.
               It expires shortly — check your spam folder if it doesn&apos;t arrive.
             </p>
-            <Link href="/login" className="mt-6 inline-block text-[13px] font-semibold text-blue hover:text-navy-2">Back to sign in</Link>
+            <Link href="/login" className="mt-6 inline-block text-[13px] font-semibold text-blue hover:text-ink">Back to sign in</Link>
           </>
         ) : (
           <>
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
               </button>
             </form>
             <p className="mt-6 text-center text-[13px] text-muted">
-              Remembered it? <Link href="/login" className="font-semibold text-blue hover:text-navy-2">Sign in</Link>
+              Remembered it? <Link href="/login" className="font-semibold text-blue hover:text-ink">Sign in</Link>
             </p>
           </>
         )}

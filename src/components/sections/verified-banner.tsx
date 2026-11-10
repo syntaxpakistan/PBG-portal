@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck } from "lucide-react";
 import { Reveal } from "@/components/motion-primitives";
 
-const PLATFORMS = ["Illumina", "PacBio", "10x Genomics", "BD Rhapsody", "Takara", "Olink", "Visium", "Xenium"];
+const PLATFORMS = ["ONT", "Sanger-Seq", "Seq Studio"];
 
 export function VerifiedBanner() {
   return (
@@ -26,7 +26,7 @@ export function VerifiedBanner() {
             </div>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {PLATFORMS.map((p) => (
-                <span key={p} className="font-display text-[15px] font-medium tracking-tight text-muted transition-colors hover:text-navy">
+                <span key={p} className="font-display text-[15px] font-medium tracking-tight text-muted transition-colors hover:text-ink">
                   {p}
                 </span>
               ))}

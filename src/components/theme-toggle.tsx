@@ -19,13 +19,13 @@ export function ThemeToggle({ onDark }: { onDark?: boolean }) {
       onClick={() => setTheme(dark ? "light" : "dark")}
       aria-label="Toggle theme"
       className={cn(
-        "grid size-9 place-items-center rounded-full border transition-colors",
+        "grid size-9 place-items-center rounded-lg transition-colors",
         onDark
-          ? "border-white/20 text-white/80 hover:border-white/50 hover:text-white"
-          : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink"
+          ? "text-[#a2c1d7] hover:bg-white/10 hover:text-white"
+          : "text-muted hover:bg-line/50 hover:text-ink"
       )}
     >
-      {mounted ? (dark ? <Sun className="size-4" /> : <Moon className="size-4" />) : <span className="size-4" />}
+      {mounted ? (dark ? <Sun className="size-4.5" /> : <Moon className="size-4.5" />) : <span className="size-4.5" />}
     </button>
   );
 }

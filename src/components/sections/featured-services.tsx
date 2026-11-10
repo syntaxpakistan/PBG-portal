@@ -1,37 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Dna, FlaskConical, Microscope, TestTubes, Activity, Boxes, ShieldPlus, Atom } from "lucide-react";
+import { ArrowRight, Dna, FlaskConical, Microscope, TestTubes, Activity, Boxes, Atom } from "lucide-react";
 import { Reveal, Stagger, fadeUp } from "@/components/motion-primitives";
 import { motion } from "motion/react";
 
 const FEATURED = [
   {
-    tags: "10x Genomics • BD Rhapsody • Takara",
-    title: "Single Cell Sequencing Services",
-    desc: "Profile gene expression, multiome signatures and immune repertoires to resolve cellular heterogeneity — one cell at a time.",
-    cta: "Browse Single Cell",
-    href: "/services/single-cell-sequencing",
+    tags: "Illumina • Oxford Nanopore • PacBio",
+    title: "Whole-Genome Sequencing",
+    desc: "Sequence microbial, plant and animal genomes for assembly or resequencing — long-read and short-read workflows.",
+    cta: "Browse WGS",
+    href: "/services/whole-genome-sequencing",
     icon: Dna,
   },
   {
-    tags: "Visium • Xenium • StrataMap",
-    title: "Spatial Transcriptomics Services",
-    desc: "Chart gene expression within intact tissue, linking molecular signatures to morphology and the microenvironment.",
-    cta: "Browse Spatial",
-    href: "/services/spatial-transcriptomics",
+    tags: "Shotgun • 16S rRNA • ITS • 18S",
+    title: "Metagenomics & Microbiome Profiling",
+    desc: "Characterise microbial communities in mixed samples — shotgun metagenomics and amplicon profiling.",
+    cta: "Browse Metagenomics",
+    href: "/services/metagenomics",
     icon: FlaskConical,
   },
 ];
 
 const ICON_CHIPS = [
-  { icon: ShieldPlus, label: "Immune Repertoire" },
   { icon: TestTubes, label: "Proteomics" },
   { icon: Microscope, label: "Genomics" },
   { icon: Activity, label: "Epigenetics" },
   { icon: FlaskConical, label: "Transcriptomics" },
   { icon: Boxes, label: "RNA-Seq" },
-  { icon: Dna, label: "Premade Sequencing" },
   { icon: Atom, label: "Long-read" },
 ];
 
@@ -47,7 +45,7 @@ export function FeaturedServices() {
                 National capacity, <em className="grad-text">one RFQ away</em>
               </h2>
             </div>
-            <Link href="/services" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-navy-2 hover:text-blue">
+            <Link href="/services" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-ink hover:text-blue">
               View all services <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -64,7 +62,7 @@ export function FeaturedServices() {
                   <span className="text-[12px] font-medium tracking-wide text-muted">{f.tags}</span>
                   <span className="mt-1.5 block font-display text-[21px] font-medium tracking-tight text-ink">{f.title}</span>
                   <span className="mt-2 block text-[13.5px] leading-relaxed text-body">{f.desc}</span>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue group-hover:text-navy-2">
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue group-hover:text-ink">
                     {f.cta} <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
                 </span>
@@ -81,7 +79,7 @@ export function FeaturedServices() {
                 href="/services"
                 className="group inline-flex items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-2.5 text-[13px] font-medium text-ink transition-all hover:border-navy-3 hover:shadow-md"
               >
-                <c.icon className="size-4 text-navy-2 transition-colors group-hover:text-blue" />
+                <c.icon className="size-4 text-ink transition-colors group-hover:text-blue" />
                 {c.label}
               </Link>
             ))}

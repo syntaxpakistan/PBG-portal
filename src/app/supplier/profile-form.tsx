@@ -50,7 +50,7 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
       </div>
       <div>
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Website</label>
-        <input name="website" type="url" defaultValue={profile.website ?? ""} className={input} />
+        <input name="website" type="text" placeholder="yourcompany.com" defaultValue={profile.website ?? ""} className={input} />
       </div>
       <div className="col-span-2">
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Bio</label>

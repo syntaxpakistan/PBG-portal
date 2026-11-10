@@ -13,6 +13,7 @@ import Link from "next/link";
 import { SupplierProfileForm } from "./profile-form";
 import { ProductForm, ProductRow } from "./product-form";
 import { SupplierShell } from "./shell";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function SupplierPage() {
   const session = await requireRole("SUPPLIER");
@@ -115,14 +116,27 @@ export default async function SupplierPage() {
                 {e.reply && <span className="mt-1 block">{e.reply}</span>}
               </div>
             )}
+            {e.status === "INVOICED" && (
+              <div className="mt-2.5 rounded-lg bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
+                Order accepted — invoice raised. Payment clears through Syntax escrow; you'll be notified when verified.
+              </div>
+            )}
+            {e.status === "PAID" && (
+              <div className="mt-2.5 flex items-center justify-between gap-3 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
+                <span>Payment verified by Syntax — ship the order and mark it fulfilled.</span>
+                <form action={fulfilEnquiry.bind(null, e.id)}>
+                  <SubmitButton className="rounded-md bg-(--st-green-fg) px-3 py-1.5 text-[11.5px] font-semibold text-white hover:opacity-90">Mark fulfilled</SubmitButton>
+                </form>
+              </div>
+            )}
             {(e.status === "OPEN" || e.status === "QUOTED") && (
               <form action={respondEnquiry.bind(null, e.id)} className="mt-3 flex flex-wrap items-end gap-2 rounded-lg bg-paper-2 p-3">
                 <input name="quotedPrice" type="number" min={0} placeholder="Price PKR" defaultValue={e.quotedPrice ?? ""} className="w-28 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <input name="leadTimeDays" type="number" min={0} placeholder="Lead days" defaultValue={e.leadTimeDays ?? ""} className="w-24 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <input name="reply" placeholder="Message to buyer" defaultValue={e.reply ?? ""} className="min-w-40 flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
-                <button type="submit" className="btn-primary !py-2 text-[12px]">{e.status === "OPEN" ? "Send offer" : "Update offer"}</button>
+                <SubmitButton className="btn-primary !py-2 text-[12px]">{e.status === "OPEN" ? "Send offer" : "Update offer"}</SubmitButton>
                 {e.status === "QUOTED" && (
-                  <button formAction={fulfilEnquiry.bind(null, e.id)} type="submit" className="btn-outline !py-2 text-[12px]">Mark fulfilled</button>
+                  <SubmitButton formAction={fulfilEnquiry.bind(null, e.id)} className="btn-outline !py-2 text-[12px]">Mark fulfilled</SubmitButton>
                 )}
               </form>
             )}

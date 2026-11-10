@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { normalizeUrl } from "@/lib/utils";
 
 export async function updateCustomerProfile(formData: FormData) {
   const session = await getSession();
@@ -38,7 +39,7 @@ export async function updateProviderProfile(formData: FormData) {
       city: String(formData.get("city")),
       platforms: g("platforms") ?? "", sampleTypes: g("sampleTypes") ?? "",
       serviceCategories: g("serviceCategories") ?? "", hpcCapacity: g("hpcCapacity"),
-      website: g("website"), accreditations: g("accreditations"),
+      website: normalizeUrl(g("website")), accreditations: g("accreditations"),
       contactPerson: g("contactPerson"), bio: g("bio"),
       establishedYear: formData.get("establishedYear") ? Number(formData.get("establishedYear")) : null,
     },
@@ -55,7 +56,7 @@ export async function updateSupplierProfile(formData: FormData) {
     data: {
       orgName: String(formData.get("orgName")),
       city: String(formData.get("city")),
-      categories: g("categories") ?? "", website: g("website"),
+      categories: g("categories") ?? "", website: normalizeUrl(g("website")),
       contactPerson: g("contactPerson"), bio: g("bio"),
       establishedYear: formData.get("establishedYear") ? Number(formData.get("establishedYear")) : null,
     },

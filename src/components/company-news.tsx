@@ -103,7 +103,7 @@ export function NewsPage() {
                   <p className="mt-2 text-[14px] text-[#c5d2e1]">{FEATURED.desc}</p>
                 </div>
                 <span className="btn-wrap">
-                  <Link href="/biogateway" className="btn-white">Book a meeting</Link>
+                  <Link href="/contact" className="btn-white">Book a meeting</Link>
                 </span>
               </div>
             </div>
@@ -122,14 +122,14 @@ export function NewsPage() {
             {WEBINARS.map((w) => (
               <motion.div key={w.title} variants={fadeUp} className="card card-hover flex flex-col p-6">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-3 py-1 text-[11px] font-semibold text-navy-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-paper-2 px-3 py-1 text-[11px] font-semibold text-ink">
                     <MonitorPlay className="size-3.5" /> Webinar
                   </span>
                   <span className="inline-flex items-center gap-1 text-[11.5px] text-muted"><Clock3 className="size-3.5" />{w.meta}</span>
                 </div>
                 <h3 className="mt-4 text-[16px] font-semibold leading-snug text-ink">{w.title}</h3>
                 <p className="mt-2.5 flex-1 text-[13px] leading-relaxed text-body">{w.desc}</p>
-                <Link href="/biogateway" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-navy-2">
+                <Link href="/contact" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-ink">
                   {w.action} <ArrowRight className="size-3.5" />
                 </Link>
               </motion.div>
@@ -156,7 +156,7 @@ export function NewsPage() {
                 </div>
                 <h3 className="mt-4 flex-1 text-[15.5px] font-semibold leading-snug text-ink">{p.title}</h3>
                 <p className="mt-2.5 text-[13px] leading-relaxed text-body">{p.desc}</p>
-                <Link href="/company/grants" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-navy-2">
+                <Link href="/company/grants" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-ink">
                   Read more <ArrowRight className="size-3.5" />
                 </Link>
               </motion.div>

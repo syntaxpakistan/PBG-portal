@@ -67,7 +67,7 @@ export function FourWays() {
               <Link href={w.href} className="card card-hover group flex h-full flex-col p-6">
                 <p className="text-[12.5px] font-medium text-muted">{w.when}</p>
                 <div className="mt-4 flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-navy/[0.05] text-navy-2">
+                  <span className="grid size-10 place-items-center rounded-xl bg-navy/[0.05] text-ink">
                     <w.icon className="size-5" strokeWidth={1.8} />
                   </span>
                   <h3 className="font-display text-[17px] font-medium tracking-tight text-ink">{w.title}</h3>
@@ -77,7 +77,7 @@ export function FourWays() {
                   <p className="grad-text font-display text-[27px] font-medium tracking-tight">{w.metric}</p>
                   <p className="mt-1 text-[12px] text-muted">{w.metricLabel}</p>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-navy-2 transition-colors group-hover:text-blue">
+                <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink transition-colors group-hover:text-blue">
                   Learn more <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
               </Link>

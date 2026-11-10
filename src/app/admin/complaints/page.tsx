@@ -3,16 +3,24 @@ export const instant = false
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf } from "@/components/portal/pagination";
 import { ComplaintButtons } from "./buttons";
 
-export default async function ComplaintsPage() {
-  const complaints = await prisma.complaint.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      filedBy: { select: { name: true, email: true } },
-      project: { select: { id: true, refNo: true } },
-    },
-  });
+export default async function ComplaintsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const sp = await searchParams;
+  const page = pageOf(sp);
+  const [complaints, total] = await Promise.all([
+    prisma.complaint.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        filedBy: { select: { name: true, email: true } },
+        project: { select: { id: true, refNo: true } },
+      },
+    }),
+    prisma.complaint.count(),
+  ]);
 
   return (
     <>
@@ -39,6 +47,7 @@ export default async function ComplaintsPage() {
             </div>
           </div>
         ))}
+        <Pagination page={page} total={total} base="/admin/complaints" />
       </div>
     </>
   );

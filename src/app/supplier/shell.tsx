@@ -14,7 +14,7 @@ export function SupplierShell({ title, name, children }: { title: string; name?:
             </Link>
             <span className="hidden h-6 w-px shrink-0 bg-white/15 sm:block" />
             <PlatformMarkText className="hidden shrink-0 sm:block" />
-            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5c7a95] md:block">{title}</span>
+            <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7] md:block">{title}</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/supplier/billing" className="hidden rounded-full border border-white/20 px-3 py-1.5 text-[12px] font-medium text-white/90 hover:bg-white/10 sm:block">Billing</Link>

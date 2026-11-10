@@ -107,17 +107,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
 
     const type =
       ext === "pdf" ? "application/pdf"
+      : ext === "html" || ext === "htm" ? "text/html"
       : ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) ? `image/${ext === "jpg" ? "jpeg" : ext}`
       : ["txt", "csv"].includes(ext) ? "text/plain"
       : "application/octet-stream";
     const previewable = type !== "application/octet-stream" || ext === "docx";
-    return new NextResponse(new Uint8Array(buf), {
-      headers: {
-        "Content-Type": type,
-        // ?inline=1 renders in-browser for previewable types; everything else downloads
-        "Content-Disposition": `${inline && previewable ? "inline" : "attachment"}; filename="${filename ?? key}"`,
-      },
-    });
+    const headers: Record<string, string> = {
+      "Content-Type": type,
+      // ?inline=1 renders in-browser for previewable types; everything else downloads
+      "Content-Disposition": `${inline && previewable ? "inline" : "attachment"}; filename="${filename ?? key}"`,
+      "X-Content-Type-Options": "nosniff",
+    };
+    // uploaded HTML previews in a sandboxed context — static content (QC
+    // reports, tables) renders but scripts can't run in our origin
+    if (inline && (ext === "html" || ext === "htm")) headers["Content-Security-Policy"] = "sandbox";
+    return new NextResponse(new Uint8Array(buf), { headers });
   } catch {
     return NextResponse.json({ error: "File missing" }, { status: 404 });
   }

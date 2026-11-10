@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { GoogleButton } from "@/components/google-button";
 import { toast } from "sonner";
 
 const ROLE_DEST: Record<string, string> = {
@@ -84,7 +85,7 @@ export default function LoginPage() {
             <div>
               <div className="flex items-center justify-between">
                 <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Password</label>
-                <Link href="/forgot-password" className="mb-1.5 text-[12px] font-medium text-blue hover:text-navy-2">Forgot?</Link>
+                <Link href="/forgot-password" className="mb-1.5 text-[12px] font-medium text-blue hover:text-ink">Forgot?</Link>
               </div>
               <input
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
@@ -97,9 +98,11 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <GoogleButton />
+
           <p className="mt-6 text-center text-[13px] text-muted">
             New to the Gateway?{" "}
-            <Link href="/biogateway" className="font-semibold text-blue hover:text-navy-2">Create an account</Link>
+            <Link href="/biogateway" className="font-semibold text-blue hover:text-ink">Create an account</Link>
           </p>
         </div>
       </div>

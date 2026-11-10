@@ -58,7 +58,7 @@ export default async function FinancePage() {
 
       {/* pending payments */}
       <h3 className="mb-3 text-[15px] font-semibold text-ink">Payments to verify</h3>
-      <div className="card mb-8 divide-y divide-line">
+      <div className="card scroll-slim mb-8 max-h-80 divide-y divide-line overflow-y-auto">
         {pendingPayments.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">Nothing awaiting confirmation.</p>}
         {pendingPayments.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">

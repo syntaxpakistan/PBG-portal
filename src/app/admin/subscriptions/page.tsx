@@ -2,49 +2,59 @@ export const instant = false
 
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 import { PLANS } from "@/lib/plans";
 import { SubButtons } from "./buttons";
 import { getPlanPrices } from "@/lib/settings";
 
-export default async function SubscriptionsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; plan?: string }> }) {
-  const { q, status, plan } = await searchParams;
-  const subs = await prisma.subscription.findMany({
-    where: {
-      ...(status ? { status: status as "ACTIVE" | "PENDING_PAYMENT" | "CANCELLED" | "EXPIRED" } : {}),
-      ...(plan ? { plan: plan as "BASIC" | "PRO" | "CUSTOM" } : {}),
-      ...(q ? {
-        user: {
-          OR: [
-            { name: { contains: q } },
-            { email: { contains: q } },
-            { providerProfile: { orgName: { contains: q } } },
-            { supplierProfile: { orgName: { contains: q } } },
-          ],
-        },
-      } : {}),
-    },
-    include: {
+export default async function SubscriptionsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; plan?: string; page?: string }> }) {
+  const sp = await searchParams;
+  const { q, status, plan } = sp;
+  const page = pageOf(sp);
+  const where = {
+    ...(status ? { status: status as "ACTIVE" | "PENDING_PAYMENT" | "CANCELLED" | "EXPIRED" } : {}),
+    ...(plan ? { plan: plan as "BASIC" | "PRO" | "CUSTOM" } : {}),
+    ...(q ? {
       user: {
-        select: {
-          name: true, email: true, role: true,
-          providerProfile: { select: { orgName: true, status: true } },
-          supplierProfile: { select: { orgName: true, status: true } },
+        OR: [
+          { name: { contains: q } },
+          { email: { contains: q } },
+          { providerProfile: { orgName: { contains: q } } },
+          { supplierProfile: { orgName: { contains: q } } },
+        ],
+      },
+    } : {}),
+  };
+  const [subs, total, mrrAgg, pending, renewals, planChanges, planPrices] = await Promise.all([
+    prisma.subscription.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            name: true, email: true, role: true,
+            providerProfile: { select: { orgName: true, status: true } },
+            supplierProfile: { select: { orgName: true, status: true } },
+          },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  const mrr = subs.filter((s) => s.status === "ACTIVE").reduce((n, s) => n + s.priceUsd, 0);
-  const pending = subs.filter((s) => s.status === "PENDING_PAYMENT").length;
-  const renewals = subs.filter((s) => s.renewRequestedAt).length;
-  const planChanges = subs.filter((s) => s.planChangeRequestedAt).length;
-  const planPrices = await getPlanPrices();
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.subscription.count({ where }),
+    prisma.subscription.aggregate({ where: { status: "ACTIVE" }, _sum: { priceUsd: true } }),
+    prisma.subscription.count({ where: { status: "PENDING_PAYMENT" } }),
+    prisma.subscription.count({ where: { renewRequestedAt: { not: null } } }),
+    prisma.subscription.count({ where: { planChangeRequestedAt: { not: null } } }),
+    getPlanPrices(),
+  ]);
+  const mrr = mrrAgg._sum.priceUsd ?? 0;
 
   return (
     <>
       <PageHead
         title="Subscriptions"
-        sub={`${subs.length} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ${planChanges} plan-change requests · ~$${mrr.toLocaleString()}/mo active MRR`}
+        sub={`${total} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ${planChanges} plan-change requests · ~$${mrr.toLocaleString()}/mo active MRR`}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search org, name or email…" className="w-full max-w-xs rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3" />
@@ -107,6 +117,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
             {subs.length === 0 && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">No subscriptions match.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={page} total={total} base={`/admin/subscriptions${qs({ q, status, plan })}`} />
       </div>
     </>
   );

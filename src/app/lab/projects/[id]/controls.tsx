@@ -59,7 +59,7 @@ export function ResultUploadForm({ projectId }: { projectId: string }) {
     >
       <div>
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Result document *</label>
-        <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.csv,.txt,.png,.jpg" className="w-72 rounded-lg border border-line bg-surface px-3 py-1.5 text-[12.5px] file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-3 file:py-1 file:text-[11px] file:font-medium file:text-yellow" />
+        <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.csv,.txt,.png,.jpg,.html" className="w-72 rounded-lg border border-line bg-surface px-3 py-1.5 text-[12.5px] file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-3 file:py-1 file:text-[11px] file:font-medium file:text-yellow" />
       </div>
       <div>
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Note</label>

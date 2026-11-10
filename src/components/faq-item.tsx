@@ -10,7 +10,7 @@ export function FaqItem({ q, a, open, onToggle }: { q: string; a: string; open: 
     <div className="card overflow-hidden">
       <button onClick={onToggle} className="flex w-full items-center justify-between gap-4 p-5 text-left" aria-expanded={open}>
         <span className="text-[14.5px] font-semibold text-ink">{q}</span>
-        <ChevronDown className={cn("size-4.5 shrink-0 text-navy-2 transition-transform duration-300", open && "rotate-180")} />
+        <ChevronDown className={cn("size-4.5 shrink-0 text-ink transition-transform duration-300", open && "rotate-180")} />
       </button>
       <AnimatePresence initial={false}>
         {open && (

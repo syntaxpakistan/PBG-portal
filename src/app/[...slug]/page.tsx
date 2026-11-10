@@ -111,7 +111,7 @@ export default async function CatchAllPage({ params }: { params: Promise<{ slug:
               {QUICK_LINKS.map((l) => (
                 <Link key={l.href} href={l.href} className="card card-hover group flex items-center justify-between p-5">
                   <span className="text-[14px] font-semibold text-ink">{l.label}</span>
-                  <ArrowRight className="size-4 text-navy-2 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-4 text-ink transition-transform group-hover:translate-x-1" />
                 </Link>
               ))}
             </div>

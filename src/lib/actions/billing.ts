@@ -7,7 +7,7 @@ import { getSession } from "@/lib/session";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { saveUpload } from "@/lib/files";
 import { PLANS, type PlanKey } from "@/lib/plans";
-import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
+import { getFeePercent, getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Invoice, Payment, Plan } from "@prisma/client";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
@@ -60,6 +60,7 @@ export type InvoiceInput = {
   subscriptionId?: string;
   milestoneId?: string;
   transactionId?: string;
+  enquiryId?: string;
   dueAt?: Date;
   note?: string;
 };
@@ -83,6 +84,7 @@ export async function issueInvoice(input: InvoiceInput): Promise<Invoice> {
       subscriptionId: input.subscriptionId,
       milestoneId: input.milestoneId,
       transactionId: input.transactionId,
+      enquiryId: input.enquiryId,
       subtotal,
       taxAmount: 0,
       total: subtotal,
@@ -147,6 +149,34 @@ async function applyConfirmedPayment(paymentId: string) {
       await audit(payment.confirmedById ?? payment.recordedById, "MILESTONE_PAID", "Milestone", m.id, `${m.project.refNo} · ${m.title} · ${invoice.number}`);
     }
   }
+  if (invoice.enquiryId) {
+    // supply sale settled — mark the enquiry paid and accrue the platform fee
+    const enquiry = await prisma.enquiry.update({
+      where: { id: invoice.enquiryId },
+      data: { status: "PAID" },
+      include: { product: { select: { name: true } }, supplier: true, buyer: { select: { name: true } } },
+    });
+    const txn = await prisma.transaction.findUnique({ where: { enquiryId: enquiry.id } });
+    if (!txn) {
+      const feePercent = await getFeePercent();
+      const quotedValue = invoice.total;
+      const feeTxn = await prisma.transaction.create({
+        data: {
+          enquiryId: enquiry.id,
+          quotedValue,
+          feePercent,
+          feeAmount: Math.round(quotedValue * (feePercent / 100)),
+        },
+      });
+      await createFeeInvoice(feeTxn.id);
+    }
+    await notify({
+      toUserId: enquiry.supplier.userId,
+      subject: `Payment received — ${enquiry.product.name}`,
+      body: `Syntax confirmed the buyer's payment (${invoice.currency} ${payment.amount.toLocaleString()} · ${invoice.number}). Ship the order, then mark the enquiry fulfilled.`,
+      href: "/supplier",
+    });
+  }
   if (invoice.transactionId) {
     await prisma.transaction.updateMany({ where: { id: invoice.transactionId, status: { not: "PAID" } }, data: { status: "PAID" } });
   }
@@ -197,11 +227,11 @@ export async function reportPayment(invoiceId: string, formData: FormData) {
   });
   await audit(session.user.id, "PAYMENT_REPORTED", "Payment", payment.id, `${invoice.number} · ${invoice.currency} ${amount}`);
 
-  // tell whoever verifies: admins for platform + milestone (escrow) invoices, the issuer for other partner invoices
-  if (invoice.issuerType === "PLATFORM" || invoice.milestoneId) {
+  // tell whoever verifies: admins for platform + escrowed (milestone / supply-sale) invoices, the issuer for other partner invoices
+  if (invoice.issuerType === "PLATFORM" || invoice.milestoneId || invoice.enquiryId) {
     await notifyAllAdmins(
       `Payment reported: ${invoice.number}`,
-      `${invoice.billedOrg} reported ${invoice.currency} ${amount.toLocaleString()} via ${method}${payment.reference ? ` (ref ${payment.reference})` : ""}.${invoice.milestoneId ? " Milestone escrow — confirm receipt into the Syntax account, then settle the milestone." : " Confirm it in Finance."}`,
+      `${invoice.billedOrg} reported ${invoice.currency} ${amount.toLocaleString()} via ${method}${payment.reference ? ` (ref ${payment.reference})` : ""}.${invoice.milestoneId || invoice.enquiryId ? " Escrow — confirm receipt into the Syntax account, then settle the order." : " Confirm it in Finance."}`,
       "/admin/finance"
     );
   } else {
@@ -256,8 +286,9 @@ export async function confirmPayment(paymentId: string) {
   const payment = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId }, include: { invoice: true } });
   if (payment.status !== "PENDING") throw new Error("Payment already resolved");
   const isAdmin = session.user.role === "ADMIN";
-  // milestone invoices are escrowed — only Syntax admin verifies the money, never the lab
-  if (payment.invoice.milestoneId && !isAdmin) throw new Error("Milestone payments are verified by Syntax — contact support if this is wrong");
+  // milestone + supply-sale invoices are escrowed — only Syntax admin verifies the money, never the partner
+  if ((payment.invoice.milestoneId || payment.invoice.enquiryId) && !isAdmin)
+    throw new Error("Escrowed payments are verified by Syntax — contact support if this is wrong");
   const issuer = await issuerFor(payment.invoice);
   if (!isAdmin && issuer?.userId !== session.user.id) throw new Error("Only admin or the issuer can confirm");
   await prisma.payment.update({
@@ -382,29 +413,79 @@ export async function requestPlanChange(plan: string) {
 // ---------- platform fee invoices (admin) ----------
 
 /** Bill the provider their platform commission for an awarded project. */
-export async function issueFeeInvoice(transactionId: string) {
-  const session = await requireAdmin();
+async function createFeeInvoiceForEnquiry(enquiryId: string, currency: string, feePercent: number, feeAmount: number) {
+  const enquiry = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, supplier: true },
+  });
+  return issueInvoice({
+    billedUserId: enquiry.supplier.userId,
+    issuerType: "PLATFORM",
+    currency,
+    dueAt: new Date(Date.now() + 14 * 864e5),
+    note: `Platform fee ${feePercent}% on supply sale · ${enquiry.product.name}`,
+    items: [{ description: `Platform commission — ${enquiry.product.name} × ${enquiry.qty} (supply sale)`, unitPrice: feeAmount }],
+  });
+}
+
+/** Core fee-invoice creator — shared by the admin button and auto-issue at project completion / sale settlement. */
+async function createFeeInvoice(transactionId: string) {
   const txn = await prisma.transaction.findUniqueOrThrow({
     where: { id: transactionId },
-    include: { project: { include: { provider: true, quote: true, rfq: { select: { title: true } } } }, invoice: true },
+    include: {
+      project: { include: { provider: true, rfq: { select: { title: true } } } },
+      enquiry: { include: { product: { select: { name: true } }, supplier: true } },
+      invoice: true,
+    },
   });
-  if (txn.invoice) throw new Error("Fee already invoiced");
+  if (txn.invoice) return null;
+
+  if (txn.enquiryId && txn.enquiry) {
+    const inv = await createFeeInvoiceForEnquiry(txn.enquiryId, "PKR", txn.feePercent, txn.feeAmount);
+    await prisma.transaction.update({ where: { id: txn.id }, data: { invoiceId: inv.id, status: "INVOICED" } });
+    return { inv, label: `supply sale · ${txn.enquiry.product.name}`, billedUserId: txn.enquiry.supplier.userId };
+  }
   const inv = await issueInvoice({
-    billedUserId: txn.project.providerUserId,
+    billedUserId: txn.project!.providerUserId,
     issuerType: "PLATFORM",
     transactionId: txn.id,
     currency: "PKR",
     dueAt: new Date(Date.now() + 14 * 864e5),
-    note: `Platform fee ${txn.feePercent}% on ${txn.project.refNo} (quoted value PKR ${txn.quotedValue.toLocaleString()})`,
+    note: `Platform fee ${txn.feePercent}% on ${txn.project!.refNo} (quoted value PKR ${txn.quotedValue.toLocaleString()})`,
     items: [{
-      description: `Platform commission — ${txn.project.refNo} (${txn.project.rfq?.title ?? "sequencing project"})`,
+      description: `Platform commission — ${txn.project!.refNo} (${txn.project!.rfq?.title ?? "sequencing project"})`,
       unitPrice: txn.feeAmount,
     }],
   });
-  await audit(session.user.id, "FEE_INVOICE_ISSUED", "Invoice", inv.id, `${txn.project.refNo} · ${inv.number}`);
+  await prisma.transaction.update({ where: { id: txn.id }, data: { invoiceId: inv.id, status: "INVOICED" } });
+  return { inv, label: txn.project!.refNo, billedUserId: txn.project!.providerUserId };
+}
+
+export async function issueFeeInvoice(transactionId: string) {
+  const session = await requireAdmin();
+  const result = await createFeeInvoice(transactionId);
+  if (!result) throw new Error("Fee already invoiced");
+  await audit(session.user.id, "FEE_INVOICE_ISSUED", "Invoice", result.inv.id, `${result.label} · ${result.inv.number}`);
   revalidatePath("/admin/transactions");
   revalidatePath("/admin/finance");
   revalidatePath("/lab/billing");
+  revalidatePath("/supplier/billing");
+}
+
+/** Called when a project completes or a supply sale settles — auto-issues the fee invoice so commission is never forgotten. */
+export async function autoIssueFeeInvoice(transactionId: string) {
+  const result = await createFeeInvoice(transactionId);
+  if (!result) return;
+  await notify({
+    toUserId: result.billedUserId,
+    subject: `Platform fee invoice — ${result.inv.number}`,
+    body: `Your ${result.inv.number} invoice for the Syntax platform commission is due — see Billing.`,
+    href: "/lab/billing",
+  });
+  await notifyAllAdmins(`Fee invoiced: ${result.label}`, `${result.inv.number} · PKR ${result.inv.total.toLocaleString()} commission accrued.`, "/admin/transactions");
+  revalidatePath("/admin/transactions");
+  revalidatePath("/lab/billing");
+  revalidatePath("/supplier/billing");
 }
 
 // ---------- payouts (admin settlement records) ----------

@@ -9,17 +9,17 @@ const CHANNELS = [
   {
     icon: MessagesSquare, title: "Talk to a scientist",
     desc: "Project scoping, platform selection, sample requirements and turnaround — a PhD-level specialist replies within one business day.",
-    cta: "Start a conversation", href: "/biogateway",
+    cta: "Start a conversation", href: "/contact#quote-form",
   },
   {
     icon: PackageCheck, title: "Request a quote",
     desc: "Submit a structured RFQ — organism, sample count, output, analysis type and deadline — and receive blind quotes from verified providers.",
-    cta: "Open the Gateway", href: "/biogateway",
+    cta: "Open the Gateway", href: "/dashboard/rfqs/new",
   },
   {
     icon: Users, title: "Partner with us",
     desc: "Labs and suppliers: join the verified network. Choose a plan and Syntax verifies your organization before it goes live.",
-    cta: "Join as a provider", href: "/biogateway",
+    cta: "Join as a provider", href: "/partners",
   },
 ];
 
@@ -56,7 +56,7 @@ export function ContactPage() {
                 </span>
                 <h2 className="mt-4 text-[17px] font-semibold text-ink">{c.title}</h2>
                 <p className="mt-2.5 flex-1 text-[13.5px] leading-relaxed text-body">{c.desc}</p>
-                <Link href={c.href} className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-navy-2">
+                <Link href={c.href} className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-ink">
                   {c.cta} <ArrowRight className="size-4" />
                 </Link>
               </motion.div>

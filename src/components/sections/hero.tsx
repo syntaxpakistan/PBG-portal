@@ -9,15 +9,12 @@ import { HeroCollage } from "@/components/sections/hero-collage";
 
 const NEEDS = [
   "Whole Genome",
-  "Whole Exome",
+  "Metagenomics",
   "RNA-Seq",
-  "Single-cell",
-  "Spatial",
-  "Long-Read",
   "Epigenomics",
-  "Immune Repertoire",
-  "Oncology Panels",
+  "Sanger",
   "Sequencing Only",
+  "Bioinformatics",
 ];
 
 const easeOut = [0.22, 1, 0.36, 1] as const;

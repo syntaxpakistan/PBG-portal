@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FlaskConical, Package, Users, Loader2, ArrowLeft, Check, BadgeCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { GoogleButton } from "@/components/google-button";
 import { createOrgProfile } from "@/lib/actions/onboarding";
 import { PLANS, ORG_TYPES, type PlanKey } from "@/lib/plans";
 import { toast } from "sonner";
@@ -123,8 +124,9 @@ export default function JoinPage() {
                 ))}
               </div>
               <p className="mt-6 text-center text-[13px] text-muted">
-                Already registered? <Link href="/login" className="font-semibold text-blue hover:text-navy-2">Sign in</Link>
+                Already registered? <Link href="/login" className="font-semibold text-blue hover:text-ink">Sign in</Link>
               </p>
+              <GoogleButton />
             </>
           )}
 
@@ -214,14 +216,14 @@ export default function JoinPage() {
                       <Field label="Established (year)" type="number" value={f.establishedYear} onChange={set("establishedYear")} />
                     </div>
                     <Field label="Platforms (e.g. Illumina NovaSeq, ONT, PacBio)" value={f.platforms} onChange={set("platforms")} />
-                    <Field label="Sample types (e.g. gDNA, FFPE, PBMC)" value={f.sampleTypes} onChange={set("sampleTypes")} />
+                    <Field label="Sample types (e.g. DNA, Tissue, RNA, cDNA)" value={f.sampleTypes} onChange={set("sampleTypes")} />
                     <Field label="Service categories (e.g. WGS, RNA-Seq, Bioinformatics)" value={f.serviceCategories} onChange={set("serviceCategories")} />
                     <Field label="HPC capacity (e.g. 16-node cluster)" value={f.hpcCapacity} onChange={set("hpcCapacity")} />
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Accreditations" value={f.accreditations} onChange={set("accreditations")} />
                       <Field label="Contact person" value={f.contactPerson} onChange={set("contactPerson")} />
                     </div>
-                    <Field label="Website" type="url" value={f.website} onChange={set("website")} />
+                    <Field label="Website" type="text" value={f.website} onChange={set("website")} />
                     <BioField value={f.bio} onChange={set("bio")} />
                   </>
                 )}
@@ -236,7 +238,7 @@ export default function JoinPage() {
                     <Field label="Product categories (e.g. Reagents, Kits, Consumables)" value={f.categories} onChange={set("categories")} />
                     <div className="grid grid-cols-2 gap-4">
                       <Field label="Contact person" value={f.contactPerson} onChange={set("contactPerson")} />
-                      <Field label="Website" type="url" value={f.website} onChange={set("website")} />
+                      <Field label="Website" type="text" value={f.website} onChange={set("website")} />
                     </div>
                     <BioField value={f.bio} onChange={set("bio")} />
                   </>

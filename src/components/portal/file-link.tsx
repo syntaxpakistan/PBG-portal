@@ -1,6 +1,6 @@
 import { Eye, Download } from "lucide-react";
 
-const PREVIEWABLE = /\.(pdf|png|jpe?g|gif|webp|txt|csv|docx)$/i;
+const PREVIEWABLE = /\.(pdf|png|jpe?g|gif|webp|txt|csv|docx|html?)$/i;
 
 /** Attachment chip with in-browser preview (previewable types) + download. */
 export function FileLink({

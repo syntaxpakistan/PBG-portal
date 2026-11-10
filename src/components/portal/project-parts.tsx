@@ -3,6 +3,7 @@ import { StatusBadge } from "./ui";
 import { FileLink } from "./file-link";
 import { MessageSquare, FileDown, Send } from "lucide-react";
 import type { Message, StatusHistory, ResultFile, User } from "@prisma/client";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 export function HistoryTimeline({ history }: { history: (StatusHistory & { changedBy: Pick<User, "name"> })[] }) {
   return (
@@ -78,11 +79,11 @@ export function MessageThread({
         />
         <label className="grid size-10 cursor-pointer place-items-center rounded-full border border-line bg-surface text-muted transition-colors hover:border-navy-3" title="Attach document (≤25MB)">
           <FileDown className="size-4" />
-          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.csv,.png,.jpg" className="hidden" />
+          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.csv,.png,.jpg,.html" className="hidden" />
         </label>
-        <button type="submit" className="grid size-10 place-items-center rounded-full bg-navy text-yellow transition-colors hover:bg-navy-2">
+        <SubmitButton className="grid size-10 place-items-center rounded-full bg-navy text-yellow transition-colors hover:bg-navy-2">
           <Send className="size-4" />
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

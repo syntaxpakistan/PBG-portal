@@ -27,7 +27,7 @@ export function LogoStrip() {
             {[...SECTORS, ...SECTORS].map((s, i) => (
               <span
                 key={i}
-                className="whitespace-nowrap font-display text-[17px] font-light tracking-tight text-muted transition-colors hover:text-navy"
+                className="whitespace-nowrap font-display text-[17px] font-light tracking-tight text-muted transition-colors hover:text-ink"
               >
                 {s}
               </span>

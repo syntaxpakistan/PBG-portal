@@ -10,6 +10,7 @@ import { PauseCircle, Lock, FlaskConical } from "lucide-react";
 import { advanceProjectStatus, addResultFile, addMilestone, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
 import { pkr, STAGE_LABELS, PROJECT_STAGES, stageIndex, slaInfo, QC_STAGE_LABELS, QC_DECISION_LABELS, WORK_STAGE_LABELS } from "@/lib/constants";
 import { StatusUpdateButtons, ResultUploadForm, AwardDecision, StageControls, QcForm, PauseControls, ReleaseButton, InternalsForm } from "./controls";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function LabProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -105,7 +106,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
               </select>
             </div>
             <input name="qcNote" placeholder="QC note (e.g. 22/24 FFPE passed DV200)" className="w-72 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3" />
-            <button type="submit" className="btn-primary !py-2.5">Log receipt + QC</button>
+            <SubmitButton className="btn-primary !py-2.5">Log receipt + QC</SubmitButton>
           </form>
         </div>
       )}
@@ -213,7 +214,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
                       <StatusBadge status={m.status} />
                       {m.status === "PLANNED" && (
                         <form action={invoiceMilestone.bind(null, m.id)}>
-                          <button type="submit" className="btn-outline !px-3 !py-1.5 text-[11px]">Invoice</button>
+                          <SubmitButton className="btn-outline !px-3 !py-1.5 text-[11px]">Invoice</SubmitButton>
                         </form>
                       )}
                     </div>
@@ -224,7 +225,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
                 <input name="title" required placeholder="e.g. Library prep complete" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <input name="amount" type="number" required min={1} placeholder="PKR" className="w-28 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <input name="dueDate" type="date" className="rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
-                <button type="submit" className="btn-outline !py-2 text-[12px]">Add milestone</button>
+                <SubmitButton className="btn-outline !py-2 text-[12px]">Add milestone</SubmitButton>
               </form>
             </div>
           )}
@@ -253,7 +254,8 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
                         {f.version > 1 && <span className="ml-1.5 text-[10.5px] text-muted">v{f.version}</span>}
                         {f.releasedAt && <span className="ml-1.5 text-[10.5px] text-muted">· released {f.releasedAt.toLocaleDateString()}</span>}
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        {f.storageKey && <FileLink storageKey={f.storageKey} filename={f.filename} compact />}
                         <span className="text-muted">{(f.sizeBytes / 1024).toFixed(0)} KB</span>
                         {f.released
                           ? <span className="rounded-full bg-(--st-green-bg) px-2 py-0.5 text-[10.5px] font-semibold text-(--st-green-fg)">Released</span>

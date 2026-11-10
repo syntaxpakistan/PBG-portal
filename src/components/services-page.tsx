@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
-  ArrowRight, Dna, FlaskConical, TestTubes,
-  Activity, ShieldPlus, Atom, CircleCheck, BadgeCheck,
+  ArrowRight, Dna,
+  Activity, Atom, CircleCheck, BadgeCheck,
   FileSearch, GitCompareArrows, PackageCheck, BarChart3,
   BookOpen, Award, Users, Newspaper, Radar,
-  CircleDot, Map, Ruler, Target, Archive,
+  Ruler, Zap, Workflow,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FaqList } from "@/components/faq-item";
@@ -18,78 +18,53 @@ import { Footer } from "@/components/footer";
 import { CtaForm } from "@/components/sections/cta-form";
 
 const CHIPS = [
+  { label: "Whole-Genome", id: "whole-genome-sequencing" },
+  { label: "Metagenomics", id: "metagenomics" },
   { label: "Transcriptomics", id: "transcriptomics" },
-  { label: "RNA-Seq", id: "rna-sequencing" },
-  { label: "Single Cell", id: "single-cell-sequencing" },
-  { label: "Spatial", id: "spatial-transcriptomics" },
-  { label: "Immune Profiling", id: "immune-profiling" },
-  { label: "Premade Library", id: "premade-library-sequencing" },
-  { label: "Long Read", id: "long-read" },
-  { label: "Genomics", id: "genomics" },
-  { label: "Oncology Panels", id: "oncology-panels" },
-  { label: "Proteomics", id: "proteomics" },
   { label: "Epigenomics", id: "epigenomics" },
+  { label: "Sanger", id: "sanger" },
+  { label: "Sequencing Only", id: "sequencing-only" },
 ];
 
 const CATEGORIES = [
   {
+    icon: Dna, title: "Whole-Genome Sequencing", id: "whole-genome-sequencing",
+    desc: "Sequence microbial, plant and animal genomes for assembly or resequencing.",
+    subs: ["Long-read WGS", "Short-read WGS"],
+  },
+  {
+    icon: Radar, title: "Metagenomics & Microbiome", id: "metagenomics",
+    desc: "Characterise microbial communities in mixed samples.",
+    subs: ["Shotgun metagenomics", "Amplicon profiling (16S rRNA, ITS, 18S)"],
+  },
+  {
     icon: Activity, title: "Transcriptomics", id: "transcriptomics",
-    desc: "Gene expression measured at every resolution — bulk, single-cell, spatial and full-length long-read.",
-    subs: ["Bulk RNA-Seq", "Single-Cell RNA-Seq", "Spatial Transcriptomics", "PacBio Iso-Seq"],
-  },
-  {
-    icon: FlaskConical, title: "RNA Sequencing", id: "rna-sequencing",
-    desc: "Stranded, total and ultra-low-input RNA-Seq tuned to sample quality — down to 10 pg or degraded FFPE.",
-    subs: ["Stranded mRNA-Seq", "Total RNA-Seq", "Low Input & FFPE RNA-Seq", "Blood RNA-Seq (globin depletion)", "Small RNA & 16S Microbiome", "Expedited RNA-Seq"],
-  },
-  {
-    icon: CircleDot, title: "Single Cell Sequencing", id: "single-cell-sequencing",
-    desc: "Droplet, microwell, plate and long-read capture for expression, multiome, immune and CITE-Seq work.",
-    subs: ["10x Genomics (GEX, Multiome, FLEX)", "BD Rhapsody", "Takara SMART-Seq Plates", "PacBio Kinnex Single-Cell"],
-  },
-  {
-    icon: Map, title: "Spatial Transcriptomics", id: "spatial-transcriptomics",
-    desc: "Whole-transcriptome through subcellular mapping with tissue morphology preserved.",
-    subs: ["10x Visium", "10x Xenium", "Illumina StrataMap"],
-  },
-  {
-    icon: ShieldPlus, title: "Immune Profiling", id: "immune-profiling",
-    desc: "Bulk and single-cell repertoire analysis — full-length, CDR3 and paired VDJ chains.",
-    subs: ["Full-Length TCR & BCR (SMARTer 5' RACE)", "CDR3 Repertoire (DriverMap)", "FFPE TCR & BCR", "Single-Cell VDJ (10x 5')"],
-  },
-  {
-    icon: Archive, title: "Premade Library Sequencing", id: "premade-library-sequencing",
-    desc: "Sequence-only runs on your own libraries — flowcell and lane options across Illumina and PacBio.",
-    subs: ["NovaSeq 6000 SP", "NovaSeq X+ (1.5B–25B)", "MiSeq i100 (5M–100M)", "PacBio Revio SMRT Cells"],
-  },
-  {
-    icon: Ruler, title: "Long Read Services", id: "long-read",
-    desc: "PacBio HiFi for contiguous assemblies, structural variants, isoforms and native methylation.",
-    subs: ["De Novo Assembly & Annotation", "Comprehensive Variant Detection", "Full-Length RNA (Iso-Seq)", "Native Methylation Profiling"],
-  },
-  {
-    icon: Dna, title: "Genomics (WGS/WES)", id: "genomics",
-    desc: "Short- and long-read DNA sequencing for germline cohorts, tumors and complex variants.",
-    subs: ["Whole Genome (WGS)", "Whole Exome (WES)", "PacBio Long-Read Genomics", "Targeted Gene Panels"],
-  },
-  {
-    icon: Target, title: "Oncology Panels", id: "oncology-panels",
-    desc: "High-depth targeted profiling — including the 523-gene TSO 500 assay with MSI and TMB.",
-    subs: ["TruSight Oncology 500", "ctDNA Liquid Biopsy", "Hotspot Panels (20–50 genes)", "WGS/WES & RNA-Seq Add-ons"],
-  },
-  {
-    icon: TestTubes, title: "Proteomics", id: "proteomics",
-    desc: "Affinity-based NGS proteomics measuring 1,000+ proteins from just 4 μL of plasma or serum.",
-    subs: ["Olink Reveal", "Olink Explore", "Proteogenomic Integration"],
+    desc: "Measure gene expression or study transcript isoforms.",
+    subs: ["Long-read RNA sequencing", "Short-read bulk RNA sequencing"],
   },
   {
     icon: Atom, title: "Epigenomics", id: "epigenomics",
-    desc: "Chromatin accessibility, 3D architecture, methylation and TF footprints at bulk or single-cell scale.",
-    subs: ["Bulk & Single-Cell ATAC-Seq", "Single-Cell Multiome (ATAC + GEX)", "Hi-C Chromatin", "Methylome Profiling", "CUT&RUN & ChIP-Seq"],
+    desc: "Profile DNA methylation with methods suited to your study.",
+    subs: ["Oxford Nanopore native DNA methylation", "Illumina-based methylation sequencing"],
+  },
+  {
+    icon: Ruler, title: "Sanger Sequencing", id: "sanger",
+    desc: "Sequence individual DNA fragments for confirmation and identification.",
+    subs: ["PCR product sequencing", "Plasmid & clone verification", "DNA barcoding"],
+  },
+  {
+    icon: Zap, title: "Sequencing Only", id: "sequencing-only",
+    desc: "Submit prepared libraries for sequencing on a compatible platform.",
+    subs: ["Long-read library sequencing", "Short-read library sequencing"],
+  },
+  {
+    icon: Workflow, title: "Bioinformatics & Data Analysis", id: "bioinformatics", href: "/bioinformatics",
+    desc: "Request analysis with sequencing or use an existing dataset for a standalone project.",
+    subs: ["Assembly & annotation", "Variants", "RNA-seq", "Microbiome", "Methylation"],
   },
 ];
 
-const PLATFORMS = ["Illumina", "PacBio", "10x Genomics", "BD Rhapsody", "Takara", "Olink", "Cellecta", "Epicypher", "Miltenyi Biotec", "Twist Bioscience"];
+const PLATFORMS = ["Illumina", "Oxford Nanopore", "PacBio", "Applied Biosystems SeqStudio", "Takara", "NEB", "Qiagen", "Twist Bioscience"];
 
 const ADVANTAGE = [
   { icon: GitCompareArrows, title: "True Multi-Omic Integration", desc: "Run genomic, transcriptomic, epigenomic and proteomic assays under a single RFQ — no batch drift from fragmented vendors." },
@@ -152,7 +127,7 @@ const FAQS = [
   },
   {
     q: "What are typical turnaround times?",
-    a: "Premade library sequencing and basic bulk RNA-Seq commonly quote 1–2 weeks; single-cell, spatial and multi-modal projects average 3–5 weeks from sample QC sign-off. Each provider states TAT inside their blind quote, comparable side-by-side.",
+    a: "Standard bulk RNA-Seq and targeted panels commonly quote 1–2 weeks; long-read, epigenomic and multi-modal projects average 3–5 weeks from sample QC sign-off. Each provider states TAT inside their blind quote, comparable side-by-side.",
   },
   {
     q: "Does the Gateway support clinical or diagnostic work?",
@@ -198,7 +173,7 @@ export function ServicesPage() {
               className="mt-8 flex flex-wrap items-center gap-5"
             >
               <span className="btn-wrap">
-                <Link href="/biogateway" className="btn-white">Explore our services</Link>
+                <Link href="/services" className="btn-white">Explore our services</Link>
               </span>
               <Link href="/contact" className="group inline-flex items-center gap-2.5 text-[14.5px] font-medium text-white/90 hover:text-white">
                 Consult our team <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -236,7 +211,7 @@ export function ServicesPage() {
             <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {CATEGORIES.map((c) => (
                 <motion.div key={c.id} id={c.id} variants={fadeUp} className="card card-hover flex scroll-mt-28 flex-col p-6">
-                  <span className="grid size-11 place-items-center rounded-xl bg-navy/[0.05] text-navy-2">
+                  <span className="grid size-11 place-items-center rounded-xl bg-navy/[0.05] text-ink">
                     <c.icon className="size-5.5" strokeWidth={1.7} />
                   </span>
                   <h3 className="mt-4 font-display text-[18px] font-medium tracking-tight text-ink">{c.title}</h3>
@@ -248,7 +223,7 @@ export function ServicesPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link href={`/services/${c.id}`} className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-navy-2">
+                  <Link href={c.href ?? `/services/${c.id}`} className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-ink">
                     Explore all {c.title.toLowerCase()} <ArrowRight className="size-3.5" />
                   </Link>
                 </motion.div>
@@ -260,7 +235,7 @@ export function ServicesPage() {
                   Looking for <strong className="text-ink">multiomic solutions</strong>? Combine genomic, transcriptomic,
                   immune and epigenetic assays from a single RFQ.
                 </span>
-                <ArrowRight className="size-5 shrink-0 text-navy-2 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="size-5 shrink-0 text-ink transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
           </div>
@@ -274,7 +249,7 @@ export function ServicesPage() {
           <div className="relative mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
             <div className="flex w-max animate-marquee items-center gap-14 pr-14">
               {[...PLATFORMS, ...PLATFORMS].map((p, i) => (
-                <span key={i} className="whitespace-nowrap font-display text-[16px] font-medium tracking-tight text-muted transition-colors hover:text-navy">
+                <span key={i} className="whitespace-nowrap font-display text-[16px] font-medium tracking-tight text-muted transition-colors hover:text-ink">
                   {p}
                 </span>
               ))}
@@ -365,7 +340,7 @@ export function ServicesPage() {
                     ))}
                   </ul>
                   <span className="btn-wrap mt-6">
-                    <Link href="/biogateway" className={cn("w-full justify-center", t.badge ? "btn-primary" : "btn-secondary")}>
+                    <Link href={`/dashboard/rfqs/new?analysis=${encodeURIComponent(t.name)}`} className={cn("w-full justify-center", t.badge ? "btn-primary" : "btn-secondary")}>
                       Request this tier
                     </Link>
                   </span>
@@ -398,10 +373,10 @@ export function ServicesPage() {
               {RESOURCES.map((r) => (
                 <motion.div key={r.title} variants={fadeUp}>
                   <Link href={r.href} className="card card-hover group flex h-full flex-col p-6">
-                    <r.icon className="size-6 text-navy-2" strokeWidth={1.7} />
+                    <r.icon className="size-6 text-ink" strokeWidth={1.7} />
                     <h3 className="mt-4 text-[15px] font-semibold text-ink">{r.title}</h3>
                     <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-body">{r.desc}</p>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue group-hover:text-navy-2">
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue group-hover:text-ink">
                       {r.cta} <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                     </span>
                   </Link>
@@ -419,7 +394,7 @@ export function ServicesPage() {
               <h2 className="h-section mt-4">Everything you need to plan your project</h2>
               <p className="mt-4 text-[14.5px] leading-relaxed text-body">
                 Answers on RFQs, blind quoting, samples, turnaround and data handling.
-                Still unsure? <Link href="/contact" className="font-medium text-blue hover:text-navy-2">Talk to our team</Link>.
+                Still unsure? <Link href="/contact" className="font-medium text-blue hover:text-ink">Talk to our team</Link>.
               </p>
             </Reveal>
             <Reveal delay={1} className="space-y-3.5">

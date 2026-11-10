@@ -150,14 +150,14 @@ export function PlatformTabs() {
               <div className="mt-8 grid gap-5 md:grid-cols-3">
                 {tab.features.map((f) => (
                   <div key={f.title} className="card card-hover p-6">
-                    <span className="grid size-10 place-items-center rounded-xl bg-navy/[0.05] text-navy-2">
+                    <span className="grid size-10 place-items-center rounded-xl bg-navy/[0.05] text-ink">
                       <f.icon className="size-5" strokeWidth={1.8} />
                     </span>
                     <h4 className="mt-4 font-display text-[15.5px] font-medium tracking-tight text-ink">{f.title}</h4>
                     <p className="mt-2.5 text-[13.5px] leading-relaxed text-body">{f.desc}</p>
                     <Link
                       href="/platform"
-                      className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-blue hover:text-navy-2"
+                      className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-blue hover:text-ink"
                     >
                       Learn more <ArrowRight className="size-3.5" />
                     </Link>

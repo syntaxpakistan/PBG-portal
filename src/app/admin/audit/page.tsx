@@ -3,24 +3,32 @@ export const instant = false
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 
-export default async function AuditPage({ searchParams }: { searchParams: Promise<{ q?: string; action?: string; entity?: string; actor?: string }> }) {
-  const { q, action, entity, actor } = await searchParams;
-  const logs = await prisma.auditLog.findMany({
-    where: {
-      ...(action ? { action: { contains: action.toUpperCase() } } : {}),
-      ...(entity ? { entity: { contains: entity } } : {}),
-      ...(actor ? { actor: { OR: [{ name: { contains: actor } }, { email: { contains: actor } }] } } : {}),
-      ...(q ? { OR: [{ action: { contains: q.toUpperCase() } }, { entity: { contains: q } }, { meta: { contains: q } }] } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-    include: { actor: { select: { name: true, email: true, role: true } } },
-  });
+export default async function AuditPage({ searchParams }: { searchParams: Promise<{ q?: string; action?: string; entity?: string; actor?: string; page?: string }> }) {
+  const sp = await searchParams;
+  const { q, action, entity, actor } = sp;
+  const page = pageOf(sp);
+  const where = {
+    ...(action ? { action: { contains: action.toUpperCase() } } : {}),
+    ...(entity ? { entity: { contains: entity } } : {}),
+    ...(actor ? { actor: { OR: [{ name: { contains: actor } }, { email: { contains: actor } }] } } : {}),
+    ...(q ? { OR: [{ action: { contains: q.toUpperCase() } }, { entity: { contains: q } }, { meta: { contains: q } }] } : {}),
+  };
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: { actor: { select: { name: true, email: true, role: true } } },
+    }),
+    prisma.auditLog.count({ where }),
+  ]);
 
   return (
     <>
-      <PageHead title="Audit log" sub={`Immutable record of every administrative and workflow action — ${logs.length} shown (latest 100).`}
+      <PageHead title="Audit log" sub={`Immutable record of every administrative and workflow action — ${total} entries.`}
         action={<Link href="/api/admin/export/audit" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">
@@ -49,13 +57,14 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
                   <span className="font-medium text-ink">{l.actor.name}</span>
                   <span className="ml-1.5 text-[10.5px] text-muted">{l.actor.role}</span>
                 </td>
-                <td className="px-5 py-2.5"><code className="rounded bg-paper-2 px-1.5 py-0.5 text-[11px] text-navy-2">{l.action}</code></td>
+                <td className="px-5 py-2.5"><code className="rounded bg-paper-2 px-1.5 py-0.5 text-[11px] text-ink">{l.action}</code></td>
                 <td className="px-5 py-2.5 text-body">{l.entity}</td>
                 <td className="px-5 py-2.5 text-muted">{l.meta ?? "—"}</td>
               </tr>
             ))}
           </tbody>
         </table></div>
+        <Pagination page={page} total={total} base={`/admin/audit${qs({ q, action, entity, actor })}`} />
       </div>
     </>
   );

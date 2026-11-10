@@ -26,10 +26,10 @@ export default async function SettingsPage() {
   ];
 
   return (
-    <div className="grid max-w-5xl gap-6 xl:grid-cols-[1fr_300px]">
-      <div>
-        <PageHead title="Platform settings" sub="Commercial parameters — changes apply to new activity only and are audit-logged." />
+    <div className="max-w-6xl">
+      <PageHead title="Platform settings" sub="Commercial parameters — changes apply to new activity only and are audit-logged." />
 
+      <div className="grid items-start gap-5 md:grid-cols-2">
         <div className="card p-6">
           <h3 className="text-[14px] font-semibold text-ink">Platform fee</h3>
           <p className="mt-1 text-[12.5px] text-body">
@@ -38,7 +38,7 @@ export default async function SettingsPage() {
           <SettingForm settingKey={FEE_KEY} current={fee} suffix="%" min={0} max={30} step={0.1} />
         </div>
 
-        <div className="card mt-5 p-6">
+        <div className="card p-6">
           <h3 className="text-[14px] font-semibold text-ink">Subscription plan prices</h3>
           <p className="mt-1 text-[12.5px] text-body">
             Monthly price in USD. New invoices use the updated price; existing subscriptions keep their billed rate.
@@ -56,7 +56,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="card mt-5 p-6">
+        <div className="card p-6">
           <h3 className="text-[14px] font-semibold text-ink">Billing terms</h3>
           <p className="mt-1 text-[12.5px] text-body">Grace window and invoice due dates across all portals.</p>
           <div className="mt-4 space-y-4">
@@ -77,7 +77,7 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="card mt-5 p-6">
+        <div className="card p-6">
           <h3 className="text-[14px] font-semibold text-ink">Limits</h3>
           <p className="mt-1 text-[12.5px] text-body">Anti-abuse controls applied at creation time.</p>
           <div className="mt-4 space-y-4">
@@ -97,19 +97,21 @@ export default async function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {settings.length > 0 && (
-        <div className="card h-fit p-5 xl:sticky xl:top-6">
-          <h3 className="mb-3 text-[13px] font-semibold text-ink">All settings</h3>
-          {settings.map((s) => (
-            <div key={s.key} className="flex justify-between gap-3 border-b border-line py-2 text-[12.5px] last:border-0">
-              <code className="truncate text-muted">{s.key}</code>
-              <span className="shrink-0 font-medium text-ink">{s.value}</span>
+        {settings.length > 0 && (
+          <div className="card p-5 md:col-span-2">
+            <h3 className="mb-3 text-[13px] font-semibold text-ink">All settings</h3>
+            <div className="grid gap-x-8 sm:grid-cols-2">
+              {settings.map((s) => (
+                <div key={s.key} className="flex justify-between gap-3 border-b border-line py-2 text-[12.5px] last:border-0">
+                  <code className="truncate text-muted">{s.key}</code>
+                  <span className="shrink-0 font-medium text-ink">{s.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

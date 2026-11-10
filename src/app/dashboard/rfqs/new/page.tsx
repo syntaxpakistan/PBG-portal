@@ -8,7 +8,7 @@ import { SubmitButton } from "./submit-button";
 const input =
   "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3";
 
-export default async function NewRfqPage({ searchParams }: { searchParams: Promise<{ invite?: string; cat?: string; title?: string }> }) {
+export default async function NewRfqPage({ searchParams }: { searchParams: Promise<{ invite?: string; cat?: string; title?: string; analysis?: string }> }) {
   const sp = await searchParams;
   const invitedIds = new Set((sp.invite ?? "").split(",").filter(Boolean));
   const providers = await prisma.providerProfile.findMany({
@@ -43,7 +43,7 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Service category *</label>
             <select name="serviceCategory" required defaultValue={sp.cat ?? ""} className={input}>
               <option value="">Select…</option>
-              {["WGS", "WES", "RNA-Seq", "Long-read", "Single Cell", "Spatial", "Epigenetics", "Proteomics", "Immune Profiling", "Bioinformatics", "Sanger", "qPCR", "Panels"].map((s) => (
+              {["WGS", "WES", "RNA-Seq", "Long-read", "Metagenome", "Epigenetics", "Bioinformatics", "Sanger", "Sequencing Only", "qPCR", "Panels"].map((s) => (
                 <option key={s}>{s}</option>
               ))}
             </select>
@@ -56,7 +56,7 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
           </div>
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Analysis type</label>
-            <input name="analysisType" className={input} placeholder="e.g. Variant calling, DE" />
+            <input name="analysisType" className={input} defaultValue={sp.analysis ?? ""} placeholder="e.g. Variant calling, DE" />
           </div>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -107,7 +107,7 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
         </details>
         <div>
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Attachment (PDF/DOCX only, ≤25MB)</label>
-          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.csv,.png,.jpg" className="w-full rounded-lg border border-line bg-surface px-3.5 py-2 text-[13px] file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-4 file:py-1.5 file:text-[12px] file:font-medium file:text-yellow" />
+          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.csv,.png,.jpg,.html" className="w-full rounded-lg border border-line bg-surface px-3.5 py-2 text-[13px] file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-4 file:py-1.5 file:text-[12px] file:font-medium file:text-yellow" />
           <p className="mt-1.5 text-[11.5px] text-muted">Raw sequencing data (FASTQ/BAM/VCF) is never hosted on the Gateway — labs transfer it via secure out-of-band links.</p>
         </div>
         <SubmitButton />

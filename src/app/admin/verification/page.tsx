@@ -2,12 +2,18 @@ export const instant = false
 
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE } from "@/components/portal/pagination";
 import { VerifyButtons } from "./buttons";
 
-export default async function VerificationPage() {
-  const [providers, suppliers] = await Promise.all([
-    prisma.providerProfile.findMany({ include: { user: { select: { email: true, name: true } } }, orderBy: { createdAt: "asc" } }),
-    prisma.supplierProfile.findMany({ include: { user: { select: { email: true, name: true } } }, orderBy: { createdAt: "asc" } }),
+export default async function VerificationPage({ searchParams }: { searchParams: Promise<{ lp?: string; sp?: string }> }) {
+  const sp = await searchParams;
+  const lp = Math.max(1, Number(sp.lp ?? 1) || 1);
+  const spp = Math.max(1, Number(sp.sp ?? 1) || 1);
+  const [providers, provTotal, suppliers, supTotal] = await Promise.all([
+    prisma.providerProfile.findMany({ include: { user: { select: { email: true, name: true } } }, orderBy: { createdAt: "asc" }, skip: (lp - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+    prisma.providerProfile.count(),
+    prisma.supplierProfile.findMany({ include: { user: { select: { email: true, name: true } } }, orderBy: { createdAt: "asc" }, skip: (spp - 1) * PAGE_SIZE, take: PAGE_SIZE }),
+    prisma.supplierProfile.count(),
   ]);
 
   return (
@@ -17,7 +23,7 @@ export default async function VerificationPage() {
         sub="Approve, reject or suspend labs and suppliers. Approved orgs receive the 'Syntax-verified' badge — explicitly non-governmental."
       />
 
-      <h2 className="mb-3 text-[15px] font-semibold text-ink">Laboratories / providers ({providers.length})</h2>
+      <h2 className="mb-3 text-[15px] font-semibold text-ink">Laboratories / providers ({provTotal})</h2>
       <div className="card mb-8 divide-y divide-line">
         {providers.map((p) => (
           <div key={p.id} className="px-5 py-4">
@@ -40,9 +46,10 @@ export default async function VerificationPage() {
             </div>
           </div>
         ))}
+        <Pagination page={lp} total={provTotal} base={`/admin/verification${sp.sp ? `?sp=${sp.sp}` : ""}`} param="lp" />
       </div>
 
-      <h2 className="mb-3 text-[15px] font-semibold text-ink">Suppliers ({suppliers.length})</h2>
+      <h2 className="mb-3 text-[15px] font-semibold text-ink">Suppliers ({supTotal})</h2>
       <div className="card divide-y divide-line">
         {suppliers.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No supplier applications.</p>}
         {suppliers.map((s) => (
@@ -62,6 +69,7 @@ export default async function VerificationPage() {
             </div>
           </div>
         ))}
+        <Pagination page={spp} total={supTotal} base={`/admin/verification${sp.lp ? `?lp=${sp.lp}` : ""}`} param="sp" />
       </div>
     </>
   );

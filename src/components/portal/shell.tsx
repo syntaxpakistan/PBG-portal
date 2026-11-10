@@ -38,7 +38,7 @@ export async function PortalShell({
             <PlatformMark />
           </div>
         </div>
-        <div className="px-5 pb-3 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5c7a95]">
+        <div className="px-5 pb-3 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">
           {title}
         </div>
         <SideNav items={items} unread={unread} />
@@ -49,7 +49,7 @@ export async function PortalShell({
             </span>
             <div className="min-w-0">
               <div className="truncate text-[13px] font-medium text-white">{user.name}</div>
-              <div className="truncate text-[11px] text-[#5c7a95]">{user.email}</div>
+              <div className="truncate text-[11px] text-[#a2c1d7]">{user.email}</div>
             </div>
           </div>
           <div className="flex items-center justify-between">

@@ -25,7 +25,7 @@ export function Stats() {
         <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4">
           {STATS.map((s, i) => (
             <Reveal key={s.label} delay={i}>
-              <p className="font-display text-[54px] font-light leading-none tracking-tight text-navy sm:text-[62px]">
+              <p className="font-display text-[54px] font-light leading-none tracking-tight text-ink sm:text-[62px]">
                 <AnimatedCounter value={s.value} suffix={s.suffix} />
               </p>
               <p className="mt-3 text-[14.5px] font-medium text-ink">{s.label}</p>

@@ -1,14 +1,19 @@
 export const instant = false
 
-import { LayoutDashboard, FileText, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3 } from "lucide-react";
+import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3 } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 
 const items = [
   { href: "/dashboard", label: "Overview", icon: <LayoutDashboard className="size-4" /> },
-  { href: "/dashboard/rfqs", label: "My RFQs", icon: <FileText className="size-4" /> },
+  {
+    label: "RFQs", icon: <FileText className="size-4" />,
+    children: [
+      { href: "/dashboard/rfqs", label: "My RFQs", icon: <FileText className="size-3.5" /> },
+      { href: "/dashboard/rfqs/new", label: "New RFQ", icon: <FilePlus2 className="size-3.5" /> },
+    ],
+  },
   { href: "/dashboard/projects", label: "My projects", icon: <FolderKanban className="size-4" /> },
-  { href: "/dashboard/rfqs/new", label: "New RFQ", icon: <FileText className="size-4" /> },
   { href: "/dashboard/marketplace", label: "Marketplace", icon: <Package className="size-4" /> },
   { href: "/dashboard/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/dashboard/complaints", label: "Complaints", icon: <Flag className="size-4" /> },

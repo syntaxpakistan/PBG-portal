@@ -5,6 +5,7 @@ import { PLANS, type PlanKey } from "@/lib/plans";
 import { issueInvoice } from "@/lib/actions/billing";
 import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Plan } from "@prisma/client";
+import { normalizeUrl } from "@/lib/utils";
 
 export async function createOrgProfile(input: {
   userId: string;
@@ -41,7 +42,7 @@ export async function createOrgProfile(input: {
         sampleTypes: input.sampleTypes ?? "",
         serviceCategories: input.serviceCategories ?? "",
         hpcCapacity: input.hpcCapacity,
-        website: input.website,
+        website: normalizeUrl(input.website),
         establishedYear: input.establishedYear,
         accreditations: input.accreditations,
         contactPerson: input.contactPerson,
@@ -67,7 +68,7 @@ export async function createOrgProfile(input: {
         orgName: input.orgName,
         city: input.city,
         categories: input.categories ?? "",
-        website: input.website,
+        website: normalizeUrl(input.website),
         establishedYear: input.establishedYear,
         contactPerson: input.contactPerson,
         bio: input.bio,

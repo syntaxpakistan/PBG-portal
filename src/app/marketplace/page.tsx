@@ -147,7 +147,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
                     <span className="text-[11px] text-muted">{p.leadTimeDays ? `${p.leadTimeDays}d lead` : ""}</span>
                   </div>
                   <p className="mt-2 flex items-center gap-1.5 text-[11.5px] text-muted"><BadgeCheck className="size-3.5 text-green" />{p.supplier.orgName} · {p.supplier.city}</p>
-                  <Link href="/biogateway" className="btn-outline mt-3.5 w-full justify-center !py-2 text-[12.5px]">Sign in to enquire →</Link>
+                  <Link href="/login" className="btn-outline mt-3.5 w-full justify-center !py-2 text-[12.5px]">Sign in to enquire →</Link>
                 </div>
               ))}
               {products.length === 0 && <p className="col-span-full py-12 text-center text-[13px] text-muted">No supplies match your filters.</p>}

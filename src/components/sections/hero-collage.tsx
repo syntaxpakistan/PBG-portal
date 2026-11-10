@@ -22,14 +22,14 @@ function QuoteCard() {
     <div className="rounded-2xl bg-surface p-5 shadow-xl shadow-navy/30">
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">Blind quote</p>
-        <span className="inline-flex items-center gap-1 rounded-full bg-navy/5 px-2 py-0.5 text-[9px] font-semibold text-navy-2">
+        <span className="inline-flex items-center gap-1 rounded-full bg-navy/5 px-2 py-0.5 text-[9px] font-semibold text-ink">
           <EyeOff className="size-2.5" /> hidden
         </span>
       </div>
       <p className="mt-2 text-[13px] font-semibold text-ink">Provider B</p>
-      <p className="font-mono text-[18px] font-medium text-navy">PKR 412,500</p>
+      <p className="font-mono text-[18px] font-medium text-ink">PKR 412,500</p>
       <div className="mt-2 flex items-center gap-2 text-[10.5px] text-muted">
-        <span className="rounded-full bg-mint/40 px-2 py-0.5 font-semibold text-navy">10 days TAT</span>
+        <span className="rounded-full bg-(--st-green-bg) px-2 py-0.5 font-semibold text-(--st-green-fg)">10 days TAT</span>
         <span>incl. taxes</span>
       </div>
     </div>
@@ -74,7 +74,7 @@ function MatrixCard() {
       <div className="mt-3 grid grid-cols-4 gap-y-2.5 text-[10px] text-body">
         <span />
         {["A", "B", "C"].map((h) => (
-          <span key={h} className="text-center font-semibold text-navy">{h}</span>
+          <span key={h} className="text-center font-semibold text-ink">{h}</span>
         ))}
         {rows.map((r) => (
           <Fragment key={r.label}>
@@ -180,7 +180,7 @@ function ProductCard() {
   return (
     <div className="rounded-2xl bg-surface p-5 shadow-xl shadow-navy/30">
       <div className="flex items-center gap-2.5">
-        <span className="grid size-9 place-items-center rounded-lg bg-yellow/60 text-navy">
+        <span className="grid size-9 place-items-center rounded-lg bg-(--st-amber-bg) text-(--st-amber-fg)">
           <Package className="size-4.5" />
         </span>
         <div>
@@ -189,7 +189,7 @@ function ProductCard() {
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <span className="font-mono text-[13px] font-medium text-navy">PKR 24,800</span>
+        <span className="font-mono text-[13px] font-medium text-ink">PKR 24,800</span>
         <span className="rounded-full bg-navy px-2.5 py-1 text-[9px] font-semibold text-white">Enquire</span>
       </div>
     </div>
@@ -200,7 +200,7 @@ function PipelineCard() {
   return (
     <div className="rounded-2xl bg-surface p-5 shadow-xl shadow-navy/30">
       <div className="flex items-center gap-2.5">
-        <span className="grid size-9 place-items-center rounded-lg bg-mint/50 text-navy">
+        <span className="grid size-9 place-items-center rounded-lg bg-(--st-green-bg) text-(--st-green-fg)">
           <FlaskConical className="size-4.5" />
         </span>
         <div>

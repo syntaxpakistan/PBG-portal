@@ -52,11 +52,11 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
           <form className="mt-8 flex flex-wrap gap-3">
             <input name="q" defaultValue={q ?? ""} placeholder="Search platforms, sample types, services…"
               className="w-full max-w-sm rounded-full border border-white/20 bg-white/10 px-5 py-3 text-[14px] text-white placeholder-white/50 outline-none focus:border-yellow" />
-            <select name="city" defaultValue={city ?? ""} className="rounded-full border border-white/20 bg-white/10 px-4 py-3 text-[14px] text-white outline-none [&>option]:text-ink">
+            <select name="city" defaultValue={city ?? ""} className="rounded-full border border-white/20 bg-white/10 px-4 py-3 text-[14px] text-white outline-none [&>option]:text-navy">
               <option value="">All cities</option>
               {cities.map((c) => <option key={c}>{c}</option>)}
             </select>
-            <select name="cat" defaultValue={cat ?? ""} className="rounded-full border border-white/20 bg-white/10 px-4 py-3 text-[14px] text-white outline-none [&>option]:text-ink">
+            <select name="cat" defaultValue={cat ?? ""} className="rounded-full border border-white/20 bg-white/10 px-4 py-3 text-[14px] text-white outline-none [&>option]:text-navy">
               <option value="">All categories</option>
               {cats.map((c) => <option key={c}>{c}</option>)}
             </select>
@@ -89,7 +89,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
                   {featured && (
-                    <span className="flex items-center gap-1 rounded-full bg-[#fdf3d7] px-2.5 py-1 text-[10.5px] font-semibold text-[#8a6d1f]">
+                    <span className="flex items-center gap-1 rounded-full bg-(--st-amber-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-amber-fg)">
                       <Sparkles className="size-3" /> Featured partner
                     </span>
                   )}

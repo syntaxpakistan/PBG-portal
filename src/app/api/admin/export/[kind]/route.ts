@@ -12,11 +12,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ kin
 
   if (kind === "transactions") {
     const rows = await prisma.transaction.findMany({
-      include: { project: { select: { refNo: true, customer: { select: { name: true, email: true } }, provider: { select: { orgName: true } } } } },
+      include: {
+        project: { select: { refNo: true, customer: { select: { name: true, email: true } }, provider: { select: { orgName: true } } } },
+        enquiry: { select: { buyer: { select: { name: true } }, supplier: { select: { orgName: true } } } },
+      },
       orderBy: { createdAt: "desc" },
     });
     csv = ["project,customer,provider,quoted_value_pkr,fee_percent,fee_amount_pkr,status,date"].join(",") + "\n" +
-      rows.map((t) => [t.project.refNo, t.project.customer.name, t.project.provider.orgName, t.quotedValue, t.feePercent, t.feeAmount, t.status, t.createdAt.toISOString()].map(esc).join(",")).join("\n");
+      rows.map((t) => [t.project?.refNo ?? "supply-sale", t.project?.customer.name ?? t.enquiry?.buyer.name ?? "", t.project?.provider.orgName ?? t.enquiry?.supplier.orgName ?? "", t.quotedValue, t.feePercent, t.feeAmount, t.status, t.createdAt.toISOString()].map(esc).join(",")).join("\n");
   } else if (kind === "audit") {
     const rows = await prisma.auditLog.findMany({ include: { actor: { select: { name: true, email: true } } }, orderBy: { createdAt: "desc" }, take: 5000 });
     csv = ["timestamp,actor,action,entity,entity_id,detail"].join(",") + "\n" +

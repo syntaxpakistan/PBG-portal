@@ -2,6 +2,7 @@ export const instant = false
 
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 
 const ROLE_LABEL: Record<string, string> = {
   CUSTOMER: "Customer",
@@ -10,28 +11,36 @@ const ROLE_LABEL: Record<string, string> = {
   ADMIN: "Admin",
 };
 
-export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string; role?: string }> }) {
-  const { q, role } = await searchParams;
-  const users = await prisma.user.findMany({
-    where: {
-      ...(role ? { role: role as "CUSTOMER" | "PROVIDER" | "SUPPLIER" | "ADMIN" } : {}),
-      ...(q ? {
-        OR: [
-          { name: { contains: q } },
-          { email: { contains: q } },
-          { providerProfile: { orgName: { contains: q } } },
-          { supplierProfile: { orgName: { contains: q } } },
-          { customerProfile: { orgName: { contains: q } } },
-        ],
-      } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    include: { providerProfile: { select: { orgName: true, status: true } }, supplierProfile: { select: { orgName: true, status: true } }, customerProfile: { select: { orgName: true } } },
-  });
+export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string; role?: string; page?: string }> }) {
+  const sp = await searchParams;
+  const { q, role } = sp;
+  const page = pageOf(sp);
+  const where = {
+    ...(role ? { role: role as "CUSTOMER" | "PROVIDER" | "SUPPLIER" | "ADMIN" } : {}),
+    ...(q ? {
+      OR: [
+        { name: { contains: q } },
+        { email: { contains: q } },
+        { providerProfile: { orgName: { contains: q } } },
+        { supplierProfile: { orgName: { contains: q } } },
+        { customerProfile: { orgName: { contains: q } } },
+      ],
+    } : {}),
+  };
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: { providerProfile: { select: { orgName: true, status: true } }, supplierProfile: { select: { orgName: true, status: true } }, customerProfile: { select: { orgName: true } } },
+    }),
+    prisma.user.count({ where }),
+  ]);
 
   return (
     <>
-      <PageHead title="Users & organizations" sub={`Every account on the Gateway — ${users.length} shown.`} />
+      <PageHead title="Users & organizations" sub={`Every account on the Gateway — ${total} total.`} />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search name, email or org…" className="w-full max-w-xs rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3" />
         <select name="role" defaultValue={role ?? ""} className="rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3">
@@ -75,6 +84,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
             {users.length === 0 && <tr><td colSpan={5} className="px-5 py-8 text-center text-muted">No users match this filter.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={page} total={total} base={`/admin/users${qs({ q, role })}`} />
       </div>
     </>
   );

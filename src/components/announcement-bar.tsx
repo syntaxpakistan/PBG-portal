@@ -6,10 +6,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { Megaphone } from "lucide-react";
 
 const ITEMS = [
-  "10x Xenium spatial profiling now available across the verified network",
-  "Olink Reveal proteomics added — 1,000+ protein biomarkers from only 4 μL",
-  "PacBio Revio long-read sequencing joins the registry for structural variant work",
-  "Illumina StrataMap 15×50mm spatial slides — newly supported by providers",
+  "Shotgun & amplicon metagenomics added — subsidized partner rates now live",
+  "Oxford Nanopore native methylation profiling joins the verified network",
+  "Sanger sequencing — 48-hour confirmation reads now routable through RFQs",
 ];
 
 export function AnnouncementBar() {

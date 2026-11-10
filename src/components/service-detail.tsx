@@ -68,7 +68,7 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
           )}
           <Reveal delay={1} className="mt-9 flex flex-wrap items-center gap-5">
             <span className="btn-wrap">
-              <Link href="/biogateway" className="btn-white">Request a quote</Link>
+              <Link href="/dashboard/rfqs/new" className="btn-white">Request a quote</Link>
             </span>
             <Link href="/contact" className="group inline-flex items-center gap-2.5 text-[14.5px] font-medium text-white/90 hover:text-white">
               Contact a scientist <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -102,8 +102,8 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
                   </ul>
                 )}
                 {!sub.points && <div className="flex-1" />}
-                {sub.note && <p className="mt-4 rounded-lg bg-paper-2/70 px-3 py-2 text-[12px] font-medium text-navy-2">{sub.note}</p>}
-                <Link href="/biogateway" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-navy-2">
+                {sub.note && <p className="mt-4 rounded-lg bg-paper-2/70 px-3 py-2 text-[12px] font-medium text-ink">{sub.note}</p>}
+                <Link href="/dashboard/rfqs/new" className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-blue hover:text-ink">
                   Request this service <ArrowRight className="size-3.5" />
                 </Link>
               </motion.div>
@@ -222,7 +222,7 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
                   <p className="eyebrow">Resources &amp; insights</p>
                   <h2 className="h-section mt-4">Go deeper</h2>
                 </div>
-                <Link href="/resources/documents" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-navy-2 hover:text-blue">
+                <Link href="/resources/documents" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-ink hover:text-blue">
                   More resources <ArrowRight className="size-4" />
                 </Link>
               </div>
@@ -232,7 +232,7 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
                 <motion.div key={r.title} variants={fadeUp}>
                   <Link href="/resources/documents" className="card card-hover group flex h-full flex-col p-6">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue">{r.tag}</p>
-                    <h3 className="mt-3 flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-navy-2">{r.title}</h3>
+                    <h3 className="mt-3 flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-ink">{r.title}</h3>
                     <p className="mt-2 text-[12.5px] leading-relaxed text-body">{r.desc}</p>
                   </Link>
                 </motion.div>
@@ -255,9 +255,9 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
                 <Link href={r.href} className="card card-hover group flex items-center justify-between gap-4 p-5">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{r.eyebrow}</p>
-                    <p className="mt-1 text-[14.5px] font-semibold text-ink group-hover:text-navy-2">{r.title}</p>
+                    <p className="mt-1 text-[14.5px] font-semibold text-ink group-hover:text-ink">{r.title}</p>
                   </div>
-                  <ArrowRight className="size-4 shrink-0 text-navy-2 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-4 shrink-0 text-ink transition-transform group-hover:translate-x-1" />
                 </Link>
               </motion.div>
             ))}
@@ -285,7 +285,7 @@ export function ServiceDetail({ s }: { s: ServicePage }) {
                       ))}
                     </ul>
                     <span className="btn-wrap mt-7 inline-block">
-                      <Link href="/biogateway" className="btn-white">Request a quote</Link>
+                      <Link href="/dashboard/rfqs/new" className="btn-white">Request a quote</Link>
                     </span>
                   </div>
                 </div>

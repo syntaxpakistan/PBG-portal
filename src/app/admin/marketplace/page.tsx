@@ -2,20 +2,31 @@ export const instant = false
 
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE } from "@/components/portal/pagination";
 import { pkr } from "@/lib/constants";
 import { ProductToggle } from "./toggle";
 import { EnquiryMod } from "./enquiry-mod";
 
-export default async function AdminMarketplacePage() {
-  const products = await prisma.product.findMany({
-    include: { supplier: { select: { orgName: true, city: true } }, _count: { select: { enquiries: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-  const enquiries = await prisma.enquiry.findMany({
-    include: { product: { select: { name: true } }, supplier: { select: { orgName: true } }, buyer: { select: { name: true, email: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+export default async function AdminMarketplacePage({ searchParams }: { searchParams: Promise<{ pp?: string; ep?: string }> }) {
+  const sp = await searchParams;
+  const pp = Math.max(1, Number(sp.pp ?? 1) || 1);
+  const ep = Math.max(1, Number(sp.ep ?? 1) || 1);
+  const [products, prodTotal, enquiries, enqTotal] = await Promise.all([
+    prisma.product.findMany({
+      include: { supplier: { select: { orgName: true, city: true } }, _count: { select: { enquiries: true } } },
+      orderBy: { createdAt: "desc" },
+      skip: (pp - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.product.count(),
+    prisma.enquiry.findMany({
+      include: { product: { select: { name: true } }, supplier: { select: { orgName: true } }, buyer: { select: { name: true, email: true } } },
+      orderBy: { createdAt: "desc" },
+      skip: (ep - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.enquiry.count(),
+  ]);
 
   return (
     <>
@@ -53,6 +64,7 @@ export default async function AdminMarketplacePage() {
             {products.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No products listed yet.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={pp} total={prodTotal} base={`/admin/marketplace${sp.ep ? `?ep=${sp.ep}` : ""}`} param="pp" />
       </div>
 
       <h2 className="mb-3 mt-8 text-[15px] font-semibold text-ink">Product enquiries</h2>
@@ -85,6 +97,7 @@ export default async function AdminMarketplacePage() {
             {enquiries.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No enquiries yet.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={ep} total={enqTotal} base={`/admin/marketplace${sp.pp ? `?pp=${sp.pp}` : ""}`} param="ep" />
       </div>
     </>
   );

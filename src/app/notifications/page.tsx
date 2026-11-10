@@ -6,6 +6,7 @@ import { Bell, ArrowLeft, CheckCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { markAllNotificationsRead, markNotificationRead } from "@/lib/actions/marketplace";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const HOME: Record<string, string> = { CUSTOMER: "/dashboard", PROVIDER: "/lab", SUPPLIER: "/supplier", ADMIN: "/admin" };
 
@@ -33,9 +34,9 @@ export default async function NotificationsPage() {
           </div>
           {unread > 0 && (
             <form action={markAllNotificationsRead}>
-              <button type="submit" className="btn-outline flex items-center gap-1.5 !py-2 text-[12px]">
+              <SubmitButton className="btn-outline flex items-center gap-1.5 !py-2 text-[12px]">
                 <CheckCheck className="size-3.5" /> Mark all read
-              </button>
+              </SubmitButton>
             </form>
           )}
         </div>
@@ -62,7 +63,7 @@ export default async function NotificationsPage() {
               </div>
               {!n.readAt && (
                 <form action={markNotificationRead.bind(null, n.id)}>
-                  <button type="submit" className="btn-outline shrink-0 !px-2.5 !py-1 text-[10.5px]">Read</button>
+                  <SubmitButton className="btn-outline shrink-0 !px-2.5 !py-1 text-[10.5px]">Read</SubmitButton>
                 </form>
               )}
             </div>

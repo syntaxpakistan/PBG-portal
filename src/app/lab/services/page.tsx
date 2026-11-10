@@ -3,8 +3,10 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { ServicePriceFields } from "@/components/portal/service-price-fields";
 import { saveService, setServiceActive, deleteService } from "@/lib/actions/marketplace";
 import { pkr } from "@/lib/constants";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const input = "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3";
 const label = "mb-1.5 block text-[12.5px] font-medium text-ink";
@@ -58,12 +60,16 @@ export default async function LabServicesPage() {
                   {s.description && <p className="mt-1 max-w-md text-[12px] text-body">{s.description}</p>}
                 </div>
                 <div className="flex items-center gap-2">
-                  {s.priceFrom != null && <span className="text-[13px] font-medium text-ink">{pkr(s.priceFrom)}{s.unit ? ` ${s.unit}` : ""}</span>}
+                  {s.priceVisibility === "QUOTE_ONLY" || s.priceFrom == null ? (
+                    <span className="rounded-full border border-navy-3/30 bg-paper px-2.5 py-1 text-[11px] font-semibold text-ink">Request for quote</span>
+                  ) : (
+                    <span className="text-[13px] font-medium text-ink">{pkr(s.priceFrom)}{s.unit ? ` ${s.unit}` : ""}</span>
+                  )}
                   <form action={setServiceActive.bind(null, s.id, !s.active)}>
-                    <button type="submit" className="btn-outline !px-3 !py-1.5 text-[11.5px]">{s.active ? "Hide" : "Show"}</button>
+                    <SubmitButton className="btn-outline !px-3 !py-1.5 text-[11.5px]">{s.active ? "Hide" : "Show"}</SubmitButton>
                   </form>
                   <form action={deleteService.bind(null, s.id)}>
-                    <button type="submit" className="rounded-lg border border-(--st-red-bd) px-3 py-1.5 text-[11.5px] font-medium text-(--st-red-fg) hover:bg-(--st-red-bg)">Delete</button>
+                    <SubmitButton className="rounded-lg border border-(--st-red-bd) px-3 py-1.5 text-[11.5px] font-medium text-(--st-red-fg) hover:bg-(--st-red-bg)">Delete</SubmitButton>
                   </form>
                 </div>
               </div>
@@ -83,7 +89,7 @@ export default async function LabServicesPage() {
               <div>
                 <label className={label}>Category *</label>
                 <select name="category" required className={input}>
-                  {["WGS", "WES", "RNA-Seq", "Long-read", "Single Cell", "Epigenetics", "Bioinformatics", "Sanger", "qPCR", "Panels"].map((c) => <option key={c}>{c}</option>)}
+                  {["WGS", "Metagenome", "RNA-Seq", "Epigenomics", "Sanger", "Sequencing Only", "Bioinformatics", "WES", "qPCR", "Panels"].map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div>
@@ -95,30 +101,12 @@ export default async function LabServicesPage() {
               <label className={label}>Platform</label>
               <input name="platform" className={input} placeholder="Illumina NovaSeq X" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={label}>Starting price (PKR)</label>
-                <input name="priceFrom" type="number" min={0} className={input} placeholder="95000" />
-              </div>
-              <div>
-                <label className={label}>Unit</label>
-                <input name="unit" className={input} placeholder="/sample" />
-              </div>
-            </div>
-            <div>
-              <label className={label}>Price visibility</label>
-              <select name="priceVisibility" className={input}>
-                <option value="PUBLIC">Public — anyone browsing the marketplace</option>
-                <option value="MEMBERS">Members — signed-in customers only</option>
-                <option value="QUOTE_ONLY">Hidden — &ldquo;request quote&rdquo; instead of a price</option>
-              </select>
-              <p className="mt-1 text-[11px] text-muted">Competitors can&apos;t see member-only or hidden prices — only you and the marketplace buyers.</p>
-            </div>
+            <ServicePriceFields input={input} label={label} />
             <div>
               <label className={label}>Description</label>
               <textarea name="description" rows={2} className={input} placeholder="What's included, QC steps, deliverables…" />
             </div>
-            <button type="submit" className="btn-primary !py-2.5">List service</button>
+            <SubmitButton className="btn-primary !py-2.5">List service</SubmitButton>
           </form>
         </div>
       </div>

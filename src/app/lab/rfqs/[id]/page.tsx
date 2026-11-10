@@ -8,6 +8,7 @@ import { isPriorityClientSubscription } from "@/lib/entitlements";
 import { getGraceDays } from "@/lib/settings";
 import { PageHead } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const input =
   "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3";
@@ -49,7 +50,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
         </div>
       )}
       {isPriorityClientSubscription(rfq.customer.subscription, await getGraceDays()) && (
-        <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-[#e8d9a8] bg-[#fdf6e3] px-4 py-3 text-[13px] font-medium text-[#8a6d1f]">
+        <div className="mb-5 flex items-center gap-2.5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
           Priority client — this customer is on a paid {rfq.customer.subscription!.plan === "CUSTOM" ? "Custom" : "Pro"} plan.
         </div>
       )}
@@ -120,10 +121,10 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
               <textarea name="notes" rows={3} defaultValue={myQuote?.notes ?? ""} className={input} placeholder="Capacity, QC steps, what's included…" />
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <button type="submit" className="btn-primary !py-3">{myQuote ? "Update quote" : "Submit sealed quote"}</button>
+              <SubmitButton className="btn-primary !py-3">{myQuote ? "Update quote" : "Submit sealed quote"}</SubmitButton>
               {myQuote?.status === "SUBMITTED" && (
                 <form action={withdraw}>
-                  <button type="submit" className="btn-outline !py-3">Withdraw quote</button>
+                  <SubmitButton className="btn-outline !py-3">Withdraw quote</SubmitButton>
                 </form>
               )}
             </div>
@@ -142,7 +143,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
             <label className="mb-1.5 block text-[11.5px] font-medium text-ink">Can&apos;t take this on?</label>
             <div className="flex gap-2">
               <input name="reason" placeholder="Reason (optional)" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12px] text-ink outline-none focus:border-navy-3" />
-              <button type="submit" className="btn-outline shrink-0 !px-3 !py-2 text-[11.5px]">Decline RFQ</button>
+              <SubmitButton className="btn-outline shrink-0 !px-3 !py-2 text-[11.5px]">Decline RFQ</SubmitButton>
             </div>
             <p className="mt-1.5 text-[10.5px] text-muted">Declining hides this RFQ — the customer never sees that you passed.</p>
           </form>

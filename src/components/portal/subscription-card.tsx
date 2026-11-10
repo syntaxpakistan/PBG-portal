@@ -2,6 +2,7 @@ import { PLANS } from "@/lib/plans";
 import { BadgeCheck, Clock3 } from "lucide-react";
 import { requestRenewal } from "@/lib/actions/marketplace";
 import type { Subscription } from "@prisma/client";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const STATUS_TXT: Record<string, [string, string]> = {
   ACTIVE: ["bg-(--st-green-bg) text-(--st-green-fg)", "Active"],
@@ -47,9 +48,9 @@ export function SubscriptionCard({ sub }: { sub: Subscription | null }) {
           </p>
         ) : (sub.status === "ACTIVE" || sub.status === "EXPIRED") && (
           <form action={requestRenewal} className="mt-4">
-            <button type="submit" className="btn-outline w-full justify-center !py-2.5 text-[12.5px]">
+            <SubmitButton className="btn-outline w-full justify-center !py-2.5 text-[12.5px]">
               {sub.status === "EXPIRED" ? "Reactivate subscription" : "Request renewal"}
-            </button>
+            </SubmitButton>
           </form>
         )}
       </div>

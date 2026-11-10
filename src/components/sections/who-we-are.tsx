@@ -43,7 +43,7 @@ export function WhoWeAre() {
             <div className="card grid grid-cols-2 gap-px overflow-hidden !rounded-2xl bg-line sm:grid-cols-3">
               {STATS.map((s) => (
                 <div key={s.label} className="bg-surface p-6">
-                  <p className="font-display text-[34px] font-light tracking-tight text-navy">
+                  <p className="font-display text-[34px] font-light tracking-tight text-ink">
                     <AnimatedCounter value={s.value} suffix={s.suffix} />
                   </p>
                   <p className="mt-1.5 text-[12px] leading-snug text-muted">{s.label}</p>

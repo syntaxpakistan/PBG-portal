@@ -207,7 +207,7 @@ export function PayoutForm({ payees }: { payees: { type: string; id: string; org
       <input name="feeAmount" type="number" step="0.01" min="0" placeholder="Fees PKR" className={input} />
       <input name="netAmount" type="number" step="0.01" min="0" required placeholder="Net PKR" className={input} />
       <input name="note" placeholder="Note" className={input} />
-      <button type="submit" disabled={loading} className="btn-primary !py-2 text-[12px] justify-center sm:col-span-3">
+      <button type="submit" disabled={loading} className="btn-primary inline-flex items-center justify-center gap-1.5 !py-1.5 text-[12px] self-end">
         {loading ? <Loader2 className="size-3.5 animate-spin" /> : "Schedule payout"}
       </button>
     </form>

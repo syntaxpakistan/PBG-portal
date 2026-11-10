@@ -10,9 +10,9 @@ import { getFeePercent } from "@/lib/settings";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { WORK_STAGE_KEYS } from "@/lib/constants";
 import { assertPartnerActive, isPriorityClientSubscription } from "@/lib/entitlements";
-import { getGraceDays, getRfqRateLimit } from "@/lib/settings";
+import { getGraceDays, getInvoiceDueDays, getRfqRateLimit } from "@/lib/settings";
 import { rateLimit } from "@/lib/rate-limit";
-import { issueInvoice } from "@/lib/actions/billing";
+import { issueInvoice, autoIssueFeeInvoice } from "@/lib/actions/billing";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
   await prisma.auditLog.create({ data: { actorId, action, entity, entityId, meta } });
@@ -481,6 +481,9 @@ export async function completeProject(projectId: string) {
     prisma.project.update({ where: { id: projectId }, data: { status: "COMPLETED" } }),
     prisma.statusHistory.create({ data: { projectId, status: "COMPLETED", changedById: session.user.id } }),
   ]);
+  // never let commission slip — auto-issue the platform-fee invoice at completion
+  const txn = await prisma.transaction.findUnique({ where: { projectId }, select: { id: true, invoiceId: true } });
+  if (txn && !txn.invoiceId) await autoIssueFeeInvoice(txn.id);
   await audit(session.user.id, "PROJECT_COMPLETED", "Project", projectId, project.refNo);
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
@@ -488,6 +491,15 @@ export async function completeProject(projectId: string) {
 export async function fileComplaint(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
+  // idempotent — one open complaint per project per filer; double-clicks can't spam the queue
+  const open = await prisma.complaint.findFirst({
+    where: { projectId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
+    select: { id: true },
+  });
+  if (open) {
+    revalidatePath(`/dashboard/projects/${projectId}`);
+    return;
+  }
   await prisma.complaint.create({
     data: {
       projectId,
@@ -785,6 +797,8 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   await assertPartnerActive(session.user.id);
   const e = await prisma.enquiry.findUniqueOrThrow({ where: { id: enquiryId }, include: { product: true, buyer: { select: { role: true } } } });
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
+  if (e.status !== "OPEN" && e.status !== "QUOTED" && e.status !== "ANSWERED")
+    throw new Error("Offer already accepted — the price is locked in the invoice");
   await prisma.enquiry.update({
     where: { id: enquiryId },
     data: {
@@ -804,6 +818,43 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   revalidatePath("/supplier");
 }
 
+// buyer accepts a supplier's quoted price — raises an escrowed invoice (Syntax verifies payment)
+export async function acceptEnquiryQuote(enquiryId: string) {
+  const session = await getSession();
+  if (!session || (session.user.role !== "CUSTOMER" && session.user.role !== "PROVIDER")) redirect("/login");
+  const e = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, supplier: true, invoice: true },
+  });
+  if (e.buyerId !== session.user.id) throw new Error("Not your enquiry");
+  if (e.status !== "QUOTED" || e.quotedPrice == null) throw new Error("No priced offer to accept");
+  if (e.invoice && e.invoice.status !== "VOID") throw new Error("Already invoiced");
+
+  const dueDays = await getInvoiceDueDays();
+  await issueInvoice({
+    billedUserId: session.user.id,
+    issuerType: "SUPPLIER",
+    issuerId: e.supplierId,
+    enquiryId: e.id,
+    currency: "PKR",
+    dueAt: new Date(Date.now() + dueDays * 864e5),
+    note: `Supply order — ${e.product.name} × ${e.qty}`,
+    items: [{ description: `${e.product.name} × ${e.qty}${e.leadTimeDays != null ? ` · ${e.leadTimeDays}d lead` : ""}`, qty: e.qty, unitPrice: e.quotedPrice }],
+  });
+  await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "INVOICED" } });
+  await notify({
+    toUserId: e.supplier.userId,
+    subject: `Order accepted — ${e.product.name}`,
+    body: `${session.user.name} accepted your offer for ${e.qty} × ${e.product.name} (PKR ${(e.quotedPrice * e.qty).toLocaleString()}). Payment goes through Syntax escrow — you'll be notified when it's verified.`,
+    href: "/supplier",
+  });
+  await audit(session.user.id, "ENQUIRY_ACCEPTED", "Enquiry", enquiryId, `${e.product.name} × ${e.qty}`);
+  const base = session.user.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace";
+  revalidatePath(base);
+  revalidatePath("/supplier");
+  redirect(base);
+}
+
 export async function fulfilEnquiry(enquiryId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") redirect("/login");
@@ -811,9 +862,11 @@ export async function fulfilEnquiry(enquiryId: string) {
   await assertPartnerActive(session.user.id);
   const e = await prisma.enquiry.findUniqueOrThrow({
     where: { id: enquiryId },
-    include: { product: { select: { name: true } }, buyer: { select: { role: true } } },
+    include: { product: { select: { name: true } }, buyer: { select: { role: true } }, invoice: true },
   });
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
+  if (e.invoice && e.invoice.status !== "PAID" && e.invoice.status !== "VOID")
+    throw new Error("Await buyer payment — the invoice must settle before fulfilment");
   await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "FULFILLED" } });
   await audit(session.user.id, "ENQUIRY_FULFILLED", "Enquiry", enquiryId);
   await notify({
@@ -867,7 +920,16 @@ export async function saveService(formData: FormData) {
   if (id) {
     await prisma.serviceListing.update({ where: { id, providerId: profile.id }, data });
   } else {
-    await prisma.serviceListing.create({ data: { ...data, providerId: profile.id } });
+    // idempotent — a double-submit (race or double-click) updates the listing instead of duplicating it
+    const existing = await prisma.serviceListing.findFirst({
+      where: { providerId: profile.id, name: data.name },
+      select: { id: true },
+    });
+    if (existing) {
+      await prisma.serviceListing.update({ where: { id: existing.id }, data });
+    } else {
+      await prisma.serviceListing.create({ data: { ...data, providerId: profile.id } });
+    }
   }
   await notifyAllAdmins(
     `Service listing awaiting approval: ${data.name}`,

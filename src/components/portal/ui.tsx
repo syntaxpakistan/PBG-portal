@@ -73,7 +73,21 @@ export function PageHead({ title, sub, action }: { title: string; sub?: string; 
   );
 }
 
-export function StatCard({ label, value, sub, icon }: { label: string; value: string | number; sub?: string; icon?: React.ReactNode }) {
+export function StatCard({ label, value, sub, icon, compact }: { label: string; value: string | number; sub?: string; icon?: React.ReactNode; compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="card relative overflow-hidden px-3.5 py-2.5 transition-colors hover:border-line-strong">
+        <div className="absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-navy/60 to-green/60" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="truncate text-[10.5px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</div>
+            <div className="font-display mt-0.5 text-[19px] font-medium tracking-tight text-ink">{value}</div>
+          </div>
+          {sub && <div className="shrink-0 text-[10.5px] text-body">{sub}</div>}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="card relative overflow-hidden p-5">
       <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-navy/60 to-green/60" />

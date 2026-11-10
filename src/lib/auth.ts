@@ -6,6 +6,18 @@ import { sendEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
+  // enabled once GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET are set — new accounts
+  // default to CUSTOMER via the role field's defaultValue
+  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? {
+        socialProviders: {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        },
+      }
+    : {}),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -39,7 +51,7 @@ export const auth = betterAuth({
   plugins: [
     twoFactor({ issuer: "Pakistan Biotechnology Gateway" }),
   ],
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: ["http://localhost:3000", "https://pbg-teal.vercel.app"],
 });
 
 export type Session = typeof auth.$Infer.Session;

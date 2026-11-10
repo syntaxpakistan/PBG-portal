@@ -78,8 +78,8 @@ const WGS_ROWS = [
 ];
 
 const META_ROWS = [
-  { pkg: "Whole-genome shotgun", out: "3 Gb / sample", rate: "PKR 75,000 / sample", inc: "Sequencing output + taxonomic profiling & abundance · downstream analysis on demand (+PKR 10,000–30,000)" },
-  { pkg: "Amplicon metagenomics", out: "> 25 samples", rate: "PKR 25,000 / sample", inc: "16S rRNA / ITS / 18S / COI · diversity & taxonomic analysis on demand (+PKR 5,000–15,000)" },
+  { pkg: "Whole-genome shotgun", out: "3 Gb / sample", rate: "PKR 75,000 / sample", inc: "Sequencing output + taxonomic profiling & abundance (optional downstream analysis — functional annotation, resistome profiling: +PKR 10,000–30,000)" },
+  { pkg: "Amplicon metagenomics", out: "> 25 samples", rate: "PKR 25,000 / sample", inc: "16S rRNA / ITS / 18S / COI (optional diversity & taxonomic analysis — ordination, differential abundance: +PKR 5,000–15,000)" },
 ];
 
 const TARGETED_TYPES = [
@@ -140,7 +140,7 @@ function RateTable({ head, rows }: { head: string[]; rows: string[][] }) {
           {rows.map((r, i) => (
             <tr key={i} className="bg-surface">
               {r.map((c, j) => (
-                <td key={j} className={`px-4 py-3 align-top ${j === 0 ? "font-semibold text-ink" : j === r.length - 2 ? "font-semibold text-navy-2 whitespace-nowrap" : "text-body"}`}>
+                <td key={j} className={`px-4 py-3 align-top ${j === 0 ? "font-semibold text-ink" : j === r.length - 2 ? "font-semibold text-ink whitespace-nowrap" : "text-body"}`}>
                   {c}
                 </td>
               ))}
@@ -186,7 +186,7 @@ export function PartnersPage() {
             <span className="btn-wrap">
               <Link href="/biogateway" className="btn-white">Become a partner</Link>
             </span>
-            <Link href="/marketplace" className="btn-ghost">Browse services</Link>
+            <Link href="/marketplace" className="btn-ghost on-dark">Browse services</Link>
           </Reveal>
         </div>
       </section>
@@ -217,7 +217,7 @@ export function PartnersPage() {
                 <p className="mt-4 text-[16px] font-semibold text-ink">{p.name}</p>
                 <p className="mt-0.5 text-[12.5px] font-medium text-blue">{p.category}</p>
                 <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-muted">{p.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-navy-2 group-hover:text-blue">
+                <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink group-hover:text-blue">
                   View partner profile <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </a>
@@ -265,11 +265,26 @@ export function PartnersPage() {
           {/* cover + who we are */}
           <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_1.15fr]">
             <Reveal>
-              <img
-                src="/partners/cas-ngs-cover.jpg"
-                alt="CAS-NGS — subsidized sequencing services"
-                className="w-full rounded-2xl border border-line object-cover shadow-lg"
-              />
+              <div className="relative flex min-h-72 flex-col justify-between overflow-hidden rounded-2xl border border-navy bg-navy p-8 shadow-lg">
+                <div className="grid-lines on-dark absolute inset-0" />
+                <div className="glow-orb -right-16 -top-16 size-64 bg-blue-bright/20" />
+                <div className="relative">
+                  <p className="font-display text-[26px] font-bold leading-tight text-white">CAS-NGS</p>
+                  <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-[#a2c1d7]">
+                    Center for Advanced Studies in Agriculture &amp; Food Security
+                  </p>
+                  <p className="mt-1 text-[12px] text-[#7a97b0]">University of Agriculture Faisalabad</p>
+                </div>
+                <div className="relative mt-10">
+                  <p className="text-[20px] font-semibold leading-snug text-yellow">Subsidized Sequencing Services</p>
+                  <p className="mt-2 max-w-sm text-[13.5px] leading-relaxed text-[#c5d2e1]">
+                    High-impact genomics at affordable research rates — in-house at UAF.
+                  </p>
+                  <p className="mt-4 inline-block rounded-full border border-white/25 px-3.5 py-1 text-[11px] font-medium text-white">
+                    Limited-time subsidized rates — till 30 Dec 2026
+                  </p>
+                </div>
+              </div>
             </Reveal>
             <div>
               <p className="eyebrow">Why in-house sequencing matters</p>
@@ -330,7 +345,7 @@ export function PartnersPage() {
                     Introductory commercial rates
                   </h3>
                 </div>
-                <Pill>Free DNA extraction till 30 Sep 2026</Pill>
+                <Pill>Free DNA extraction till 30 Dec 2026</Pill>
               </div>
             </Reveal>
 
@@ -367,7 +382,7 @@ export function PartnersPage() {
                       />
                     </div>
                     <p className="mt-4 text-[12px] leading-relaxed text-muted">
-                      Includes bioinformatics analysis, rRNA masking/subtraction, adapter removal, de-novo
+                      Includes bioinformatics analysis, rRNA masking/subtraction, adapter removal, De novo
                       transcriptome assembly, gene prediction, functional analysis (GO &amp; KEGG) and
                       expression analysis. RNA-stabilized tissue or fresh samples accepted — final quote
                       depends on submission option and project scope.
@@ -413,7 +428,7 @@ export function PartnersPage() {
                     <RateTable
                       head={["Package", "Samples", "Rate", "Includes"]}
                       rows={[
-                        ["Custom targeted sequencing", "> 50 samples", "PKR 25,000 / sample", "PCR amplicon / target genes · customized bioinformatics (+PKR 5,000–20,000)"],
+                        ["Custom targeted sequencing", "> 50 samples", "PKR 25,000 / sample", "PCR amplicon / target genes included (optional customized bioinformatics — variant calling, haplotyping, report: +PKR 5,000–20,000)"],
                       ]}
                     />
                   </div>
@@ -422,7 +437,7 @@ export function PartnersPage() {
             </div>
 
             <p className="mt-5 text-[12px] leading-relaxed text-muted">
-              Rates are subsidized for a promotional period valid until September 30, 2026. Final pricing
+              Rates are subsidized for a promotional period valid until December 30, 2026. Final pricing
               depends on genome size, number of samples, required depth/coverage or read count, and any
               additional downstream bioinformatics requested.
             </p>
@@ -474,7 +489,7 @@ export function PartnersPage() {
                 <div className="card flex-1 bg-navy p-6 !border-navy">
                   <div className="flex items-center gap-2.5">
                     <ShieldCheck className="size-5 text-yellow" />
-                    <p className="text-[14px] font-semibold text-white">Data ownership &amp; confidentiality</p>
+                    <p className="text-[14px] font-semibold text-white">Data Privacy — ownership &amp; confidentiality</p>
                   </div>
                   <p className="mt-3 text-[13px] leading-relaxed text-[#a2c1d7]">
                     Project data, biological material information and analysis outputs remain the property
@@ -501,7 +516,7 @@ export function PartnersPage() {
                 </div>
                 <p className="mt-2 text-[12px] text-muted">Social: CAS_NGS · Cas-Ngs · cas_ngs · CAS-NGS</p>
               </div>
-              <Link href="/biogateway" className="btn-primary">Request this partner</Link>
+              <Link href="/dashboard/rfqs/new" className="btn-primary">Request this partner</Link>
             </div>
           </Reveal>
         </div>
@@ -539,7 +554,7 @@ export function PartnersPage() {
                   </span>
                   <p className="mt-3.5 text-[14.5px] font-semibold text-ink">{s.t}</p>
                   <p className="mt-1 flex-1 text-[12.5px] leading-relaxed text-muted">{s.d}</p>
-                  <p className="mt-3 text-[12.5px] font-bold text-navy-2">{s.rate}</p>
+                  <p className="mt-3 text-[12.5px] font-bold text-ink">{s.rate}</p>
                 </div>
               ))}
             </Stagger>
@@ -578,7 +593,7 @@ export function PartnersPage() {
                   LinkedIn &amp; Facebook: Genexa Analytics · Instagram: @genexa_analytics
                 </p>
               </div>
-              <Link href="/biogateway" className="btn-primary">Request this partner</Link>
+              <Link href="/dashboard/rfqs/new" className="btn-primary">Request this partner</Link>
             </div>
           </Reveal>
         </div>

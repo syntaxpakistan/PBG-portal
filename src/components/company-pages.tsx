@@ -268,7 +268,7 @@ export function CareersPage() {
                 </div>
                 <h3 className="mt-4 font-display text-[20px] font-medium tracking-tight text-ink">{r.title}</h3>
                 <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-body">{r.desc}</p>
-                <Link href="/biogateway" className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-navy-2">
+                <Link href="/contact" className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-ink">
                   Apply now <ArrowRight className="size-4" />
                 </Link>
               </motion.div>
@@ -284,7 +284,7 @@ export function CareersPage() {
                   </p>
                 </div>
                 <span className="btn-wrap">
-                  <Link href="/biogateway" className="btn-white">Send your resume</Link>
+                  <Link href="/contact" className="btn-white">Send your resume</Link>
                 </span>
               </div>
             </div>
@@ -310,7 +310,7 @@ const CERTS = [
       "Visium — whole-transcriptome spatial profiling on FFPE or fresh-frozen tissue",
       "Xenium — sub-cellular, high-plex in situ transcript quantification",
     ],
-    href: "/services/single-cell-sequencing", cta: "Explore 10x Genomics services",
+    href: "/platform/verification", cta: "Explore 10x Genomics services",
   },
   {
     name: "Pacific Biosciences",
@@ -320,7 +320,7 @@ const CERTS = [
       "Comprehensive variant detection — SNVs, Indels and large SVs with haplotype phasing",
       "Full-length isoform and methylation profiling in native context",
     ],
-    href: "/services/long-read", cta: "Discover high-accuracy genome solutions",
+    href: "/services/whole-genome-sequencing", cta: "Discover high-accuracy genome solutions",
   },
   {
     name: "Illumina",
@@ -331,7 +331,7 @@ const CERTS = [
       "Whole-genome sequencing — NovaSeq X+ coverage for population studies and variant discovery",
       "Whole-exome sequencing — Agilent or Twist capture with calling, annotation and CNV analysis",
     ],
-    href: "/services/premade-library-sequencing", cta: "Explore our sequencing services",
+    href: "/services", cta: "Explore our sequencing services",
   },
   {
     name: "Olink",
@@ -342,7 +342,7 @@ const CERTS = [
       "Integrated workflow — assay setup through Illumina sequencing and Olink Insight analysis",
       "Fast turnaround — results typically within ~4 weeks",
     ],
-    href: "/services/proteomics", cta: "Know more about our proteomics services",
+    href: "/services", cta: "Know more about our proteomics services",
   },
   {
     name: "Twist Bioscience",
@@ -353,7 +353,7 @@ const CERTS = [
       "Whole-genome sequencing — consistent performance across GC-rich and challenging regions",
       "RNA sequencing — strand-specific profiling of coding and non-coding RNAs at low input",
     ],
-    href: "/services/genomics", cta: "Know more",
+    href: "/services/whole-genome-sequencing", cta: "Know more",
   },
 ];
 
@@ -373,7 +373,7 @@ export function CertifiedPage() {
                 <div>
                   <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">{c.name}</h2>
                   <p className="mt-3 text-[14px] leading-relaxed text-body">{c.desc}</p>
-                  <Link href={c.href} className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-navy-2">
+                  <Link href={c.href} className="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-ink">
                     {c.cta} <ArrowRight className="size-4" />
                   </Link>
                 </div>
@@ -417,7 +417,7 @@ export function GrantsPage() {
         eyebrow="Grants"
         title="Funding programs for your next study"
         tagline="Competitive grant cycles that put cutting-edge platforms within reach — awarded projects receive free profiling, analysis and scientific support through the network."
-        cta={{ href: "/biogateway", label: "Apply for a grant" }}
+        cta={{ href: "/contact", label: "Apply for a grant" }}
       />
       <section className="bg-paper py-24">
         <div className="container-x">
@@ -436,7 +436,7 @@ export function GrantsPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/biogateway" className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-navy-2">
+                <Link href="/contact" className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue hover:text-ink">
                   Apply now <ArrowRight className="size-4" />
                 </Link>
               </motion.div>

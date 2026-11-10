@@ -3,23 +3,31 @@ export const instant = false
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
+import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 
 export default async function AdminRfqsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const { status } = await searchParams;
+  const sp = await searchParams;
+  const { status } = sp;
+  const page = pageOf(sp);
   const where = status ? { status: status as "OPEN" | "AWARDED" | "CANCELLED" | "CLOSED" } : {};
-  const rfqs = await prisma.rfq.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: {
-      customer: { select: { name: true, customerProfile: { select: { orgName: true } } } },
-      _count: { select: { quotes: true, invites: true } },
-      project: { select: { id: true, refNo: true } },
-    },
-  });
+  const [rfqs, total] = await Promise.all([
+    prisma.rfq.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+      include: {
+        customer: { select: { name: true, customerProfile: { select: { orgName: true } } } },
+        _count: { select: { quotes: true, invites: true } },
+        project: { select: { id: true, refNo: true } },
+      },
+    }),
+    prisma.rfq.count({ where }),
+  ]);
 
   const STATUSES = ["OPEN", "AWARDED", "CLOSED", "CANCELLED"];
 
@@ -27,7 +35,7 @@ export default async function AdminRfqsPage({
     <>
       <PageHead
         title="RFQ oversight"
-        sub={`${rfqs.length} requests${status ? ` · filtered: ${status.toLowerCase()}` : ""}.`}
+        sub={`${total} requests${status ? ` · filtered: ${status.toLowerCase()}` : ""}.`}
         action={<Link href="/api/admin/export/rfqs" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <div className="mb-4 flex flex-wrap gap-2">
@@ -76,6 +84,7 @@ export default async function AdminRfqsPage({
             {rfqs.length === 0 && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">No RFQs match this filter.</td></tr>}
           </tbody>
         </table></div>
+        <Pagination page={page} total={total} base={`/admin/rfqs${qs({ status })}`} />
       </div>
     </>
   );

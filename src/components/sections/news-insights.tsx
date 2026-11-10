@@ -41,7 +41,7 @@ export function NewsInsights() {
                 From the <em className="grad-text">Gateway</em>
               </h2>
             </div>
-            <Link href="/resources/news" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-navy-2 hover:text-blue">
+            <Link href="/resources/news" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-ink hover:text-blue">
               All updates <ArrowRight className="size-4" />
             </Link>
           </div>
@@ -56,7 +56,7 @@ export function NewsInsights() {
                   <span className="uppercase tracking-wider text-blue">{n.tag}</span>
                   <span className="text-muted">· {n.date}</span>
                 </div>
-                <h3 className="mt-4 flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-navy-2">
+                <h3 className="mt-4 flex-1 text-[15px] font-semibold leading-snug text-ink group-hover:text-ink">
                   {n.title}
                 </h3>
                 <span className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted transition-colors group-hover:text-blue">

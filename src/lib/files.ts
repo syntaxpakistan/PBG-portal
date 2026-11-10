@@ -15,6 +15,7 @@ const ALLOWED = [
   "application/x-zip-compressed",
   "text/csv",
   "text/plain",
+  "text/html",
   "image/png",
   "image/jpeg",
 ];

@@ -11,14 +11,10 @@ import {
   LayoutGrid,
   Activity,
   FlaskConical,
-  CircleDot,
-  Map,
-  ShieldPlus,
-  Archive,
   Ruler,
   Dna,
-  Target,
-  TestTubes,
+  Radar,
+  Zap,
   Atom,
   Layers,
   GraduationCap,
@@ -67,31 +63,26 @@ const NAV: NavEntry[] = [
       {
         items: [
           { icon: LayoutGrid, title: "All Services", desc: "The complete sequencing catalog", href: "/services" },
-          { icon: Activity, title: "Transcriptomics", desc: "Bulk & targeted expression profiling", href: "/services/transcriptomics" },
-          { icon: FlaskConical, title: "RNA Sequencing", desc: "RNA-Seq from standard to low-input", href: "/services/rna-sequencing" },
-          { icon: CircleDot, title: "Single Cell Sequencing", desc: "10x Genomics, BD Rhapsody, Takara", href: "/services/single-cell-sequencing" },
-          { icon: Map, title: "Spatial Transcriptomics", desc: "Visium, Xenium & StrataMap", href: "/services/spatial-transcriptomics" },
-          { icon: ShieldPlus, title: "Immune Profiling", desc: "Repertoire & TCR/BCR sequencing", href: "/services/immune-profiling" },
+          { icon: Dna, title: "Whole-Genome Sequencing", desc: "Microbial, plant & animal genomes", href: "/services/whole-genome-sequencing" },
+          { icon: Radar, title: "Metagenomics & Microbiome", desc: "Shotgun & amplicon profiling", href: "/services/metagenomics" },
+          { icon: Activity, title: "Transcriptomics", desc: "Bulk RNA-Seq & long-read isoforms", href: "/services/transcriptomics" },
         ],
       },
       {
         items: [
-          { icon: Archive, title: "Premade Library Sequencing", desc: "Sequence-only runs on your libraries", href: "/services/premade-library-sequencing" },
-          { icon: Ruler, title: "Long Read Services", desc: "PacBio Revio & ONT platforms", href: "/services/long-read" },
-          { icon: Dna, title: "Genomics (WGS/WES)", desc: "Whole genome & whole exome", href: "/services/genomics" },
-          { icon: Target, title: "Oncology Panel Sequencing", desc: "Targeted cancer gene panels", href: "/services/oncology-panels" },
-          { icon: TestTubes, title: "Proteomics Services", desc: "Olink Reveal biomarker panels", href: "/services/proteomics" },
-          { icon: Atom, title: "Epigenomics", desc: "Methylation & chromatin assays", href: "/services/epigenomics" },
+          { icon: Atom, title: "Epigenomics", desc: "ONT & Illumina methylation", href: "/services/epigenomics" },
+          { icon: Ruler, title: "Sanger Sequencing", desc: "PCR, plasmid & barcode reads", href: "/services/sanger" },
+          { icon: Zap, title: "Sequencing Only", desc: "Your libraries, our platforms", href: "/services/sequencing-only" },
+          { icon: Workflow, title: "Bioinformatics & Analysis", desc: "Assembly, variants & more", href: "/bioinformatics" },
         ],
       },
     ],
     bottom: {
       heading: "Certified service programs",
       cards: [
-        { title: "10x Genomics", desc: "Single cell & multiome workflows.", href: "/platform/verification", tint: "mint" },
-        { title: "Visium • Xenium • StrataMap", desc: "Spatial platforms, validated in-house.", href: "/platform/verification", tint: "lavender" },
-        { title: "PacBio Revio", desc: "Long-read structural variant resolution.", href: "/platform/verification", tint: "peach" },
-        { title: "Olink Reveal", desc: "1,000+ protein biomarkers from 4 μL.", href: "/platform/verification", tint: "lemon" },
+        { title: "ONT", desc: "Oxford Nanopore long-read workflows.", href: "/services/sequencing-only", tint: "mint" },
+        { title: "Sanger-Seq", desc: "Capillary Sanger sequencing & fragment analysis.", href: "/services/sanger", tint: "lavender" },
+        { title: "Seq Studio", desc: "Applied Biosystems SeqStudio benchtop runs.", href: "/services/sanger", tint: "peach" },
       ],
     },
   },
@@ -105,11 +96,14 @@ const NAV: NavEntry[] = [
     },
     groups: [
       {
-        heading: "By audience",
         items: [
           { icon: Layers, title: "Multiomics Overview", desc: "Integrated assays, one study design", href: "/multiomics" },
           { icon: GraduationCap, title: "Academics & Research Institutes", desc: "Grant-scale studies & publications", href: "/solutions/academics" },
           { icon: Pill, title: "Pharmaceutical & Biotech", desc: "Discovery, translational & biomarker work", href: "/solutions/pharma-biotech" },
+        ],
+      },
+      {
+        items: [
           { icon: Stethoscope, title: "Clinical & Diagnostics Labs", desc: "Validated workflows for patient cohorts", href: "/solutions/clinical-diagnostics" },
           { icon: Handshake, title: "Contract Research Organizations", desc: "White-label capacity on demand", href: "/solutions/cro" },
         ],
@@ -129,6 +123,10 @@ const NAV: NavEntry[] = [
         items: [
           { icon: Workflow, title: "Bioinformatics Overview", desc: "Pipelines & analyst hours", href: "/bioinformatics" },
           { icon: FileSearch, title: "WES Analysis", desc: "Variant calling & annotation", href: "/bioinformatics/wes-analysis" },
+        ],
+      },
+      {
+        items: [
           { icon: BarChart3, title: "RNA Analysis", desc: "Differential expression & pathways", href: "/bioinformatics/rna-analysis" },
           { icon: ScanSearch, title: "Spatial Bioinformatics", desc: "Tissue-mapped expression analysis", href: "/bioinformatics/spatial-bioinformatics" },
         ],
@@ -163,8 +161,12 @@ const NAV: NavEntry[] = [
         items: [
           { icon: Info, title: "About", desc: "The team behind the Gateway", href: "/company/about" },
           { icon: Newspaper, title: "News & Events", desc: "Announcements & where to find us", href: "/company/news" },
-          { icon: Award, title: "Grants", desc: "Funding programs for your study", href: "/company/grants" },
           { icon: Briefcase, title: "Careers", desc: "Join the platform team", href: "/company/careers" },
+        ],
+      },
+      {
+        items: [
+          { icon: Award, title: "Grants", desc: "Funding programs for your study", href: "/company/grants" },
           { icon: BadgeCheck, title: "Certified Service Provider", desc: "Platform-validated workflows", href: "/company/certified" },
         ],
       },
@@ -173,10 +175,10 @@ const NAV: NavEntry[] = [
 ];
 
 const TINTS: Record<string, string> = {
-  mint: "bg-[#e7faf1] border-[#a9e5cb]",
-  lavender: "bg-[#ecebfa] border-[#c4c0ec]",
-  peach: "bg-[#fdeee1] border-[#f3c9a5]",
-  lemon: "bg-[#fbf6d9] border-[#e6d97f]",
+  mint: "bg-(--st-green-bg) border-(--st-green-bd)",
+  lavender: "bg-(--st-purple-bg) border-(--st-purple-bd)",
+  peach: "bg-(--st-orange-bg) border-(--st-orange-bd)",
+  lemon: "bg-(--st-amber-bg) border-(--st-amber-bd)",
 };
 
 export function Navbar() {
@@ -279,7 +281,7 @@ export function Navbar() {
                         </div>
                         <p className="mt-3 text-[14.5px] font-semibold leading-snug text-ink">{active.featured.title}</p>
                         <p className="mt-1 flex-1 text-[12px] leading-snug text-muted">{active.featured.desc}</p>
-                        <span className="mt-2.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-navy-2 group-hover:text-blue">
+                        <span className="mt-2.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-ink group-hover:text-blue">
                           {active.featured.cta} <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                         </span>
                       </Link>
@@ -300,7 +302,7 @@ export function Navbar() {
                               href={item.href}
                               className="group flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-paper-2"
                             >
-                              <item.icon className="mt-0.5 size-4.5 shrink-0 text-navy-2" strokeWidth={1.8} />
+                              <item.icon className="mt-0.5 size-4.5 shrink-0 text-ink" strokeWidth={1.8} />
                               <span>
                                 <span className="flex items-center gap-1.5 text-[14px] font-semibold text-ink">
                                   {item.title}
@@ -320,7 +322,7 @@ export function Navbar() {
                       <p className="px-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-muted">
                         {active.bottom.heading}
                       </p>
-                      <div className="mt-2.5 grid grid-cols-2 gap-2 lg:grid-cols-4">
+                      <div className="mt-2.5 grid grid-cols-2 gap-2 lg:grid-cols-3">
                         {active.bottom.cards.map((c) => (
                           <Link
                             key={c.title}

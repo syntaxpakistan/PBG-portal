@@ -71,6 +71,8 @@
   --color-surface: #0c1622;
   --color-surface-2: #101d2e;
 
+  --color-blue: #4da3ea; /* links need more luminance on dark surfaces */
+
   --st-green-bg: rgba(74, 222, 128, 0.13);  --st-green-fg: #7de3a6;  --st-green-bd: rgba(74, 222, 128, 0.28);
   --st-blue-bg: rgba(56, 160, 230, 0.14);   --st-blue-fg: #7cc4f2;   --st-blue-bd: rgba(56, 160, 230, 0.3);
   --st-red-bg: rgba(235, 87, 87, 0.15);     --st-red-fg: #f09d9d;    --st-red-bd: rgba(235, 87, 87, 0.32);
@@ -209,20 +211,19 @@ body {
 .btn-wrap::before {
   content: "";
   position: absolute;
-  width: calc(100% + 4px);
-  aspect-ratio: 1 / 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(0deg);
+  inset: -2px;
   border-radius: inherit;
-  opacity: 0;
+  padding: 1.5px;
   background: linear-gradient(90deg, var(--color-blue-bright), var(--color-mint) 26%, var(--color-green) 40%, var(--color-yellow-soft) 60%, var(--color-orange) 80%, var(--color-orange-2) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
   transition: opacity 0.3s ease;
   z-index: -1;
 }
 .btn-wrap:hover::before {
   opacity: 1;
-  animation: rotate-border 4s linear infinite;
 }
 
 .btn-primary {
@@ -388,4 +389,23 @@ body {
 }
 .dark .btn-outline:hover {
   border-color: var(--color-line-strong);
+}
+
+/* ---------- slim scrollbar for scrollable panels ---------- */
+.scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+.scroll-slim::-webkit-scrollbar {
+  width: 5px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 3px;
+}
+.scroll-slim::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
 }

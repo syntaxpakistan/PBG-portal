@@ -87,7 +87,7 @@ export function ServiceGrid({ services, mode }: { services: ServiceCardData[]; m
                   Request quote →
                 </Link>
               ) : (
-                <Link href="/biogateway" className="btn-outline mt-3.5 w-full justify-center !py-2 text-[12.5px]">
+                <Link href="/login" className="btn-outline mt-3.5 w-full justify-center !py-2 text-[12.5px]">
                   Sign in to request →
                 </Link>
               )}

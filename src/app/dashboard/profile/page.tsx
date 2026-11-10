@@ -6,6 +6,7 @@ import { PageHead } from "@/components/portal/ui";
 import { SubscriptionCard } from "@/components/portal/subscription-card";
 import { updateCustomerProfile } from "@/lib/actions/profiles";
 import { ORG_TYPES } from "@/lib/plans";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 const input = "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none focus:border-navy-3";
 
@@ -69,7 +70,7 @@ export default async function CustomerProfilePage() {
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Address</label>
           <input name="address" defaultValue={profile?.address ?? ""} className={input} />
         </div>
-        <button type="submit" className="btn-secondary !py-2.5">Save profile</button>
+        <SubmitButton className="btn-secondary !py-2.5">Save profile</SubmitButton>
         </form>
       </div>
       <div className="space-y-5">
