@@ -14,3 +14,8 @@ zzz/
 .env.local
 .env*.local
 .neon
+
+# local upload fallback (files live in Neon bucket in prod)
+/uploads/
+.vercel
+.env*
