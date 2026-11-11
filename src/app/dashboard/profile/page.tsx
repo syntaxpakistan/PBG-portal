@@ -22,7 +22,7 @@ export default async function CustomerProfilePage() {
       <div>
         <PageHead title="Your profile" sub="Used on RFQs and by labs to understand who's requesting work." />
         <form action={updateCustomerProfile} className="card space-y-5 p-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Full name</label>
             <input name="name" defaultValue={session.user.name} required className={input} />
@@ -43,7 +43,7 @@ export default async function CustomerProfilePage() {
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Organization name</label>
           <input name="orgName" defaultValue={profile?.orgName ?? ""} className={input} placeholder="e.g. NIBGE, AKU, University of Punjab" />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Organization type</label>
             <select name="orgType" defaultValue={profile?.orgType ?? ""} className={input}>
@@ -56,7 +56,7 @@ export default async function CustomerProfilePage() {
             <input name="city" defaultValue={profile?.city ?? ""} className={input} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Department</label>
             <input name="department" defaultValue={profile?.department ?? ""} className={input} />

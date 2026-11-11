@@ -26,9 +26,9 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
         }
         setLoading(false);
       }}
-      className="grid grid-cols-2 gap-3"
+      className="grid gap-3 sm:grid-cols-2"
     >
-      <div className="col-span-2">
+      <div className="sm:col-span-2">
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Company name</label>
         <input name="orgName" required defaultValue={profile.orgName} className={input} />
       </div>
@@ -40,7 +40,7 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Established</label>
         <input name="establishedYear" type="number" defaultValue={profile.establishedYear ?? ""} className={input} />
       </div>
-      <div className="col-span-2">
+      <div className="sm:col-span-2">
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Product categories</label>
         <input name="categories" defaultValue={profile.categories} className={input} />
       </div>
@@ -52,11 +52,11 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Website</label>
         <input name="website" type="text" placeholder="yourcompany.com" defaultValue={profile.website ?? ""} className={input} />
       </div>
-      <div className="col-span-2">
+      <div className="sm:col-span-2">
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Bio</label>
         <textarea name="bio" rows={3} defaultValue={profile.bio ?? ""} className={input} />
       </div>
-      <button type="submit" disabled={loading} className="btn-secondary col-span-2 justify-center !py-2.5">
+      <button type="submit" disabled={loading} className="btn-secondary sm:col-span-2 justify-center !py-2.5">
         {loading ? <Loader2 className="size-4 animate-spin" /> : "Save profile"}
       </button>
     </form>

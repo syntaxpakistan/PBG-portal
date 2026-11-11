@@ -51,7 +51,12 @@ export const auth = betterAuth({
   plugins: [
     twoFactor({ issuer: "Pakistan Biotechnology Gateway" }),
   ],
-  trustedOrigins: ["http://localhost:3000", "https://pbg-teal.vercel.app"],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://localhost:3200",
+    "https://pbg-teal.vercel.app",
+    "https://pbg.syntaxpakistan.com",
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;

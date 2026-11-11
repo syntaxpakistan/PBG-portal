@@ -18,7 +18,7 @@ export function ServicePriceFields({ input, label }: { input: string; label: str
           <span className="mt-0.5 block text-[11px] text-muted">No fixed price — buyers send an RFQ and you quote per project.</span>
         </span>
       </label>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className={label}>Starting price (PKR)</label>
           <input

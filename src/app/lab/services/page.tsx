@@ -85,7 +85,7 @@ export default async function LabServicesPage() {
               <label className={label}>Service name *</label>
               <input name="name" required className={input} placeholder="WGS — 30× human genome" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={label}>Category *</label>
                 <select name="category" required className={input}>

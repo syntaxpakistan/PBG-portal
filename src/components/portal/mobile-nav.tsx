@@ -8,7 +8,6 @@ import { Menu, X } from "lucide-react";
 import { SideNav, type NavItem } from "./side-nav";
 import { SignOutButton } from "./signout";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { PlatformMark, PlatformMarkText } from "@/components/platform-mark";
 
 export function PortalMobileNav({
   title,
@@ -42,11 +41,9 @@ export function PortalMobileNav({
       {/* mobile top bar */}
       <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-navy px-4 lg:hidden">
         <div className="flex min-w-0 items-center gap-2.5">
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Syntax of Life home">
-            <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-10 w-auto" />
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Pakistan Biotechnology Gateway home">
+            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-11 w-auto" />
           </Link>
-          <span className="h-6 w-px shrink-0 bg-white/15" />
-          <PlatformMarkText className="shrink-0" />
         </div>
         <div className="flex items-center gap-2">
           <Link href="/notifications" aria-label="Notifications" className="relative grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10">
@@ -76,16 +73,13 @@ export function PortalMobileNav({
             >
               <div className="flex h-14 items-center justify-between px-5">
                 <div className="flex items-center">
-                  <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-12 w-auto" />
+                  <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-11 w-auto" />
                 </div>
                 <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10">
                   <X className="size-5" />
                 </button>
               </div>
-              <div className="border-t border-white/10 px-5 py-3.5">
-                <PlatformMark />
-              </div>
-              <div className="px-5 pb-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">{title}</div>
+              <div className="border-t border-white/10 px-5 pb-3 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">{title}</div>
               <div className="min-h-0 flex-1 overflow-y-auto">
                 <SideNav items={items} unread={unread} />
               </div>

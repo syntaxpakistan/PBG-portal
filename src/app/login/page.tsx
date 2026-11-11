@@ -49,7 +49,7 @@ export default function LoginPage() {
         <div className="glow-orb left-1/3 top-1/3 size-[400px] -translate-x-1/2 bg-blue-bright/20" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-block">
-            <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-20 w-auto" />
+            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-20 w-auto" />
           </Link>
           <div>
             <h1 className="h-display on-dark !text-[2.6rem]">
@@ -60,7 +60,7 @@ export default function LoginPage() {
               Suppliers list products. Syntax governs it all.
             </p>
           </div>
-          <p className="text-[12px] text-[#7a97b0]">© 2026 Syntax of Life Private Limited</p>
+          <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center bg-paper px-6 py-16">
         <div className="w-full max-w-sm">
           <Link href="/" className="mb-8 inline-block lg:hidden">
-            <img src="/brand/logo-light.png" alt="Syntax of Life" className="h-16 w-auto" />
+            <img src="/brand/pbg-logo.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
           </Link>
           <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Sign in to your portal</h2>
           <p className="mt-2 text-[13.5px] text-body">Customer, lab, supplier or admin — one account.</p>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div>
               <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Email</label>
               <input
-                type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3"
                 placeholder="you@lab.edu.pk"
               />
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className="mb-1.5 text-[12px] font-medium text-blue hover:text-ink">Forgot?</Link>
               </div>
               <input
-                type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3"
                 placeholder="••••••••"
               />

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { SignOutButton } from "@/components/portal/signout";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { PlatformMarkText } from "@/components/platform-mark";
 
 export function SupplierShell({ title, name, children }: { title: string; name?: string | null; children: React.ReactNode }) {
   return (
@@ -10,10 +9,9 @@ export function SupplierShell({ title, name, children }: { title: string; name?:
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <div className="flex min-w-0 items-center gap-3">
             <Link href="/" className="flex shrink-0 items-center" aria-label="Syntax of Life home">
-              <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-10 w-auto sm:h-11" />
+              <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-11 w-auto" />
             </Link>
             <span className="hidden h-6 w-px shrink-0 bg-white/15 sm:block" />
-            <PlatformMarkText className="hidden shrink-0 sm:block" />
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7] md:block">{title}</span>
           </div>
           <div className="flex items-center gap-3">

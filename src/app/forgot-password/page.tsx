@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-block">
-          <img src="/brand/logo-light.png" alt="Syntax of Life" className="h-14 w-auto" />
+          <img src="/brand/pbg-logo.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
         </Link>
         {sent ? (
           <>
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
               <div>
                 <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Email</label>
                 <input
-                  type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                  type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3"
                   placeholder="you@lab.edu.pk"
                 />

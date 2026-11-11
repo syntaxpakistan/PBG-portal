@@ -4,7 +4,6 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "./signout";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { PlatformMark } from "@/components/platform-mark";
 import { SideNav, type NavItem } from "./side-nav";
 import { PortalMobileNav } from "./mobile-nav";
 
@@ -31,12 +30,9 @@ export async function PortalShell({
       {/* sidebar — desktop only */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-line bg-navy lg:flex">
         <div className="px-5 pt-5">
-          <Link href="/" className="inline-block" aria-label="Syntax of Life home">
-            <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-14 w-auto" />
+          <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
+            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
           </Link>
-          <div className="mt-4 border-t border-white/10 pt-4">
-            <PlatformMark />
-          </div>
         </div>
         <div className="px-5 pb-3 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">
           {title}

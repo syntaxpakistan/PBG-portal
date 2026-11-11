@@ -32,7 +32,7 @@ export default async function LabProfilePage() {
             <label className={label}>Lab / facility name *</label>
             <input name="orgName" required defaultValue={profile.orgName} className={input} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={label}>City *</label>
               <input name="city" required defaultValue={profile.city} className={input} />
@@ -55,7 +55,7 @@ export default async function LabProfilePage() {
             <input name="serviceCategories" defaultValue={profile.serviceCategories} className={input} placeholder="WGS, RNA-Seq, Epigenetics…" />
             <p className="mt-1 text-[11px] text-muted">These drive RFQ routing — keep them accurate.</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={label}>HPC capacity</label>
               <input name="hpcCapacity" defaultValue={profile.hpcCapacity ?? ""} className={input} />
@@ -65,7 +65,7 @@ export default async function LabProfilePage() {
               <input name="accreditations" defaultValue={profile.accreditations ?? ""} className={input} placeholder="ISO 15189, CAP…" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className={label}>Contact person</label>
               <input name="contactPerson" defaultValue={profile.contactPerson ?? ""} className={input} />

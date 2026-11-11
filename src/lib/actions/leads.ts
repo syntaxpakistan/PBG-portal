@@ -6,8 +6,8 @@ import { requireRole } from "@/lib/session";
 
 /** Where public lead forms are delivered. */
 const LEAD_INBOXES = {
-  QUOTE: "info@syntaxpakistan.com",
-  CONTACT: "contact@syntaxpakistan.com",
+  QUOTE: "info@pakistanbiotechnologygateway.com",
+  CONTACT: "contact@pakistanbiotechnologygateway.com",
 } as const;
 
 export type LeadResult = { ok: boolean; error?: string };

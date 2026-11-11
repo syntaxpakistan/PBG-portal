@@ -86,7 +86,7 @@ export default function JoinPage() {
         <div className="glow-orb right-[-100px] top-1/4 size-[400px] bg-mint/15" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-block">
-            <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-20 w-auto" />
+            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-20 w-auto" />
           </Link>
           <div>
             <h1 className="h-display on-dark !text-[2.6rem]">
@@ -102,7 +102,11 @@ export default function JoinPage() {
               <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Custom — $500/mo · dedicated manager</div>
             </div>
           </div>
-          <p className="text-[12px] text-[#7a97b0]">© 2026 Syntax of Life Private Limited</p>
+          <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
+        </div>
+        <div className="absolute bottom-10 right-10 flex items-center gap-3">
+          <span className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/50">Powered by</span>
+          <img src="/brand/syntax-logo-dark.png" alt="Syntax of Life" className="h-16 w-auto" />
         </div>
       </div>
 
@@ -175,7 +179,7 @@ export default function JoinPage() {
               )}
               <form onSubmit={onSubmit} className="mt-7 space-y-4">
                 <Field label="Full name" value={f.name} onChange={set("name")} required />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Email" type="email" value={f.email} onChange={set("email")} required />
                   <Field label="Phone" value={f.phone} onChange={set("phone")} />
                 </div>
@@ -190,7 +194,7 @@ export default function JoinPage() {
                 {role === "CUSTOMER" && (
                   <>
                     <Field label="Organization name" value={f.orgName} onChange={set("orgName")} />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Organization type</label>
                         <select value={f.orgType ?? ""} onChange={set("orgType")} className={input}>
@@ -200,7 +204,7 @@ export default function JoinPage() {
                       </div>
                       <Field label="City" value={f.city} onChange={set("city")} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="Department" value={f.department} onChange={set("department")} />
                       <Field label="Designation" value={f.designation} onChange={set("designation")} />
                     </div>
@@ -211,7 +215,7 @@ export default function JoinPage() {
                 {role === "PROVIDER" && (
                   <>
                     <Field label="Lab / facility name" value={f.orgName} onChange={set("orgName")} required />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="City" value={f.city} onChange={set("city")} required />
                       <Field label="Established (year)" type="number" value={f.establishedYear} onChange={set("establishedYear")} />
                     </div>
@@ -219,7 +223,7 @@ export default function JoinPage() {
                     <Field label="Sample types (e.g. DNA, Tissue, RNA, cDNA)" value={f.sampleTypes} onChange={set("sampleTypes")} />
                     <Field label="Service categories (e.g. WGS, RNA-Seq, Bioinformatics)" value={f.serviceCategories} onChange={set("serviceCategories")} />
                     <Field label="HPC capacity (e.g. 16-node cluster)" value={f.hpcCapacity} onChange={set("hpcCapacity")} />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="Accreditations" value={f.accreditations} onChange={set("accreditations")} />
                       <Field label="Contact person" value={f.contactPerson} onChange={set("contactPerson")} />
                     </div>
@@ -231,12 +235,12 @@ export default function JoinPage() {
                 {role === "SUPPLIER" && (
                   <>
                     <Field label="Company name" value={f.orgName} onChange={set("orgName")} required />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="City" value={f.city} onChange={set("city")} required />
                       <Field label="Established (year)" type="number" value={f.establishedYear} onChange={set("establishedYear")} />
                     </div>
                     <Field label="Product categories (e.g. Reagents, Kits, Consumables)" value={f.categories} onChange={set("categories")} />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
                       <Field label="Contact person" value={f.contactPerson} onChange={set("contactPerson")} />
                       <Field label="Website" type="text" value={f.website} onChange={set("website")} />
                     </div>
@@ -252,6 +256,11 @@ export default function JoinPage() {
           )}
         </div>
       </div>
+
+      <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-line bg-white px-3.5 py-2 shadow-md lg:hidden">
+        <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-[#5a6b80]">Powered by</span>
+        <img src="/brand/syntax-logo.png" alt="Syntax of Life" className="h-8 w-auto" />
+      </div>
     </main>
   );
 }
@@ -265,7 +274,10 @@ function Field({ label, type = "text", value, onChange, required }: {
       <label className="mb-1.5 block text-[12.5px] font-medium text-ink">
         {label} {required && <span className="text-orange">*</span>}
       </label>
-      <input type={type} value={value ?? ""} onChange={onChange} required={required} className={input} />
+      <input
+        type={type} value={value ?? ""} onChange={onChange} required={required} className={input}
+        autoComplete={type === "email" ? "email" : type === "password" ? "new-password" : type === "tel" ? "tel" : undefined}
+      />
     </div>
   );
 }

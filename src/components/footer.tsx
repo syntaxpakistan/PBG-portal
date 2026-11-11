@@ -26,40 +26,28 @@ const SOCIALS: { label: string; href: string; path: string }[] = [
 
 const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
   {
-    heading: "Platform",
+    heading: "Gateway",
     links: [
-      { label: "Platform Overview", href: "/platform" },
-      { label: "RFQ Engine", href: "/platform/rfq" },
-      { label: "Blind Quoting", href: "/platform/quoting" },
-      { label: "Facility Registry", href: "/registry" },
+      { label: "Overview", href: "/" },
+      { label: "How it works", href: "/#how" },
       { label: "Marketplace", href: "/marketplace" },
+      { label: "Verified network", href: "/registry" },
     ],
   },
   {
-    heading: "Solutions",
+    heading: "Join",
     links: [
-      { label: "For Researchers", href: "/solutions/researchers" },
-      { label: "For Laboratories", href: "/solutions/labs" },
-      { label: "For Suppliers", href: "/solutions/suppliers" },
-      { label: "For Administrators", href: "/solutions/admin" },
+      { label: "Create an account", href: "/biogateway" },
+      { label: "Register as a lab", href: "/biogateway?role=provider" },
+      { label: "Register as a supplier", href: "/biogateway?role=supplier" },
+      { label: "Sign in", href: "/login" },
     ],
   },
   {
-    heading: "Resources",
+    heading: "Contact",
     links: [
-      { label: "Documentation", href: "/resources/docs" },
-      { label: "Platform Updates", href: "/resources/news" },
-      { label: "FAQs", href: "/resources/faqs" },
-      { label: "Verification Criteria", href: "/resources/verification" },
-    ],
-  },
-  {
-    heading: "Company",
-    links: [
-      { label: "About Syntax of Life", href: "/company/about" },
-      { label: "Contact", href: "/company/contact" },
-      { label: "Trust & Data Policy", href: "/company/trust" },
-      { label: "Terms & Privacy", href: "/company/legal" },
+      { label: "info@pakistanbiotechnologygateway.com", href: "mailto:info@pakistanbiotechnologygateway.com" },
+      { label: "contact@pakistanbiotechnologygateway.com", href: "mailto:contact@pakistanbiotechnologygateway.com" },
     ],
   },
 ];
@@ -69,10 +57,10 @@ export function Footer() {
     <footer className="relative bg-navy">
       <div className="rainbow-line" />
       <div className="container-x py-14 sm:py-16">
-        <Link href="/" className="inline-block" aria-label="Syntax of Life home">
-          <img src="/brand/logo-dark.png" alt="Syntax of Life" className="h-20 w-auto sm:h-24" />
+        <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
+          <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-32 w-auto sm:h-36" />
         </Link>
-        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(4,auto)] lg:gap-8">
+        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-14">
           <div>
             <p className="max-w-xs text-[13.5px] leading-relaxed text-[#a2c1d7]">
               A federated digital marketplace connecting Pakistan&apos;s research community with
@@ -122,7 +110,7 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-[12.5px] text-[#7a97b0]">
-            © 2026 Syntax of Life Private Limited. All rights reserved.
+            © 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.
           </p>
           <p className="font-mono text-[11px] tracking-wide text-[#7a97b0]">
             Karachi · Lahore · Islamabad — Nationwide

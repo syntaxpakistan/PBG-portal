@@ -45,7 +45,7 @@ export function ProductForm({ product }: { product?: Product }) {
       className="space-y-3"
     >
       <input name="name" required defaultValue={product?.name} placeholder="Product name *" className={input} />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <select name="category" required defaultValue={product?.category ?? ""} className={input}>
           <option value="">Category *</option>
           {["Reagents", "Kits", "Consumables", "Media", "Plasticware", "Equipment"].map((c) => <option key={c}>{c}</option>)}
@@ -53,11 +53,11 @@ export function ProductForm({ product }: { product?: Product }) {
         </select>
         <input name="spec" defaultValue={product?.spec ?? ""} placeholder="Spec / variant" className={input} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <input name="price" type="number" min={0} defaultValue={product?.price ?? ""} placeholder="Price (PKR)" className={input} />
         <input name="unit" defaultValue={product?.unit ?? ""} placeholder="Unit (kit, vial, pack)" className={input} />
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <input name="catalogNo" defaultValue={product?.catalogNo ?? ""} placeholder="Catalog / SKU #" className={input} />
         <select name="stockStatus" defaultValue={product?.stockStatus ?? "IN_STOCK"} className={input}>
           <option value="IN_STOCK">In stock</option>

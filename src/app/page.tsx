@@ -1,33 +1,16 @@
-import { AnnouncementBar } from "@/components/announcement-bar";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { Hero } from "@/components/sections/hero";
-import { LogoStrip } from "@/components/sections/logo-strip";
-import { FeaturedServices } from "@/components/sections/featured-services";
-import { VerifiedBanner } from "@/components/sections/verified-banner";
-import { WhoWeAre } from "@/components/sections/who-we-are";
-import { FourWays } from "@/components/sections/four-ways";
-import { NewsInsights } from "@/components/sections/news-insights";
-import { Enterprise } from "@/components/sections/enterprise";
-import { CtaForm } from "@/components/sections/cta-form";
+export const instant = false;
 
-export default function Home() {
-  return (
-    <>
-      <AnnouncementBar />
-      <Navbar />
-      <main className="flex-1">
-        <Hero />
-        <LogoStrip />
-        <FeaturedServices />
-        <VerifiedBanner />
-        <FourWays />
-        <WhoWeAre />
-        <NewsInsights />
-        <Enterprise />
-        <CtaForm />
-      </main>
-      <Footer />
-    </>
-  );
+import type { Metadata } from "next";
+import { Landing } from "@/components/landing";
+import { getPlanPrices } from "@/lib/settings";
+
+export const metadata: Metadata = {
+  title: "Pakistan Biotechnology Gateway — The national marketplace for biotech services",
+  description:
+    "A federated digital marketplace connecting Pakistan's researchers, universities, hospitals and agriculture sector with verified sequencing laboratories, bioinformatics providers and indigenous biotech suppliers — under one roof.",
+};
+
+export default async function GatewayLanding() {
+  const prices = await getPlanPrices();
+  return <Landing prices={prices} />;
 }
