@@ -8,3 +8,9 @@ zzz/
 /*.html
 *.log
 .DS_Store
+
+# env / secrets
+.env
+.env.local
+.env*.local
+.neon
