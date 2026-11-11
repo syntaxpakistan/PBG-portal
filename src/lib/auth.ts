@@ -54,6 +54,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "http://localhost:3200",
+    "https://pbg-portal-theta.vercel.app",
     "https://pbg-teal.vercel.app",
     "https://pbg.syntaxpakistan.com",
   ],
