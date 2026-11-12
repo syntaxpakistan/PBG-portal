@@ -126,8 +126,8 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
             <Reveal>
               <p className="eyebrow on-dark justify-center">A nationwide biotechnology marketplace</p>
               <h1 className="h-display on-dark mt-6">
-                Pakistan&apos;s first biotech services,{" "}
-                <em className="grad-text">under one roof.</em>
+                A National Platform for Sequencing in Pakistan —{" "}
+                <em className="grad-text">Our Sample, Our Data, Our Discoveries.</em>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#c5d2e1] sm:text-[17.5px]">
                 The <strong className="font-semibold text-white">Pakistan Biotechnology Gateway</strong> connects
