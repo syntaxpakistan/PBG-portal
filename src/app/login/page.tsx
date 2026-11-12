@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -49,7 +50,7 @@ export default function LoginPage() {
         <div className="glow-orb left-1/3 top-1/3 size-[400px] -translate-x-1/2 bg-blue-bright/20" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-block">
-            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-20 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-20 w-auto" />
           </Link>
           <div>
             <h1 className="h-display on-dark !text-[2.6rem]">
@@ -68,7 +69,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center bg-paper px-6 py-16">
         <div className="w-full max-w-sm">
           <Link href="/" className="mb-8 inline-block lg:hidden">
-            <img src="/brand/pbg-logo.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
+            <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
           </Link>
           <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Sign in to your portal</h2>
           <p className="mt-2 text-[13.5px] text-body">Customer, lab, supplier or admin — one account.</p>

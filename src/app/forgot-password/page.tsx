@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ export default function ForgotPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-block">
-          <img src="/brand/pbg-logo.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
+          <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
         </Link>
         {sent ? (
           <>

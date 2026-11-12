@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,7 +37,7 @@ export function Navbar() {
           )}
         >
           <Link href="/" className="flex items-center" aria-label="Pakistan Biotechnology Gateway home">
-            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-14 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-14 w-auto" />
           </Link>
 
           <ul className="hidden items-center gap-1 lg:flex">

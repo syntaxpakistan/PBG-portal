@@ -11,6 +11,7 @@ import { PLANS, type PlanKey } from "@/lib/plans";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Reveal, Stagger, fadeUp } from "@/components/motion-primitives";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 const HOW = [
   {
@@ -112,6 +113,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
 
   return (
     <main className="min-h-screen bg-paper">
+      <SmoothScroll />
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────── */}

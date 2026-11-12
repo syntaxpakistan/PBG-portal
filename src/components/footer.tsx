@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ShieldCheck, Lock } from "lucide-react";
 
 const SOCIALS: { label: string; href: string; path: string }[] = [
@@ -58,7 +59,7 @@ export function Footer() {
       <div className="rainbow-line" />
       <div className="container-x py-14 sm:py-16">
         <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
-          <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-32 w-auto sm:h-36" />
+          <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-32 w-auto sm:h-36" />
         </Link>
         <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-14">
           <div>

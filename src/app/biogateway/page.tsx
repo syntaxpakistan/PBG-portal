@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FlaskConical, Package, Users, Loader2, ArrowLeft, Check, BadgeCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -86,7 +87,7 @@ export default function JoinPage() {
         <div className="glow-orb right-[-100px] top-1/4 size-[400px] bg-mint/15" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-block">
-            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-20 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-20 w-auto" />
           </Link>
           <div>
             <h1 className="h-display on-dark !text-[2.6rem]">
@@ -106,7 +107,7 @@ export default function JoinPage() {
         </div>
         <div className="absolute bottom-10 right-10 flex items-center gap-3">
           <span className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/50">Powered by</span>
-          <img src="/brand/syntax-logo-dark.png" alt="Syntax of Life" className="h-16 w-auto" />
+          <Image src="/brand/syntax-logo-dark.webp" alt="Syntax of Life" width={820} height={269} className="h-16 w-auto" />
         </div>
       </div>
 
@@ -259,7 +260,7 @@ export default function JoinPage() {
 
       <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-line bg-white px-3.5 py-2 shadow-md lg:hidden">
         <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-[#5a6b80]">Powered by</span>
-        <img src="/brand/syntax-logo.png" alt="Syntax of Life" className="h-8 w-auto" />
+        <Image src="/brand/syntax-logo.webp" alt="Syntax of Life" width={820} height={269} className="h-8 w-auto" />
       </div>
     </main>
   );

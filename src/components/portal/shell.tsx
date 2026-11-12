@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -31,7 +32,7 @@ export async function PortalShell({
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-line bg-navy lg:flex">
         <div className="px-5 pt-5">
           <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
-            <img src="/brand/pbg-logo-dark.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
           </Link>
         </div>
         <div className="px-5 pb-3 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">

@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -88,7 +89,7 @@ export default function ResetPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-block">
-          <img src="/brand/pbg-logo.png" alt="Pakistan Biotechnology Gateway" className="h-16 w-auto" />
+          <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
         </Link>
         <Suspense fallback={<div className="text-center text-[13px] text-muted">Loading…</div>}>
           <ResetForm />
