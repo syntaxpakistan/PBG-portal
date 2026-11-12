@@ -74,7 +74,7 @@ export default function JoinPage() {
     if (needsOrg) {
       toast.success(`Account created on the ${PLANS[plan!].label} plan — Syntax will contact you about payment & verification.`);
     } else {
-      toast.success("Welcome to the Gateway.");
+      toast.success("Account created — your portal unlocks once Syntax approves your registration.");
     }
     router.push(ROLE_DEST[role] ?? "/dashboard");
     router.refresh();
@@ -173,9 +173,13 @@ export default function JoinPage() {
                 {ROLES.find((r) => r.id === role)?.title} profile
                 {plan && <span className="ml-2 rounded-full bg-navy px-3 py-1 align-middle text-[11px] font-semibold text-yellow">{PLANS[plan].label} ${PLANS[plan].price}/mo</span>}
               </h2>
-              {needsOrg && (
+              {needsOrg ? (
                 <p className="mt-2 rounded-lg border border-(--st-amber-bd) bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
                   Your profile is created now and goes live after payment + Syntax verification — usually within 2 business days.
+                </p>
+              ) : (
+                <p className="mt-2 rounded-lg border border-(--st-blue-bd) bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
+                  Free to join — no plan needed. Your portal unlocks once Syntax approves your registration, usually within 1 business day.
                 </p>
               )}
               <form onSubmit={onSubmit} className="mt-7 space-y-4">

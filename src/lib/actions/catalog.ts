@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, assertCustomerApproved } from "@/lib/session";
 import { notify } from "@/lib/notify";
 import { rateLimit } from "@/lib/rate-limit";
 import { getEnquiryRateLimit } from "@/lib/settings";
@@ -11,6 +11,7 @@ import { getEnquiryRateLimit } from "@/lib/settings";
 export async function createEnquiry(productId: string, formData: FormData) {
   const session = await getSession();
   if (!session || !["CUSTOMER", "PROVIDER"].includes(session.user.role ?? "")) redirect("/login");
+  if (session.user.role === "CUSTOMER") await assertCustomerApproved(session.user.id);
   if (!rateLimit(`enquiry:${session.user.id}`, await getEnquiryRateLimit(), 24 * 3600e3)) {
     throw new Error("Too many enquiries — please try again tomorrow.");
   }

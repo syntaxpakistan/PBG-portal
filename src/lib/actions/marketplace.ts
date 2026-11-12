@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, assertCustomerApproved } from "@/lib/session";
 import type { PaymentMethod, ProjectStatus } from "@prisma/client";
 import { saveUpload } from "@/lib/files";
 import { getFeePercent } from "@/lib/settings";
@@ -67,6 +67,7 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
 export async function createRfq(formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   if (!rateLimit(`rfq:${session.user.id}`, await getRfqRateLimit(), 24 * 3600e3)) {
     throw new Error("Too many RFQs — please try again tomorrow.");
   }
@@ -152,6 +153,7 @@ export async function createRfq(formData: FormData) {
 export async function deleteRfq(rfqId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   const rfq = await prisma.rfq.findUniqueOrThrow({
     where: { id: rfqId },
     include: { project: { select: { id: true } } },
@@ -169,6 +171,7 @@ export async function deleteRfq(rfqId: string) {
 export async function selectQuote(quoteId: string, poNumber?: string) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
 
   const quote = await prisma.quote.findUniqueOrThrow({
     where: { id: quoteId },
@@ -511,6 +514,7 @@ export async function fileComplaint(projectId: string, formData: FormData) {
 export async function shipSamples(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
   if (project.customerId !== session.user.id) throw new Error("Not your project");
   if (project.status !== "SAMPLE_AWAITED") throw new Error("Project is not awaiting samples");
@@ -661,6 +665,7 @@ export async function addQcRecord(projectId: string, formData: FormData) {
 export async function resolveQc(qcId: string, decision: string) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   const rec = await prisma.qcRecord.findUniqueOrThrow({ where: { id: qcId }, include: { project: true } });
   if (rec.project.customerId !== session.user.id) throw new Error("Not your project");
   if (rec.decision !== null) throw new Error("Already decided");
@@ -815,6 +820,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
 export async function acceptEnquiryQuote(enquiryId: string) {
   const session = await getSession();
   if (!session || (session.user.role !== "CUSTOMER" && session.user.role !== "PROVIDER")) redirect("/login");
+  if (session.user.role === "CUSTOMER") await assertCustomerApproved(session.user.id);
   const e = await prisma.enquiry.findUniqueOrThrow({
     where: { id: enquiryId },
     include: { product: { select: { name: true } }, supplier: true, invoice: true },
@@ -1003,6 +1009,7 @@ const PAYMENT_METHODS = ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH
 export async function payMilestone(milestoneId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: { include: { provider: true } } } });
   if (m.project.customerId !== session.user.id) throw new Error("Not your project");
   if (m.status !== "INVOICED") throw new Error("Milestone is not invoiced yet");
@@ -1068,6 +1075,7 @@ export async function payMilestone(milestoneId: string, formData: FormData) {
 export async function submitReview(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
+  await assertCustomerApproved(session.user.id);
   const project = await prisma.project.findUniqueOrThrow({ where: { id: projectId } });
   if (project.customerId !== session.user.id) throw new Error("Not your project");
   if (project.status !== "COMPLETED") throw new Error("Only completed projects can be reviewed");

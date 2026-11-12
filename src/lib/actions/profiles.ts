@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/session";
+import { getSession, assertCustomerApproved } from "@/lib/session";
 import { normalizeUrl } from "@/lib/utils";
 
 export async function updateCustomerProfile(formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") throw new Error("Customers only");
+  await assertCustomerApproved(session.user.id);
   const g = (k: string) => (String(formData.get(k) || "") || null);
   await prisma.customerProfile.upsert({
     where: { userId: session.user.id },

@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { setProviderStatus, setSupplierStatus } from "@/lib/actions/admin";
+import { setProviderStatus, setSupplierStatus, setCustomerStatus } from "@/lib/actions/admin";
 import { toast } from "sonner";
 
-export function VerifyButtons({ id, kind, status }: { id: string; kind: "provider" | "supplier"; status: string }) {
+export function VerifyButtons({ id, kind, status }: { id: string; kind: "provider" | "supplier" | "customer"; status: string }) {
   const [loading, setLoading] = useState<string | null>(null);
-  const fn = kind === "provider" ? setProviderStatus : setSupplierStatus;
+  const fn = kind === "provider" ? setProviderStatus : kind === "supplier" ? setSupplierStatus : setCustomerStatus;
 
   async function act(status: "APPROVED" | "REJECTED" | "SUSPENDED") {
     const note = status !== "APPROVED" ? prompt(`Reason for ${status.toLowerCase()}?`) ?? "" : undefined;

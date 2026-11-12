@@ -6,6 +6,7 @@ import { issueInvoice } from "@/lib/actions/billing";
 import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Plan } from "@prisma/client";
 import { normalizeUrl } from "@/lib/utils";
+import { notifyAllAdmins } from "@/lib/notify";
 
 export async function createOrgProfile(input: {
   userId: string;
@@ -98,5 +99,11 @@ export async function createOrgProfile(input: {
         designation: input.designation,
       },
     });
+    // customers are free but must be approved by an admin before the portal unlocks
+    await notifyAllAdmins(
+      "New client registration — approval needed",
+      `${input.orgName || "A new client"} signed up and is waiting in the verification queue.`,
+      "/admin/verification"
+    );
   }
 }

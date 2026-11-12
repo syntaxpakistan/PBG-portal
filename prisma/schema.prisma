@@ -619,6 +619,9 @@ model CustomerProfile {
   address     String?
   department  String?
   designation String?
+  status      VerificationStatus @default(PENDING) // admin must approve before the client portal unlocks
+  statusNote  String?
+  verifiedAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

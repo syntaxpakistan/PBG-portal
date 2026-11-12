@@ -263,7 +263,7 @@ async function main2() {
     await prisma.customerProfile.upsert({
       where: { userId: u.id },
       update: {},
-      create: { userId: u.id, orgName, orgType, city, department: dept, designation: desg },
+      create: { userId: u.id, orgName, orgType, city, department: dept, designation: desg, status: "APPROVED", verifiedAt: new Date() },
     });
   }
   // ---- service listings (storefront) ----

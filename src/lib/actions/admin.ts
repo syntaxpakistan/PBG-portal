@@ -64,6 +64,30 @@ export async function setSupplierStatus(id: string, status: VerificationStatus, 
   revalidatePath("/admin/verification");
 }
 
+export async function setCustomerStatus(id: string, status: VerificationStatus, note?: string) {
+  const session = await requireAdmin();
+  const p = await prisma.customerProfile.update({
+    where: { id },
+    data: { status, statusNote: note || null, verifiedAt: status === "APPROVED" ? new Date() : null },
+    include: { user: { select: { name: true } } },
+  });
+  await audit(session.user.id, `CUSTOMER_${status}`, "CustomerProfile", id, note);
+  const label = p.orgName || p.user.name;
+  await notify({
+    toUserId: p.userId,
+    subject:
+      status === "APPROVED" ? `Account approved — welcome to the Gateway` :
+      status === "REJECTED" ? `Registration not approved — ${label}` :
+      `Account ${status.toLowerCase()} — ${label}`,
+    body:
+      status === "APPROVED"
+        ? `Syntax approved your registration. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
+        : `Your client registration status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
+    href: "/dashboard",
+  });
+  revalidatePath("/admin/verification");
+}
+
 export async function setComplaintStatus(id: string, status: ComplaintStatus, resolution?: string) {
   const session = await requireAdmin();
   await prisma.complaint.update({ where: { id }, data: { status, resolution: resolution || null } });
