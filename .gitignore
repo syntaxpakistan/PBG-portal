@@ -19,3 +19,5 @@ zzz/
 /uploads/
 .vercel
 .env*
+
+users.md
