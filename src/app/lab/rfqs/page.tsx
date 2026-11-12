@@ -5,8 +5,6 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
-import { isPriorityClientSubscription } from "@/lib/entitlements";
-import { getGraceDays } from "@/lib/settings";
 
 export default async function LabRfqsPage({
   searchParams,
@@ -46,8 +44,8 @@ export default async function LabRfqsPage({
           }),
     },
     include: {
-      // masked context only — org type, never the buyer's name/org (+ plan for priority badge)
-      customer: { select: { customerProfile: { select: { orgType: true, city: true } }, subscription: { select: { plan: true, status: true, expiresAt: true } } } },
+      // masked context only — org type, never the buyer's name/org
+      customer: { select: { customerProfile: { select: { orgType: true, city: true } } } },
       _count: { select: { quotes: true } },
     },
     orderBy: { createdAt: "desc" },
@@ -59,12 +57,7 @@ export default async function LabRfqsPage({
         )
       )
     : openRfqs;
-  const graceDays = await getGraceDays();
-  const inbox = (isBoard ? openRfqs : (routed.length ? routed : openRfqs).filter((r) => !invited || invitedIds.has(r.id)))
-    .slice()
-    .sort((a, b) => Number(isPriorityClientSubscription(b.customer.subscription, graceDays)) - Number(isPriorityClientSubscription(a.customer.subscription, graceDays)));
-
-  const isPriorityClient = (r: (typeof openRfqs)[number]) => isPriorityClientSubscription(r.customer.subscription, graceDays);
+  const inbox = isBoard ? openRfqs : (routed.length ? routed : openRfqs).filter((r) => !invited || invitedIds.has(r.id));
 
   return (
     <>
@@ -118,7 +111,6 @@ export default async function LabRfqsPage({
                   </td>
                   <td className="px-4 py-3.5 align-top">
                     <span className="text-body">Verified customer</span>
-                    {isPriorityClient(r) && <span className="ml-1.5 rounded-full bg-(--st-amber-bg) px-2 py-0.5 text-[10px] font-semibold text-(--st-amber-fg)">Priority client</span>}
                     <div className="mt-0.5 text-[11px] text-muted">
                       {[r.customer.customerProfile?.orgType, r.customer.customerProfile?.city].filter(Boolean).join(" · ") || "identity masked until award"}
                     </div>

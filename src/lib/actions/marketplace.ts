@@ -9,8 +9,8 @@ import { saveUpload } from "@/lib/files";
 import { getFeePercent } from "@/lib/settings";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { WORK_STAGE_KEYS } from "@/lib/constants";
-import { assertPartnerActive, isPriorityClientSubscription } from "@/lib/entitlements";
-import { getGraceDays, getInvoiceDueDays, getRfqRateLimit } from "@/lib/settings";
+import { assertPartnerActive } from "@/lib/entitlements";
+import { getInvoiceDueDays, getRfqRateLimit } from "@/lib/settings";
 import { rateLimit } from "@/lib/rate-limit";
 import { issueInvoice, autoIssueFeeInvoice } from "@/lib/actions/billing";
 
@@ -45,24 +45,17 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
   for (const p of providers) {
     if (priorityUsers.has(p.userId) && (routed.some((r) => r.id === p.id) || invitedSet.has(p.id))) targets.set(p.id, p);
   }
-  // Pro/Custom clients get priority matching — their RFQs are flagged so labs see them first
-  const clientSub = await prisma.subscription.findUnique({
-    where: { userId: rfq.customerId },
-    select: { plan: true, status: true, expiresAt: true },
-  });
-  const priorityClient = isPriorityClientSubscription(clientSub, await getGraceDays());
   const details = [
     `${rfq.title}`,
     `${rfq.serviceCategory} · ${rfq.organism} · ${rfq.sampleCount} × ${rfq.sampleType}`,
     rfq.requestedOutput ? `Output: ${rfq.requestedOutput}` : null,
     rfq.deadline ? `Deadline: ${rfq.deadline.toLocaleDateString()}` : null,
     rfq.budgetHint ? `Budget hint: ${rfq.budgetHint}` : null,
-    priorityClient ? "Priority client — paid plan member" : null,
   ].filter(Boolean).join(" — ");
   for (const p of targets.values()) {
     await notify({
       toUserId: p.userId,
-      subject: `${priorityClient ? "Priority client — " : ""}${invitedSet.has(p.id) ? `You were invited to quote: ${rfq.refNo}` : board ? `New request on the board: ${rfq.refNo}` : `New RFQ routed to you: ${rfq.refNo}`}`,
+      subject: invitedSet.has(p.id) ? `You were invited to quote: ${rfq.refNo}` : board ? `New request on the board: ${rfq.refNo}` : `New RFQ routed to you: ${rfq.refNo}`,
       body: `${details}. Open your lab portal to review the full request and submit a sealed quote.`,
       href: `/lab/rfqs/${rfq.id}`,
     });
@@ -1098,7 +1091,7 @@ export async function submitReview(projectId: string, formData: FormData) {
 
 export async function requestRenewal() {
   const session = await getSession();
-  if (!session || !["CUSTOMER", "PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
+  if (!session || !["PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
   const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
   if (!sub) throw new Error("No subscription");
   await prisma.subscription.update({ where: { id: sub.id }, data: { renewRequestedAt: new Date() } });

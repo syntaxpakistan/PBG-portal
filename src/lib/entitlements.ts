@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { PLAN_FLAGS, GRACE_DAYS, type PlanKey } from "@/lib/plans";
+import { PLAN_FLAGS, type PlanKey } from "@/lib/plans";
 import { getGraceDays } from "@/lib/settings";
 import type { SubscriptionStatus } from "@prisma/client";
 
@@ -64,12 +64,4 @@ export async function assertPartnerActive(userId: string): Promise<PartnerAccess
 /** plan tier for sorting/priority — higher plans rank first */
 export function planTier(plan: string | null | undefined): number {
   return plan === "CUSTOM" ? 2 : plan === "PRO" ? 1 : 0;
-}
-
-/** true when a customer subscription is ACTIVE Pro/Custom within paid-through + grace — drives priority lab matching */
-export function isPriorityClientSubscription(sub: { plan: string; status: string; expiresAt: Date | null } | null | undefined, graceDays = GRACE_DAYS): boolean {
-  if (!sub || sub.status !== "ACTIVE") return false;
-  if (sub.plan !== "PRO" && sub.plan !== "CUSTOM") return false;
-  const now = Date.now();
-  return !sub.expiresAt || sub.expiresAt.getTime() + graceDays * 864e5 > now;
 }

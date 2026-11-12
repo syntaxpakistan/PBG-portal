@@ -359,7 +359,7 @@ Customer posts RFQ → labs quote → customer selects quote
 Where it shows:
 
 Customer → project page → milestones section → "Report paid" button (now with method + reference)
-Customer → /dashboard/billing → all invoices from labs + subscription
+Customer → /dashboard/billing → all invoices billed to them (milestone payments)
 Lab → /lab/billing → invoices they issued + payments to verify + payouts
 Admin → /admin/transactions → project payments, fee invoicing
 Admin → /admin/finance → create payout, confirm payments
@@ -380,7 +380,7 @@ Feature	Where it shows
 Post new RFQ	/dashboard/rfqs/new
 Browse providers	/dashboard/marketplace
 Project milestones	/dashboard/projects/[id] — "Report paid" button with method + reference
-Invoices to pay	/dashboard/billing — subscription invoices from Syntax
+Invoices to pay	/dashboard/billing — milestone invoices billed to the customer
 Report payment	Billing page → "Report payment" → pick method, enter reference, upload receipt
 Track payment status	Same invoice row shows PENDING → CONFIRMED/REJECTED
 Rate provider	Project page after completion

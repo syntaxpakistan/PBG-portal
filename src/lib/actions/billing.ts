@@ -367,7 +367,7 @@ export async function voidInvoice(invoiceId: string, formData: FormData) {
 
 export async function requestPlanChange(plan: string) {
   const session = await getSession();
-  if (!session || !["CUSTOMER", "PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
+  if (!session || !["PROVIDER", "SUPPLIER"].includes(session.user.role ?? "")) redirect("/login");
   if (!PLANS[plan as PlanKey]) throw new Error("Invalid plan");
   const planKey = plan as PlanKey;
   const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });

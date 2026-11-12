@@ -29,13 +29,15 @@ function outstanding(inv: InvoiceWithDetails) {
 }
 
 export async function BillingView({
-  access, payables, receivables, payouts, pendingForMe,
+  access, payables, receivables, payouts, pendingForMe, canSubscribe = true,
 }: {
   access: PartnerAccess;
   payables: InvoiceWithDetails[];
   receivables: InvoiceWithDetails[];
   payouts: Payout[];
   pendingForMe: { payment: Payment & { invoice: Invoice }; canConfirm: boolean }[];
+  /** false for customers — subscriptions are partner-only; clients never pick a plan */
+  canSubscribe?: boolean;
 }) {
   const openPayables = payables.filter((i) => i.status !== "PAID" && i.status !== "VOID");
   const nextPayout = payouts.find((p) => p.status === "PLANNED" || p.status === "PROCESSING");
@@ -88,8 +90,8 @@ export async function BillingView({
         </div>
       )}
 
-      {/* no subscription yet — let any portal pick a plan (creates sub + invoice) */}
-      {!access.hasSubscription && (
+      {/* no subscription yet — partners pick a plan (creates sub + invoice) */}
+      {canSubscribe && !access.hasSubscription && (
         <div className="card mb-6 p-5">
           <h3 className="text-[14px] font-semibold text-ink">Choose your plan</h3>
           <p className="mt-1 text-[12px] text-muted">

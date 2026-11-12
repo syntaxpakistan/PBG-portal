@@ -23,6 +23,7 @@ export default async function CustomerBillingPage() {
       receivables={[]}
       payouts={payouts}
       pendingForMe={[]}
+      canSubscribe={false}
     />
   );
 }

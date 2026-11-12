@@ -98,18 +98,5 @@ export async function createOrgProfile(input: {
         designation: input.designation,
       },
     });
-    // clients subscribe too — same plans as partners; perks: priority lab matching + analytics
-    const sub = await prisma.subscription.create({
-      data: { userId: input.userId, plan: planKey as Plan, priceUsd: planPrice },
-    });
-    await issueInvoice({
-      billedUserId: input.userId,
-      issuerType: "PLATFORM",
-      subscriptionId: sub.id,
-      currency: "USD",
-      dueAt: new Date(Date.now() + dueIn),
-      note: `${PLANS[planKey].label} plan — first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — monthly`, unitPrice: planPrice }],
-    });
   }
 }
