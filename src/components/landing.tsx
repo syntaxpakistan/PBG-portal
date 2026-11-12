@@ -4,8 +4,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import {
   ArrowRight, BadgeCheck, Boxes, CircleCheck, Dna, Eye, FileText,
-  FlaskConical, GraduationCap, Handshake, Landmark, Lock, Microscope,
-  PackageCheck, Search, ShieldCheck, Stethoscope, Timer, Users, Workflow,
+  FlaskConical, GraduationCap, Handshake, Landmark, Lock, MessagesSquare, Microscope,
+  PackageCheck, Search, ShieldCheck, Stethoscope, TestTubes, Timer, Users, Workflow,
 } from "lucide-react";
 import { PLANS, type PlanKey } from "@/lib/plans";
 import { Navbar } from "@/components/navbar";
@@ -19,8 +19,8 @@ const HOW = [
     desc: "Describe your project once — organism, sample count, analysis type, deadline and budget hint. Your RFQ is routed to providers whose declared capabilities match.",
   },
   {
-    icon: Eye, step: "02", title: "Receive blind quotes",
-    desc: "Verified laboratories quote independently and competitively — no lab ever sees another's price or terms. You compare sealed quotes side-by-side.",
+    icon: Eye, step: "02", title: "Receive and compare quotes",
+    desc: "Get competitive quotes from verified labs. Compare pricing, turnaround times and what's included side by side to find the best fit for your project.",
   },
   {
     icon: Handshake, step: "03", title: "Award & escrow",
@@ -35,7 +35,7 @@ const HOW = [
 const WHO = [
   {
     icon: GraduationCap, title: "Researchers & universities",
-    desc: "Post structured RFQs, receive competitive quotes from verified national laboratories, and manage grants, projects and deliverables in one workspace.",
+    desc: "Post structured requests for quotes, receive competitive quotes from verified national laboratories, and manage grants, projects and deliverables in one workspace.",
     list: ["Free to post requests", "Side-by-side quote comparison", "Publication-ready deliverables"],
   },
   {
@@ -82,11 +82,24 @@ const WHY = [
   },
 ];
 
-const EXCHANGE = [
+type ExchangeCard = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  desc: string;
+  cta?: string;
+  href?: string;
+};
+
+const EXCHANGE: ExchangeCard[] = [
   { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity." },
   { icon: Microscope, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons." },
   { icon: Boxes, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers." },
   { icon: Search, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation." },
+];
+
+const EXCHANGE_EXTRA: ExchangeCard[] = [
+  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories." },
+  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", cta: "Request a consultation", href: "/biogateway" },
 ];
 
 export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
@@ -106,6 +119,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
       key, icon: key === "CUSTOM" ? Landmark : key === "PRO" ? Microscope : FlaskConical,
       label: PLANS[key].label, tagline: PLANS[key].tagline,
       price: prices[key], popular: key === "PRO",
+      duration: key === "BASIC" ? "1 year" : key === "PRO" ? "3 years" : "5 years",
       features: [...PLANS[key].features],
       cta: `Start with ${PLANS[key].label}`,
     })),
@@ -126,8 +140,8 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
             <Reveal>
               <p className="eyebrow on-dark justify-center">A nationwide biotechnology marketplace</p>
               <h1 className="h-display on-dark mt-6">
-                A National Platform for Sequencing in Pakistan —{" "}
-                <em className="grad-text">Our Sample, Our Data, Our Discoveries.</em>
+                A National Platform for Sequencing in Pakistan{" "}
+                <em className="grad-text">Our Samples. Our Data. Our Discoveries.</em>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#c5d2e1] sm:text-[17.5px]">
                 The <strong className="font-semibold text-white">Pakistan Biotechnology Gateway</strong> connects
@@ -163,13 +177,25 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
             <Reveal>
               <p className="eyebrow justify-center">The idea</p>
               <h2 className="h-section mt-4">
-                One roof for the country&apos;s entire <em className="grad-text">biotech economy.</em>
+                One Market for the country&apos;s entire <em className="grad-text">Biotechnology Sector.</em>
               </h2>
-              <p className="mt-5 text-[15.5px] leading-relaxed text-body">
-                Today, getting a sample sequenced or a reagent sourced in Pakistan means cold emails,
-                invisible pricing and weeks of uncertainty. The Gateway replaces that with a structured
-                exchange: customers post what they need, verified providers and suppliers compete for the
-                work — and every project runs inside a governed, auditable workflow.
+              <h3 className="mt-8 text-[17px] font-semibold text-ink">Get your samples sequenced and analyzed in Pakistan</h3>
+              <p className="mt-4 text-[15.5px] leading-relaxed text-body">
+                From a single gene to a whole genome, PBG connects you with verified sequencing labs and helps
+                you choose the right platform for your project. Compare competitive quotes for microbial, plant,
+                animal or human genome sequencing, as well as exome, transcriptome and metagenome sequencing.
+                Subsidized rates are available.
+              </p>
+              <p className="mt-4 text-[15.5px] leading-relaxed text-body">
+                Work with trained bioinformaticians who use high-performance computing for genome assembly,
+                pangenome analysis, variant calling, differential gene expression analysis and isoform
+                identification.
+              </p>
+              <p className="mt-4 text-[15.5px] leading-relaxed text-body">
+                <strong className="font-semibold text-ink">PBG guarantees that your sequencing data meets the
+                quality standards agreed before your project begins.</strong> Work directly with your chosen
+                lab, track progress in one place, and keep your samples in Pakistan and your data secure and
+                under your control.
               </p>
             </Reveal>
           </div>
@@ -206,7 +232,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <p className="eyebrow justify-center">Who it&apos;s for</p>
-              <h2 className="h-section mt-4">Built for <em className="grad-text">both sides</em> of the bench.</h2>
+              <h2 className="h-section mt-4">Built for <em className="grad-text">all sides</em> of the bench.</h2>
             </div>
           </Reveal>
           <Stagger className="mt-12 grid gap-5 md:grid-cols-2">
@@ -234,7 +260,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <p className="eyebrow justify-center">Why the Gateway</p>
-              <h2 className="h-section mt-4">A marketplace with <em className="grad-text">rules that protect everyone.</em></h2>
+              <h2 className="h-section mt-4">A marketplace with <em className="grad-text">rules that protect everyone&apos;s Rights.</em></h2>
             </div>
           </Reveal>
           <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -252,9 +278,9 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
       {/* ── The exchange ─────────────────────────────────────── */}
       <section className="bg-navy py-20 sm:py-24">
         <div className="container-x">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <Reveal>
-              <p className="eyebrow on-dark">The exchange</p>
+          <Reveal>
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="eyebrow on-dark justify-center">The exchange</p>
               <h2 className="h-section on-dark mt-4">
                 Services and supplies — <em className="grad-text">one marketplace.</em>
               </h2>
@@ -263,7 +289,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                 and equipment from indigenous suppliers on the other. Same verified network, same
                 governed workflow.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <span className="btn-wrap">
                   <Link href="/marketplace" className="btn-white">Open the marketplace</Link>
                 </span>
@@ -271,17 +297,22 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                   See the verified network <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
-            </Reveal>
-            <Stagger className="grid gap-4 sm:grid-cols-2">
-              {EXCHANGE.map((c) => (
-                <motion.div key={c.title} variants={fadeUp} className="card-dark p-6">
-                  <c.icon className="size-6 text-mint" />
-                  <h3 className="mt-4 text-[15px] font-semibold text-white">{c.title}</h3>
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
-                </motion.div>
-              ))}
-            </Stagger>
-          </div>
+            </div>
+          </Reveal>
+          <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[...EXCHANGE, ...EXCHANGE_EXTRA].map((c) => (
+              <motion.div key={c.title} variants={fadeUp} className="card-dark flex flex-col p-6">
+                <c.icon className="size-6 text-mint" />
+                <h3 className="mt-4 text-[15px] font-semibold text-white">{c.title}</h3>
+                <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
+                {c.cta && (
+                  <Link href={c.href ?? "/biogateway"} className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-navy transition-colors hover:bg-paper-2">
+                    {c.cta} <ArrowRight className="size-3.5" />
+                  </Link>
+                )}
+              </motion.div>
+            ))}
+          </Stagger>
         </div>
       </section>
 
@@ -298,7 +329,22 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               </p>
             </div>
           </Reveal>
-          <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal className="mt-10">
+            <div className="card-dark flex flex-col items-start justify-between gap-4 px-7 py-5 sm:flex-row sm:items-center">
+              <div>
+                <p className="text-[15px] font-semibold text-white">For Partner Labs</p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">
+                  Offer 50% discount on each category — choose a 1, 3 or 5 year commitment.
+                </p>
+              </div>
+              <div className="flex gap-2.5">
+                {["1 year", "3 years", "5 years"].map((d) => (
+                  <span key={d} className="rounded-full border border-white/20 px-4 py-1.5 text-[12px] font-semibold text-white/90">{d}</span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+          <Stagger className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {TIERS.map((t) => (
               <motion.div
                 key={t.key}
@@ -311,7 +357,10 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                   </span>
                 )}
                 <t.icon className="size-7 text-blue" />
-                <h3 className="mt-4 text-[17px] font-semibold text-ink">{t.label}</h3>
+                {"duration" in t && t.duration && (
+                  <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-blue">{t.duration}</p>
+                )}
+                <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
                 <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
                 <p className="mt-4">
                   <span className="font-display text-[32px] font-semibold tracking-tight text-ink">

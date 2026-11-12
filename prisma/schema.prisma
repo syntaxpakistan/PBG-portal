@@ -153,7 +153,9 @@ model ServiceListing {
   provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
   providerId      String
   name            String
-  category        String // WGS, RNA-Seq, Bioinformatics...
+  category        String // Molecular Biology | Sequencing | Bioinformatics | Experimental Design Consultation
+  service         String? // catalogue service picked in the add-service form
+  spec            String? // JSON of dependent selections, e.g. {"Sample type":"Soil"}
   platform        String?
   description     String?
   priceFrom       Float? // PKR starting price

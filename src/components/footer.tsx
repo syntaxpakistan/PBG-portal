@@ -31,7 +31,9 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
     links: [
       { label: "Overview", href: "/" },
       { label: "How it works", href: "/#how" },
+      { label: "Services", href: "/services" },
       { label: "Marketplace", href: "/marketplace" },
+      { label: "Partners", href: "/partners" },
       { label: "Verified network", href: "/registry" },
     ],
   },
@@ -112,9 +114,6 @@ export function Footer() {
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-[12.5px] text-[#7a97b0]">
             © 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.
-          </p>
-          <p className="font-mono text-[11px] tracking-wide text-[#7a97b0]">
-            Karachi · Lahore · Islamabad — Nationwide
           </p>
         </div>
       </div>

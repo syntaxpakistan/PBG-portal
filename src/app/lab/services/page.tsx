@@ -3,7 +3,7 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
-import { ServicePriceFields } from "@/components/portal/service-price-fields";
+import { ServiceForm } from "@/components/portal/service-form";
 import { saveService, setServiceActive, deleteService } from "@/lib/actions/marketplace";
 import { pkr } from "@/lib/constants";
 import { SubmitButton } from "@/components/portal/submit-button";
@@ -22,7 +22,7 @@ export default async function LabServicesPage() {
     <>
       <PageHead
         title="Service catalog"
-        sub="Fixed-price services shown on the marketplace and your registry storefront. New and edited listings go through a quick admin review before going live."
+        sub="List your lab's services with a price in PKR or offer them by quote. New and edited listings go through a quick admin review before going live."
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
@@ -79,35 +79,8 @@ export default async function LabServicesPage() {
 
         <div className="card h-fit p-5">
           <h3 className="text-[14px] font-semibold text-ink">Add a service</h3>
-          <p className="mb-4 mt-1 text-[12px] text-muted">e.g. &ldquo;WGS — 30× human&rdquo;, &ldquo;RNA-Seq library prep&rdquo;. Final pricing is still quoted per-RFQ.</p>
-          <form action={saveService} className="space-y-4">
-            <div>
-              <label className={label}>Service name *</label>
-              <input name="name" required className={input} placeholder="WGS — 30× human genome" />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className={label}>Category *</label>
-                <select name="category" required className={input}>
-                  {["WGS", "Metagenome", "RNA-Seq", "Epigenomics", "Sanger", "Sequencing Only", "Bioinformatics", "WES", "qPCR", "Panels"].map((c) => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={label}>Turnaround (days)</label>
-                <input name="turnaroundDays" type="number" min={1} className={input} />
-              </div>
-            </div>
-            <div>
-              <label className={label}>Platform</label>
-              <input name="platform" className={input} placeholder="Illumina NovaSeq X" />
-            </div>
-            <ServicePriceFields input={input} label={label} />
-            <div>
-              <label className={label}>Description</label>
-              <textarea name="description" rows={2} className={input} placeholder="What's included, QC steps, deliverables…" />
-            </div>
-            <SubmitButton className="btn-primary !py-2.5">List service</SubmitButton>
-          </form>
+          <p className="mb-4 mt-1 text-[12px] text-muted">Pick a category and service — the listing name is generated from your selections. Publish a separate listing for each variant you price separately.</p>
+          <ServiceForm action={saveService} input={input} label={label} platforms={profile.platforms.split(",").map((p) => p.trim()).filter(Boolean)} />
         </div>
       </div>
     </>

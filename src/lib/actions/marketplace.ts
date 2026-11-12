@@ -12,6 +12,7 @@ import { WORK_STAGE_KEYS } from "@/lib/constants";
 import { assertPartnerActive } from "@/lib/entitlements";
 import { getInvoiceDueDays, getRfqRateLimit } from "@/lib/settings";
 import { rateLimit } from "@/lib/rate-limit";
+import { findCategory, findService, visibleFields, buildListingName, CONSULT_TOPICS, PRICE_UNITS } from "@/lib/service-catalog";
 import { issueInvoice, autoIssueFeeInvoice } from "@/lib/actions/billing";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
@@ -900,16 +901,62 @@ export async function saveService(formData: FormData) {
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
   const profile = await prisma.providerProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
   await assertPartnerActive(session.user.id);
+
+  // catalogue-driven listing — validate every selection against the taxonomy
+  const category = String(formData.get("category") || "");
+  const cat = findCategory(category);
+  const svc = cat && findService(category, String(formData.get("service") || ""));
+  if (!cat || !svc) throw new Error("Pick a valid category and service.");
+
+  const rawValues: Record<string, string> = {};
+  for (const f of svc.fields) rawValues[f.key] = String(formData.get(`spec_${f.key}`) || "");
+  const fields = visibleFields(svc, rawValues);
+
+  const spec: Record<string, string> = {};
+  for (const f of fields) {
+    const v = rawValues[f.key] ?? "";
+    if (f.type === "select") {
+      if (!f.options!.includes(v)) throw new Error(`Pick a valid ${f.label.toLowerCase()}.`);
+      spec[f.label] = v;
+    } else if (v.trim()) {
+      spec[f.label] = v.trim().slice(0, 80);
+    }
+  }
+
+  // consultation route — a sequencing offering can switch the listing into a
+  // design consultation with a preselected topic (catalogue spec §5)
+  const routed = svc.consultRoute && spec[svc.fields.find((f) => f.key === svc.consultRoute!.key)!.label] === svc.consultRoute.value;
+  let finalCategory = category;
+  let serviceName = svc.name;
+  let optionValues = fields.map((f) => spec[f.label]).filter(Boolean);
+  if (routed) {
+    const topic = String(formData.get("consultTopic") || "");
+    if (!CONSULT_TOPICS.includes(topic)) throw new Error("Pick a valid consultation topic.");
+    finalCategory = "Experimental Design Consultation";
+    serviceName = "Experimental design consultation";
+    optionValues = [topic];
+    // replace the routed offering with the topic in the stored spec
+    delete spec[svc.fields.find((f) => f.key === svc.consultRoute!.key)!.label];
+    spec["Consultation topic"] = topic;
+  }
+
+  const pricingMode = String(formData.get("pricingMode")) === "QUOTE" ? "QUOTE" : "FIXED";
+  const priceFrom = formData.get("priceFrom") ? Number(formData.get("priceFrom")) : null;
+  const unit = String(formData.get("unit") || "");
+  if (pricingMode === "FIXED" && (!priceFrom || priceFrom <= 0 || !PRICE_UNITS.includes(unit as (typeof PRICE_UNITS)[number]))) {
+    throw new Error("Enter a PKR price and unit, or choose By quote.");
+  }
+
   const data = {
-    name: String(formData.get("name")),
-    category: String(formData.get("category")),
+    name: buildListingName(serviceName, optionValues),
+    category: finalCategory,
+    service: serviceName,
+    spec: Object.keys(spec).length ? JSON.stringify(spec) : null,
     platform: String(formData.get("platform") || "") || null,
     description: String(formData.get("description") || "") || null,
-    priceFrom: formData.get("priceFrom") ? Number(formData.get("priceFrom")) : null,
-    priceVisibility: ["PUBLIC", "MEMBERS", "QUOTE_ONLY"].includes(String(formData.get("priceVisibility")))
-      ? String(formData.get("priceVisibility"))
-      : "PUBLIC",
-    unit: String(formData.get("unit") || "") || null,
+    priceFrom: pricingMode === "FIXED" ? priceFrom : null,
+    priceVisibility: pricingMode === "QUOTE" ? "QUOTE_ONLY" : "PUBLIC",
+    unit: pricingMode === "FIXED" ? unit : null,
     turnaroundDays: formData.get("turnaroundDays") ? Number(formData.get("turnaroundDays")) : null,
     // edits re-enter moderation — listing hides until admin re-approves
     moderation: "PENDING",
