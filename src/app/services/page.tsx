@@ -22,6 +22,17 @@ export default function ServicesPage() {
 
       {/* hero */}
       <section className="relative overflow-hidden bg-navy pb-16 pt-36 sm:pt-40">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/media/services-hero-poster.webp"
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
+        >
+          <source src="/media/services-hero.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy" />
         <div className="grid-lines on-dark absolute inset-0" />
         <div className="glow-orb right-[-120px] top-[-80px] size-[380px] bg-mint/15" />
         <div className="container-x relative">

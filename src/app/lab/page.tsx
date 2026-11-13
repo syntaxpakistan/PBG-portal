@@ -251,11 +251,9 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
             {complaints.map((c) => (
               <div key={c.id} className="flex items-start justify-between gap-4 px-5 py-3.5">
                 <div>
-                  {c.project ? (
-                    <Link href={`/lab/projects/${c.project.id}`} className="text-[13px] font-medium text-ink hover:text-blue">{c.subject} <span className="font-normal text-muted">· {c.project.refNo}</span></Link>
-                  ) : (
-                    <span className="text-[13px] font-medium text-ink">{c.subject}</span>
-                  )}
+                  <Link href={`/lab/complaints/${c.id}`} className="text-[13px] font-medium text-ink hover:text-blue">
+                    {c.subject}{c.project && <span className="font-normal text-muted"> · {c.project.refNo}</span>}
+                  </Link>
                   <div className="mt-0.5 text-[11.5px] text-muted">filed by {c.filedBy.name} · {c.createdAt.toLocaleDateString()}</div>
                   {c.resolution && <p className="mt-1.5 rounded-md bg-(--st-green-bg) px-2.5 py-1.5 text-[11.5px] text-(--st-green-fg)">Resolution: {c.resolution}</p>}
                 </div>

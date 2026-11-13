@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const LINKS = [
-  { label: "Pricing", href: "/#pricing" },
   { label: "Services", href: "/services" },
   { label: "Marketplace", href: "/marketplace" },
   { label: "Partners", href: "/partners" },
+  { label: "Pricing", href: "/#pricing" },
   { label: "Verified network", href: "/registry" },
 ];
 

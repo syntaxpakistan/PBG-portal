@@ -1,6 +1,7 @@
 export const instant = false
 
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -38,8 +39,17 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
     <main className="min-h-screen bg-paper">
       <Navbar />
       {/* header */}
-      <section className="bg-navy pb-14 pt-32">
-        <div className="mx-auto max-w-6xl px-6">
+      <section className="relative overflow-hidden bg-navy pb-14 pt-32">
+        <Image
+          src="/media/registry-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="pointer-events-none absolute inset-0 object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/40 to-navy/85" />
+        <div className="relative mx-auto max-w-6xl px-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow">National facility registry</p>
           <h1 className="h-display on-dark mt-3 max-w-2xl !text-[2.6rem]">
             Pakistan&apos;s <em className="grad-text">verified sequencing capacity</em>

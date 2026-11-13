@@ -1,6 +1,7 @@
 export const instant = false
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -34,6 +35,15 @@ export default async function ServiceCategoryPage({ params }: { params: Promise<
 
       {/* hero */}
       <section className="relative overflow-hidden bg-navy pb-16 pt-36 sm:pt-40">
+        <Image
+          src={panel.img}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="pointer-events-none absolute inset-0 object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/40 to-navy/85" />
         <div className="grid-lines on-dark absolute inset-0" />
         <div className="glow-orb left-[-120px] top-[-80px] size-[380px] bg-mint/15" />
         <div className="container-x relative">

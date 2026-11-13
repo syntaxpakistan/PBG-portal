@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "motion/react";
 import {
   ArrowRight, BadgeCheck, Boxes, CircleCheck, Dna, Eye, FileText,
@@ -86,20 +87,21 @@ type ExchangeCard = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   desc: string;
+  img: string;
   cta?: string;
   href?: string;
 };
 
 const EXCHANGE: ExchangeCard[] = [
-  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity." },
-  { icon: Microscope, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons." },
-  { icon: Boxes, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers." },
-  { icon: Search, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation." },
+  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity.", img: "/media/seq-platform.webp" },
+  { icon: Microscope, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", img: "/media/bioinfo-structure.webp" },
+  { icon: Boxes, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", img: "/media/consumables.webp" },
+  { icon: Search, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", img: "/media/lab-interior.webp" },
 ];
 
 const EXCHANGE_EXTRA: ExchangeCard[] = [
-  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories." },
-  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", cta: "Request a consultation", href: "/biogateway" },
+  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories.", img: "/media/molbio-pipette.webp" },
+  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", img: "/media/expert-scientist.webp", cta: "Request a consultation", href: "/biogateway" },
 ];
 
 export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
@@ -132,6 +134,17 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy pb-24 pt-40 sm:pt-44">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/media/hero-dna-poster.webp"
+          className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
+        >
+          <source src="/media/hero-dna.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/75 via-navy/55 to-navy" />
         <div className="grid-lines on-dark absolute inset-0" />
         <div className="glow-orb right-[-120px] top-[-120px] size-[420px] bg-mint/15" />
         <div className="glow-orb left-[-140px] bottom-[-180px] size-[380px] bg-blue-bright/15" />
@@ -199,6 +212,21 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               </p>
             </Reveal>
           </div>
+          <Reveal className="mt-14">
+            <div className="relative mx-auto aspect-[21/9] max-w-5xl overflow-hidden rounded-2xl border border-line shadow-xl shadow-navy/10">
+              <Image
+                src="/media/lab-scientist.webp"
+                alt="Scientist working at a microscope in a laboratory"
+                fill
+                sizes="(min-width: 1024px) 1024px, 100vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/45 via-transparent to-transparent" />
+              <p className="absolute bottom-4 left-5 text-[11.5px] font-medium uppercase tracking-[0.12em] text-white/90">
+                Inside a verified partner laboratory
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -301,15 +329,21 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...EXCHANGE, ...EXCHANGE_EXTRA].map((c) => (
-              <motion.div key={c.title} variants={fadeUp} className="card-dark flex flex-col p-6">
-                <c.icon className="size-6 text-mint" />
-                <h3 className="mt-4 text-[15px] font-semibold text-white">{c.title}</h3>
-                <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
-                {c.cta && (
-                  <Link href={c.href ?? "/biogateway"} className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-navy transition-colors hover:bg-paper-2">
-                    {c.cta} <ArrowRight className="size-3.5" />
-                  </Link>
-                )}
+              <motion.div key={c.title} variants={fadeUp} className="card-dark flex flex-col overflow-hidden p-0">
+                <div className="relative h-36 w-full">
+                  <Image src={c.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-2/90 via-navy/20 to-transparent" />
+                  <c.icon className="absolute bottom-3 left-5 size-6 text-mint" />
+                </div>
+                <div className="flex flex-1 flex-col p-6 pt-4">
+                  <h3 className="text-[15px] font-semibold text-white">{c.title}</h3>
+                  <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
+                  {c.cta && (
+                    <Link href={c.href ?? "/biogateway"} className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-navy transition-colors hover:bg-paper-2">
+                      {c.cta} <ArrowRight className="size-3.5" />
+                    </Link>
+                  )}
+                </div>
               </motion.div>
             ))}
           </Stagger>

@@ -57,9 +57,17 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
 
 export function Footer() {
   return (
-    <footer className="relative bg-navy">
-      <div className="rainbow-line" />
-      <div className="container-x py-14 sm:py-16">
+    <footer className="relative overflow-hidden bg-navy">
+      <div className="rainbow-line relative z-10" />
+      <Image
+        src="/media/join-dna.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="pointer-events-none absolute inset-0 object-cover object-right opacity-40"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/20" />
+      <div className="container-x relative py-14 sm:py-16">
         <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
           <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-32 w-auto sm:h-36" />
         </Link>

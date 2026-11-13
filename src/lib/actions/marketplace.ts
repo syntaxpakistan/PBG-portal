@@ -497,7 +497,7 @@ export async function fileComplaint(projectId: string, formData: FormData) {
     revalidatePath(`/dashboard/projects/${projectId}`);
     return;
   }
-  await prisma.complaint.create({
+  const complaint = await prisma.complaint.create({
     data: {
       projectId,
       filedById: session.user.id,
@@ -506,6 +506,11 @@ export async function fileComplaint(projectId: string, formData: FormData) {
     },
   });
   await audit(session.user.id, "COMPLAINT_FILED", "Project", projectId, String(formData.get("subject")));
+  await notifyAllAdmins(
+    `New complaint: ${String(formData.get("subject"))}`,
+    `${session.user.name ?? "A user"} filed a complaint on a project. Open it to mediate between the parties.`,
+    `/admin/complaints/${complaint.id}`
+  );
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 

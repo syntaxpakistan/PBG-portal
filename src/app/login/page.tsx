@@ -46,6 +46,14 @@ export default function LoginPage() {
     <main className="relative grid min-h-screen lg:grid-cols-2">
       {/* left brand panel */}
       <div className="relative hidden overflow-hidden bg-navy lg:block">
+        <Image
+          src="/media/join-dna.webp"
+          alt=""
+          fill
+          sizes="50vw"
+          className="pointer-events-none absolute inset-0 object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/75 via-navy/50 to-navy/90" />
         <div className="grid-lines on-dark absolute inset-0" />
         <div className="glow-orb left-1/3 top-1/3 size-[400px] -translate-x-1/2 bg-blue-bright/20" />
         <div className="relative flex h-full flex-col justify-between p-12">

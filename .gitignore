@@ -21,3 +21,6 @@ zzz/
 .env*
 
 users.md
+
+# downloaded source media (compressed copies live in public/media/)
+data/

@@ -1,6 +1,7 @@
 export const instant = false
 
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { Navbar } from "@/components/navbar";
@@ -88,8 +89,17 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   return (
     <main className="min-h-screen bg-paper">
       <Navbar />
-      <section className="bg-navy pb-12 pt-32">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <section className="relative overflow-hidden bg-navy pb-12 pt-32">
+        <Image
+          src="/media/marketplace-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="pointer-events-none absolute inset-0 object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/70 via-navy/40 to-navy/85" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <h1 className="h-display on-dark !text-[2.4rem]">Marketplace</h1>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#9fb9cd]">
             Browse services from Syntax-verified laboratories and supplies from indigenous vendors.

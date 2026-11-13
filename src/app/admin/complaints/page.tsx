@@ -32,7 +32,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-semibold text-ink">{c.subject}</span>
+                  <Link href={`/admin/complaints/${c.id}`} className="text-[14px] font-semibold text-ink hover:text-blue">{c.subject}</Link>
                   <StatusBadge status={c.status} />
                 </div>
                 <div className="mt-1 text-[12px] text-muted">

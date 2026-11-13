@@ -22,6 +22,8 @@ export type ServicePanel = {
   slug: string;
   title: string;
   intro: string;
+  /** hero background image on the category page */
+  img: string;
   items: SubService[];
 };
 
@@ -31,6 +33,7 @@ export const PANELS: ServicePanel[] = [
     title: "Molecular biology services",
     intro:
       "Upstream wet-lab work that every sequencing project depends on — extraction, amplification and quantification, performed to publication-grade quality standards.",
+    img: "/media/molbio-hero.webp",
     items: [
       {
         icon: TestTubes,
@@ -79,6 +82,7 @@ export const PANELS: ServicePanel[] = [
     title: "Sequencing services",
     intro:
       "From a single gene fragment to a complete genome — short-read, long-read and Sanger capacity routed to verified national laboratories whose declared platforms match your project.",
+    img: "/media/seq-hero.webp",
     items: [
       {
         icon: SearchCheck,
@@ -157,6 +161,7 @@ export const PANELS: ServicePanel[] = [
     title: "Bioinformatics services",
     intro:
       "Analysis by trained bioinformaticians on high-performance computing — bundled with sequencing or as a standalone project on data you already hold.",
+    img: "/media/hero-dna.webp",
     items: [
       {
         icon: Cpu,

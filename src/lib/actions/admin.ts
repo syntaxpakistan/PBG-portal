@@ -90,9 +90,24 @@ export async function setCustomerStatus(id: string, status: VerificationStatus, 
 
 export async function setComplaintStatus(id: string, status: ComplaintStatus, resolution?: string) {
   const session = await requireAdmin();
-  await prisma.complaint.update({ where: { id }, data: { status, resolution: resolution || null } });
+  const complaint = await prisma.complaint.update({
+    where: { id },
+    data: { status, resolution: resolution || null },
+    include: { project: { select: { providerUserId: true, customerId: true } } },
+  });
   await audit(session.user.id, `COMPLAINT_${status}`, "Complaint", id, resolution);
+  // tell both parties — the filer and the counterparty — that the case moved
+  const notifyIds = new Set([complaint.filedById, complaint.project?.customerId, complaint.project?.providerUserId].filter((x): x is string => !!x && x !== session.user.id));
+  for (const uid of notifyIds) {
+    await notify({
+      toUserId: uid,
+      subject: `Complaint ${status === "RESOLVED" ? "resolved" : status === "DISMISSED" ? "closed" : "under review"}: ${complaint.subject}`,
+      body: resolution ? `Resolution: ${resolution}` : `Your complaint is now ${status.toLowerCase().replace("_", " ")}.`,
+      href: `/dashboard/complaints/${id}`,
+    });
+  }
   revalidatePath("/admin/complaints");
+  revalidatePath(`/admin/complaints/${id}`);
 }
 
 export async function setTxnStatus(id: string, status: TxnStatus) {
