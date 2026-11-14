@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NotificationsBell } from "./notifications-bell";
 
 export type NavItem = { href?: string; label: string; icon: React.ReactNode; children?: NavItem[]; badge?: number };
 
@@ -17,7 +16,7 @@ function matchLen(pathname: string, href: string) {
   return -1;
 }
 
-export function SideNav({ items, unread }: { items: NavItem[]; unread: number }) {
+export function SideNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const allItems: NavItem[] = items;
   const allHrefs = allItems.flatMap((it) => (it.children?.length ? it.children.map((c) => c.href!) : it.href ? [it.href] : []));
@@ -85,7 +84,6 @@ export function SideNav({ items, unread }: { items: NavItem[]; unread: number })
           </Link>
         );
       })}
-      <NotificationsBell unread={unread} variant="nav" />
     </nav>
   );
 }

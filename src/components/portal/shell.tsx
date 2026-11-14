@@ -7,6 +7,7 @@ import { SignOutButton } from "./signout";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SideNav, type NavItem } from "./side-nav";
 import { PortalMobileNav } from "./mobile-nav";
+import { NotificationsBell } from "./notifications-bell";
 
 export type { NavItem };
 
@@ -35,10 +36,11 @@ export async function PortalShell({
             <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
           </Link>
         </div>
-        <div className="px-5 pb-3 pt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">
-          {title}
+        <div className="flex items-center justify-between px-5 pb-3 pt-5">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">{title}</span>
+          <NotificationsBell unread={unread} />
         </div>
-        <SideNav items={items} unread={unread} />
+        <SideNav items={items} />
         <div className="border-t border-white/10 p-4">
           <div className="mb-3 flex items-center gap-2.5">
             <span className="grid size-8 place-items-center rounded-full bg-yellow/20 text-[12px] font-semibold text-yellow">

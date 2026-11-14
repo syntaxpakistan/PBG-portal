@@ -80,7 +80,7 @@ export function PortalMobileNav({
               </div>
               <div className="border-t border-white/10 px-5 pb-3 pt-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">{title}</div>
               <div className="min-h-0 flex-1 overflow-y-auto">
-                <SideNav items={items} unread={unread} />
+                <SideNav items={items} />
               </div>
               <div className="border-t border-white/10 p-4">
                 <div className="mb-3 flex items-center gap-2.5">
