@@ -41,20 +41,62 @@ const SERVICE_SUBLINKS = [
 const linkClass =
   "inline-flex h-9 items-center whitespace-nowrap rounded-full px-3 text-[13px] font-medium text-white/75 transition-colors hover:bg-white/8 hover:text-white";
 
+const PROMO_KEY = "pbg-promo-launch-50";
+
+function PromoBar({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="relative flex h-9 items-center justify-center gap-3 bg-yellow px-4 text-navy">
+      <p className="truncate text-center text-[12px] font-semibold sm:text-[12.5px]">
+        🎉 Launch offer — 50% off all subscriptions until 31 Dec 2026
+      </p>
+      <Link
+        href="/#pricing"
+        className="shrink-0 rounded-full bg-navy px-3 py-1 text-[11px] font-semibold text-yellow transition-transform hover:scale-105"
+      >
+        Claim offer →
+      </Link>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss announcement"
+        className="absolute right-3 grid size-6 place-items-center rounded-full text-navy/70 hover:bg-navy/10 hover:text-navy"
+      >
+        <X className="size-3.5" />
+      </button>
+    </div>
+  );
+}
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // mounted-gated so the bar can't flash for users who dismissed it
+  const [promo, setPromo] = useState(false);
 
   useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (localStorage.getItem(PROMO_KEY) !== "1") setPromo(true);
+    });
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-3 z-50">
-      <div className={cn("container-x transition-all duration-500", scrolled ? "max-w-[1100px]" : "max-w-[1200px]")}>
+    <header className="fixed inset-x-0 top-0 z-50">
+      {promo && (
+        <PromoBar
+          onDismiss={() => {
+            localStorage.setItem(PROMO_KEY, "1");
+            setPromo(false);
+          }}
+        />
+      )}
+      <div className={cn("container-x pt-3 transition-all duration-500", scrolled ? "max-w-[1100px]" : "max-w-[1200px]")}>
         <nav
           className={cn(
             "flex h-[68px] items-center justify-between gap-4 rounded-full px-5 transition-all duration-500",
