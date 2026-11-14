@@ -60,7 +60,7 @@ export default async function DashboardPage() {
   return (
     <>
       <PageHead
-        title={`Salaam, ${session.user.name?.split(" ")[0] ?? "there"}`}
+        title={`Hello, ${session.user.name?.split(" ")[0] ?? "there"}`}
         sub="Your RFQs, quotes and active projects."
         action={<Link href="/dashboard/rfqs/new" className="btn-primary !py-2.5">New RFQ</Link>}
       />
