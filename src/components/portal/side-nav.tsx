@@ -16,67 +16,67 @@ function matchLen(pathname: string, href: string) {
   return -1;
 }
 
-export function SideNav({ items }: { items: NavItem[] }) {
-  const pathname = usePathname();
-  const allItems: NavItem[] = items;
-  const allHrefs = allItems.flatMap((it) => (it.children?.length ? it.children.map((c) => c.href!) : it.href ? [it.href] : []));
-  const best = Math.max(0, ...allHrefs.map((h) => matchLen(pathname, h)));
-  const [closed, setClosed] = useState<Record<string, boolean>>({});
+function NavGroup({ item, pathname, best }: { item: NavItem; pathname: string; best: number }) {
+  const childActive = item.children!.some((c) => c.href && matchLen(pathname, c.href) === best && best > 0);
+  const [open, setOpen] = useState(true);
 
-  // re-open the group containing the active child when the route changes
-  const [prevPath, setPrevPath] = useState(pathname);
-  if (prevPath !== pathname) {
-    setPrevPath(pathname);
-    setClosed((s) => {
-      const next = { ...s };
-      for (const it of allItems) {
-        if (it.children?.some((c) => c.href && matchLen(pathname, c.href) === best && best > 0)) delete next[it.label];
-      }
-      return next;
-    });
+  // expand again if the user navigates into this group's section
+  const [wasActive, setWasActive] = useState(childActive);
+  if (childActive && !wasActive) {
+    setWasActive(true);
+    setOpen(true);
+  } else if (!childActive && wasActive) {
+    setWasActive(false);
   }
 
   return (
-    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
-      {allItems.map((it) => {
-        if (it.children?.length) {
-          const childActive = it.children.some((c) => c.href && matchLen(pathname, c.href) === best && best > 0);
-          const open = !(closed[it.label] ?? false);
-          return (
-            <div key={it.label}>
-              <button
-                type="button"
-                onClick={() => setClosed((s) => ({ ...s, [it.label]: !open }))}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
-                  childActive ? "bg-white/10 font-medium text-white" : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
-                )}
-              >
-                {it.icon}
-                <span className="flex-1 text-left">{it.label}</span>
-                <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
-              </button>
-              {open && (
-                <div className="mt-0.5 space-y-0.5">
-                  {it.children.map((c) => (
-                    <Link
-                      key={c.href}
-                      href={c.href!}
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg py-2 pl-9 pr-3 text-[13px] transition-colors",
-                        c.href && matchLen(pathname, c.href) === best && best > 0
-                          ? "bg-white/10 font-medium text-white"
-                          : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
-                      )}
-                    >
-                      {c.icon}
-                      <span className="flex-1">{c.label}</span>
-                    </Link>
-                  ))}
-                </div>
+    <div>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
+          childActive ? "bg-white/10 font-medium text-white" : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
+        )}
+      >
+        {item.icon}
+        <span className="flex-1 text-left">{item.label}</span>
+        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="mt-0.5 space-y-0.5">
+          {item.children!.map((c) => (
+            <Link
+              key={c.href}
+              href={c.href!}
+              className={cn(
+                "flex items-center gap-3 rounded-lg py-2 pl-9 pr-3 text-[13px] transition-colors",
+                c.href && matchLen(pathname, c.href) === best && best > 0
+                  ? "bg-white/10 font-medium text-white"
+                  : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
               )}
-            </div>
-          );
+            >
+              {c.icon}
+              <span className="flex-1">{c.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function SideNav({ items }: { items: NavItem[] }) {
+  const pathname = usePathname();
+  const allHrefs = items.flatMap((it) => (it.children?.length ? it.children.map((c) => c.href!) : it.href ? [it.href] : []));
+  const best = Math.max(0, ...allHrefs.map((h) => matchLen(pathname, h)));
+
+  return (
+    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
+      {items.map((it) => {
+        if (it.children?.length) {
+          return <NavGroup key={it.label} item={it} pathname={pathname} best={best} />;
         }
         return (
           <Link
