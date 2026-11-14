@@ -5,6 +5,17 @@ import path from "path";
 
 const prisma = new PrismaClient();
 
+// human-readable refs via the shared RefSequence counter (mirrors src/lib/refs.ts)
+async function ref(prefix, yearly = false) {
+  const key = yearly ? `${prefix}-${new Date().getFullYear()}` : prefix;
+  const s = await prisma.refSequence.upsert({
+    where: { key },
+    update: { last: { increment: 1 } },
+    create: { key, last: 1 },
+  });
+  return `${key}-${String(s.last).padStart(4, "0")}`;
+}
+
 async function user(name, email, role, password) {
   const hash = await hashPassword(password);
   const u = await prisma.user.upsert({
@@ -33,6 +44,7 @@ async function main() {
     where: { userId: labA.id },
     update: {},
     create: {
+      orgNo: await ref("LAB"),
       userId: labA.id, orgName: "GenomeLab Karachi", city: "Karachi",
       platforms: "Illumina NovaSeq X, ONT PromethION",
       sampleTypes: "gDNA, RNA, FFPE, PBMC",
@@ -46,6 +58,7 @@ async function main() {
     where: { userId: labB.id },
     update: {},
     create: {
+      orgNo: await ref("LAB"),
       userId: labB.id, orgName: "NCG Sequencing Lahore", city: "Lahore",
       platforms: "PacBio Revio, Illumina MiSeq",
       sampleTypes: "gDNA, plant tissue, microbial",
@@ -59,6 +72,7 @@ async function main() {
     where: { userId: labC.id },
     update: {},
     create: {
+      orgNo: await ref("LAB"),
       userId: labC.id, orgName: "BioCore Islamabad", city: "Islamabad",
       platforms: "Illumina NextSeq",
       sampleTypes: "gDNA, RNA",
@@ -74,6 +88,7 @@ async function main() {
     where: { userId: supA.id },
     update: {},
     create: {
+      orgNo: await ref("SUP"),
       userId: supA.id, orgName: "BioSupplies PK", city: "Lahore",
       categories: "Extraction kits, Reagents, Consumables",
       bio: "Indigenous manufacturer of sample-prep kits and lab consumables.",
@@ -83,12 +98,12 @@ async function main() {
   const kitCount = await prisma.product.count({ where: { supplierId: sA.id } });
   if (kitCount === 0) {
     await prisma.product.create({
-      data: { supplierId: sA.id, name: "RNA Extraction Kit (50 prep)", category: "Kits", spec: "Spin-column, RNase-free", price: 24800, unit: "kit" },
+      data: { prodNo: await ref("PRD"), supplierId: sA.id, name: "RNA Extraction Kit (50 prep)", category: "Kits", spec: "Spin-column, RNase-free", price: 24800, unit: "kit" },
     });
     await prisma.product.createMany({
       data: [
-        { supplierId: sA.id, name: "Taq Polymerase 500U", category: "Reagents", spec: "5 U/µL, hot-start", price: 18500, unit: "vial" },
-        { supplierId: sA.id, name: "Low-bind microtubes 1.5mL (500)", category: "Consumables", spec: "DNA LoBind equivalent", price: 9200, unit: "pack" },
+        { prodNo: await ref("PRD"), supplierId: sA.id, name: "Taq Polymerase 500U", category: "Reagents", spec: "5 U/µL, hot-start", price: 18500, unit: "vial" },
+        { prodNo: await ref("PRD"), supplierId: sA.id, name: "Low-bind microtubes 1.5mL (500)", category: "Consumables", spec: "DNA LoBind equivalent", price: 9200, unit: "pack" },
       ],
     });
   }
@@ -139,8 +154,8 @@ async function main() {
   });
   await prisma.quote.createMany({
     data: [
-      { rfqId: rfq.id, providerId: pA.id, price: 385000, taxAmount: 0, turnaroundDays: 14, platform: "Illumina NovaSeq X", exclusions: "No raw FASTQ delivery via platform", notes: "Includes QC + alignment", status: "SUBMITTED" },
-      { rfqId: rfq.id, providerId: pB.id, price: 412500, taxAmount: 24750, turnaroundDays: 10, platform: "PacBio Revio", exclusions: "Samples must pass DNA QC", notes: "Expedited lane available", status: "SUBMITTED" },
+      { quoteNo: await ref("QO", true), rfqId: rfq.id, providerId: pA.id, price: 385000, taxAmount: 0, turnaroundDays: 14, platform: "Illumina NovaSeq X", exclusions: "No raw FASTQ delivery via platform", notes: "Includes QC + alignment", status: "SUBMITTED" },
+      { quoteNo: await ref("QO", true), rfqId: rfq.id, providerId: pB.id, price: 412500, taxAmount: 24750, turnaroundDays: 10, platform: "PacBio Revio", exclusions: "Samples must pass DNA QC", notes: "Expedited lane available", status: "SUBMITTED" },
     ],
   });
 
@@ -161,7 +176,7 @@ async function main() {
 
   // ---- awarded project with history + messages + result ----
   const q = await prisma.quote.create({
-    data: { rfqId: rfq2.id, providerId: pA.id, price: 296000, taxAmount: 0, turnaroundDays: 18, platform: "Illumina NovaSeq X", status: "SELECTED" },
+    data: { quoteNo: await ref("QO", true), rfqId: rfq2.id, providerId: pA.id, price: 296000, taxAmount: 0, turnaroundDays: 18, platform: "Illumina NovaSeq X", status: "SELECTED" },
   });
   await prisma.rfq.update({ where: { id: rfq2.id }, data: { status: "AWARDED" } });
   const proj = await prisma.project.create({
@@ -214,10 +229,10 @@ async function main() {
     },
   });
   await prisma.transaction.create({
-    data: { projectId: proj.id, quotedValue: 296000, feePercent: 3.5, feeAmount: 10360, status: "PENDING" },
+    data: { txnNo: await ref("TXN", true), projectId: proj.id, quotedValue: 296000, feePercent: 3.5, feeAmount: 10360, status: "PENDING" },
   });
   await prisma.complaint.create({
-    data: { projectId: proj.id, filedById: cust.id, subject: "Courier delay", details: "Sample pickup took 4 days vs promised 2.", status: "OPEN" },
+    data: { ticketNo: await ref("CMP", true), projectId: proj.id, filedById: cust.id, subject: "Courier delay", details: "Sample pickup took 4 days vs promised 2.", status: "OPEN" },
   });
   await prisma.auditLog.createMany({
     data: [
@@ -226,6 +241,12 @@ async function main() {
     ],
   });
   } // end if (!seeded)
+
+  // keep the RFQ/PRJ counters ahead of any explicit seed refNos
+  const maxRfq = await prisma.$queryRaw`SELECT MAX(CAST(SUBSTRING("refNo" FROM 5) AS INTEGER)) m FROM "Rfq"`;
+  const maxPrj = await prisma.$queryRaw`SELECT MAX(CAST(SUBSTRING("refNo" FROM 5) AS INTEGER)) m FROM "Project"`;
+  if (maxRfq[0]?.m) await prisma.refSequence.upsert({ where: { key: "RFQ" }, update: { last: maxRfq[0].m }, create: { key: "RFQ", last: maxRfq[0].m } });
+  if (maxPrj[0]?.m) await prisma.refSequence.upsert({ where: { key: "PRJ" }, update: { last: maxPrj[0].m }, create: { key: "PRJ", last: maxPrj[0].m } });
 
   console.log("Seeded ✓");
   console.log("  admin@syntaxlife.pk / Admin@12345");
@@ -263,7 +284,7 @@ async function main2() {
     await prisma.customerProfile.upsert({
       where: { userId: u.id },
       update: {},
-      create: { userId: u.id, orgName, orgType, city, department: dept, designation: desg, status: "APPROVED", verifiedAt: new Date() },
+      create: { orgNo: await ref("CUS"), userId: u.id, orgName, orgType, city, department: dept, designation: desg, status: "APPROVED", verifiedAt: new Date() },
     });
   }
   // ---- service listings (storefront) ----
@@ -272,19 +293,19 @@ async function main2() {
   if (genomelab && (await prisma.serviceListing.count({ where: { providerId: genomelab.id } })) === 0) {
     await prisma.serviceListing.createMany({
       data: [
-        { providerId: genomelab.id, name: "WGS — 30× human genome", category: "WGS", platform: "Illumina NovaSeq X", priceFrom: 95000, unit: "/sample", turnaroundDays: 21, description: "30× coverage, alignment + variant calling, VCF + QC report." },
-        { providerId: genomelab.id, name: "RNA-Seq — 20M reads", category: "RNA-Seq", platform: "Illumina NovaSeq X", priceFrom: 42000, unit: "/sample", turnaroundDays: 14, description: "Poly-A library, counts matrix + QC. DE analysis available as add-on." },
-        { providerId: genomelab.id, name: "FFPE RNA-Seq", category: "RNA-Seq", platform: "Illumina NovaSeq X", priceFrom: 58000, priceVisibility: "MEMBERS", unit: "/sample", turnaroundDays: 18, description: "Exome-capture RNA workflow for degraded FFPE material." },
+        { svcNo: await ref("SVC"), providerId: genomelab.id, name: "WGS — 30× human genome", category: "WGS", platform: "Illumina NovaSeq X", priceFrom: 95000, unit: "/sample", turnaroundDays: 21, description: "30× coverage, alignment + variant calling, VCF + QC report." },
+        { svcNo: await ref("SVC"), providerId: genomelab.id, name: "RNA-Seq — 20M reads", category: "RNA-Seq", platform: "Illumina NovaSeq X", priceFrom: 42000, unit: "/sample", turnaroundDays: 14, description: "Poly-A library, counts matrix + QC. DE analysis available as add-on." },
+        { svcNo: await ref("SVC"), providerId: genomelab.id, name: "FFPE RNA-Seq", category: "RNA-Seq", platform: "Illumina NovaSeq X", priceFrom: 58000, priceVisibility: "MEMBERS", unit: "/sample", turnaroundDays: 18, description: "Exome-capture RNA workflow for degraded FFPE material." },
       ],
     });
   }
   if (ncg && (await prisma.serviceListing.count({ where: { providerId: ncg.id } })) === 0) {
     await prisma.serviceListing.createMany({
       data: [
-        { providerId: ncg.id, name: "Plant WGS — long-read", category: "Long-read", platform: "PacBio Revio", priceFrom: 140000, priceVisibility: "MEMBERS", unit: "/sample", turnaroundDays: 28, description: "HiFi reads for complex plant genomes, assembly included." },
-        { providerId: ncg.id, name: "Custom bioinformatics pipeline", category: "Bioinformatics", platform: "HPC cluster", priceVisibility: "QUOTE_ONLY", unit: "/project", turnaroundDays: 21, description: "Bespoke analysis — assembly, annotation, variant or DE pipelines scoped per project." },
-        { providerId: ncg.id, name: "Oxford Nanopore WGS — microbial", category: "Long-read", platform: "ONT PromethION", priceFrom: 85000, unit: "/sample", turnaroundDays: 15, moderation: "PENDING", description: "Complete bacterial genome closure with plasmid detection." },
-        { providerId: ncg.id, name: "Amplicon / metabarcoding", category: "Panels", platform: "Illumina MiSeq", priceFrom: 18000, unit: "/sample", turnaroundDays: 10, description: "16S/ITS metabarcoding with standard bioinformatics." },
+        { svcNo: await ref("SVC"), providerId: ncg.id, name: "Plant WGS — long-read", category: "Long-read", platform: "PacBio Revio", priceFrom: 140000, priceVisibility: "MEMBERS", unit: "/sample", turnaroundDays: 28, description: "HiFi reads for complex plant genomes, assembly included." },
+        { svcNo: await ref("SVC"), providerId: ncg.id, name: "Custom bioinformatics pipeline", category: "Bioinformatics", platform: "HPC cluster", priceVisibility: "QUOTE_ONLY", unit: "/project", turnaroundDays: 21, description: "Bespoke analysis — assembly, annotation, variant or DE pipelines scoped per project." },
+        { svcNo: await ref("SVC"), providerId: ncg.id, name: "Oxford Nanopore WGS — microbial", category: "Long-read", platform: "ONT PromethION", priceFrom: 85000, unit: "/sample", turnaroundDays: 15, moderation: "PENDING", description: "Complete bacterial genome closure with plasmid detection." },
+        { svcNo: await ref("SVC"), providerId: ncg.id, name: "Amplicon / metabarcoding", category: "Panels", platform: "Illumina MiSeq", priceFrom: 18000, unit: "/sample", turnaroundDays: 10, description: "16S/ITS metabarcoding with standard bioinformatics." },
       ],
     });
   }

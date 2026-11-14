@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, assertCustomerApproved } from "@/lib/session";
 import { notify } from "@/lib/notify";
+import { nextRef } from "@/lib/refs";
 import { rateLimit } from "@/lib/rate-limit";
 import { getEnquiryRateLimit } from "@/lib/settings";
 
@@ -26,7 +27,10 @@ export async function createEnquiry(productId: string, formData: FormData) {
     ? (await prisma.providerProfile.findUnique({ where: { userId: session.user.id }, select: { orgName: true } }))?.orgName
     : (await prisma.customerProfile.findUnique({ where: { userId: session.user.id }, select: { orgName: true } }))?.orgName;
   await prisma.enquiry.create({
-    data: { productId, supplierId: product.supplierId, buyerId: session.user.id, qty, message },
+    data: {
+      enquiryNo: await nextRef("ENQ", { yearly: true }),
+      productId, supplierId: product.supplierId, buyerId: session.user.id, qty, message,
+    },
   });
   await prisma.auditLog.create({
     data: { actorId: session.user.id, action: "ENQUIRY_SENT", entity: "Product", entityId: productId, meta: product.name },

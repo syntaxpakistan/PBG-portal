@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 type Product = {
   id: string;
+  prodNo: string;
   name: string;
   category: string;
   spec: string | null;
@@ -83,7 +84,7 @@ export function ProductRow({ product: p, priceLabel, stockBadge }: { product: Pr
         <div>
           <div className="text-[13px] font-medium text-ink">{p.name}</div>
           <div className="text-[11.5px] text-muted">
-            {p.category}{p.spec ? ` · ${p.spec}` : ""}{p.catalogNo ? ` · #${p.catalogNo}` : ""}
+            <span className="font-mono font-semibold">{p.prodNo}</span> · {p.category}{p.spec ? ` · ${p.spec}` : ""}{p.catalogNo ? ` · SKU #${p.catalogNo}` : ""}
             {p.leadTimeDays ? ` · ${p.leadTimeDays}d lead` : ""}
           </div>
         </div>

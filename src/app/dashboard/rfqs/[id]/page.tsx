@@ -1,9 +1,8 @@
 export const instant = false
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
-import { selectQuote } from "@/lib/actions/marketplace";
 import { StatusBadge, PageHead } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
 import { pkr } from "@/lib/constants";
@@ -82,7 +81,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-[15px] font-semibold text-ink">{q.provider.orgName}</div>
-                <div className="mt-0.5 text-[12px] text-muted">{q.provider.city} · {q.provider.platforms}</div>
+                <div className="mt-0.5 text-[12px] text-muted"><span className="font-mono font-semibold">{q.quoteNo}</span> · {q.provider.city} · {q.provider.platforms}</div>
               </div>
               <div className="flex items-center gap-2">
                 {expired && <span className="rounded-full bg-(--st-red-bg) px-2.5 py-0.5 text-[10.5px] font-semibold text-(--st-red-fg)">Expired</span>}

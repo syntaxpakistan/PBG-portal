@@ -1,6 +1,6 @@
 export const instant = false
 
-import { LayoutDashboard, Inbox, FolderKanban, UserRound, TestTubes, Boxes, Wallet, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Inbox, FolderKanban, UserRound, TestTubes, Boxes, Wallet, BarChart3, Calculator, Flag } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 import { getPartnerAccess } from "@/lib/entitlements";
@@ -12,8 +12,10 @@ const items = [
   { href: "/lab/rfqs", label: "Incoming RFQs", icon: <Inbox className="size-4" /> },
   { href: "/lab/projects", label: "My projects", icon: <FolderKanban className="size-4" /> },
   { href: "/lab/services", label: "Service catalog", icon: <TestTubes className="size-4" /> },
+  { href: "/lab/calculator", label: "Coverage calc", icon: <Calculator className="size-4" /> },
   { href: "/lab/supplies", label: "Supplies", icon: <Boxes className="size-4" /> },
   { href: "/lab/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
+  { href: "/lab/complaints", label: "Complaints", icon: <Flag className="size-4" /> },
   { href: "/lab/billing", label: "Billing", icon: <Wallet className="size-4" /> },
   { href: "/lab/profile", label: "Profile", icon: <UserRound className="size-4" /> },
 ];

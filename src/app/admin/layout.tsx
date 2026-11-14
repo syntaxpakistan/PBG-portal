@@ -1,6 +1,6 @@
 export const instant = false
 
-import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, ShieldCheck, Landmark, Inbox, BarChart3 } from "lucide-react";
+import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, FolderKanban, ShieldCheck, Landmark, Inbox, BarChart3 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
@@ -14,6 +14,7 @@ const items = [
   { href: "/admin/subscriptions", label: "Subscriptions", icon: <CreditCard className="size-4" /> },
   { href: "/admin/finance", label: "Finance", icon: <Landmark className="size-4" />, key: "finance" },
   { href: "/admin/rfqs", label: "RFQs", icon: <FileText className="size-4" /> },
+  { href: "/admin/projects", label: "Projects", icon: <FolderKanban className="size-4" /> },
   { href: "/admin/transactions", label: "Transactions & fees", icon: <Receipt className="size-4" /> },
   { href: "/admin/marketplace", label: "Marketplace", icon: <Store className="size-4" /> },
   { href: "/admin/leads", label: "Leads", icon: <Inbox className="size-4" />, key: "leads" },

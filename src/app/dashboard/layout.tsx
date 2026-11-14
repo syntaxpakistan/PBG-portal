@@ -1,6 +1,6 @@
 export const instant = false
 
-import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3, Clock3 } from "lucide-react";
+import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3, Clock3, Calculator } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -16,6 +16,7 @@ const items = [
   },
   { href: "/dashboard/projects", label: "My projects", icon: <FolderKanban className="size-4" /> },
   { href: "/dashboard/marketplace", label: "Marketplace", icon: <Package className="size-4" /> },
+  { href: "/dashboard/calculator", label: "Coverage calc", icon: <Calculator className="size-4" /> },
   { href: "/dashboard/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/dashboard/complaints", label: "Complaints", icon: <Flag className="size-4" /> },
   { href: "/dashboard/billing", label: "Billing", icon: <Wallet className="size-4" /> },

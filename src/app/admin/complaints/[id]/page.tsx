@@ -55,7 +55,7 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
   return (
     <>
       <PageHead
-        title={`Complaint: ${complaint.subject}`}
+        title={`${complaint.ticketNo}: ${complaint.subject}`}
         sub="Private channels — the client and the lab never see each other's side."
       />
 

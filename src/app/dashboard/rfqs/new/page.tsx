@@ -8,7 +8,7 @@ import { SubmitButton } from "./submit-button";
 const input =
   "w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3";
 
-export default async function NewRfqPage({ searchParams }: { searchParams: Promise<{ invite?: string; cat?: string; title?: string; analysis?: string }> }) {
+export default async function NewRfqPage({ searchParams }: { searchParams: Promise<{ invite?: string; cat?: string; title?: string; analysis?: string; organism?: string; samples?: string; sampleType?: string; output?: string }> }) {
   const sp = await searchParams;
   const invitedIds = new Set((sp.invite ?? "").split(",").filter(Boolean));
   const providers = await prisma.providerProfile.findMany({
@@ -27,17 +27,17 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Organism *</label>
-            <input name="organism" required className={input} placeholder="e.g. Triticum aestivum" />
+            <input name="organism" required defaultValue={sp.organism ?? ""} className={input} placeholder="e.g. Triticum aestivum" />
           </div>
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Sample count *</label>
-            <input name="sampleCount" type="number" min={1} required className={input} placeholder="48" />
+            <input name="sampleCount" type="number" min={1} required defaultValue={sp.samples ?? ""} className={input} placeholder="48" />
           </div>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Sample type *</label>
-            <input name="sampleType" required className={input} placeholder="e.g. FFPE, gDNA, PBMC, plant leaf" />
+            <input name="sampleType" required defaultValue={sp.sampleType ?? ""} className={input} placeholder="e.g. FFPE, gDNA, PBMC, plant leaf" />
           </div>
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Service category *</label>
@@ -52,7 +52,7 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Requested output *</label>
-            <input name="requestedOutput" required className={input} placeholder="e.g. VCF + annotation report" />
+            <input name="requestedOutput" required defaultValue={sp.output ?? ""} className={input} placeholder="e.g. VCF + annotation report" />
           </div>
           <div>
             <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Analysis type</label>

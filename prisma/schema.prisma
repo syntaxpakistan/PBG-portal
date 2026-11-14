@@ -52,6 +52,7 @@ model User {
   reviews          Review[]
   notifications    Notification[]
   billedInvoices   Invoice[]        @relation("InvoiceBillTo")
+  pushSubscriptions PushSubscription[]
 }
 
 // in-app notification feed (emails are a copy, not the only channel)
@@ -121,6 +122,7 @@ enum VerificationStatus {
 
 model ProviderProfile {
   id                String             @id @default(cuid())
+  orgNo             String             @unique // LAB-0001 — public account number
   userId            String             @unique
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   orgName           String
@@ -151,6 +153,7 @@ model ProviderProfile {
 // provider storefront — structured, priced service catalog (Genohub-style)
 model ServiceListing {
   id              String          @id @default(cuid())
+  svcNo           String          @unique // SVC-0001 — catalog reference
   provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
   providerId      String
   name            String
@@ -176,6 +179,7 @@ model ServiceListing {
 
 model SupplierProfile {
   id              String             @id @default(cuid())
+  orgNo           String             @unique // SUP-0001 — public account number
   userId          String             @unique
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   orgName         String
@@ -199,6 +203,7 @@ model SupplierProfile {
 
 model Product {
   id           String          @id @default(cuid())
+  prodNo       String          @unique // PRD-0001 — platform catalog reference (supplier SKU stays in catalogNo)
   supplierId   String
   supplier     SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   name         String
@@ -227,6 +232,7 @@ enum EnquiryStatus {
 
 model Enquiry {
   id           String          @id @default(cuid())
+  enquiryNo    String          @unique // ENQ-2026-0001 — supply-order reference
   product      Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String
   supplier     SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
@@ -326,6 +332,7 @@ enum QuoteStatus {
 
 model Quote {
   id             String          @id @default(cuid())
+  quoteNo        String          @unique // QO-2026-0001 — the lab's bid reference
   rfq            Rfq             @relation(fields: [rfqId], references: [id], onDelete: Cascade)
   rfqId          String
   provider       ProviderProfile @relation(fields: [providerId], references: [id])
@@ -542,6 +549,7 @@ enum TxnStatus {
 
 model Transaction {
   id          String    @id @default(cuid())
+  txnNo       String    @unique // TXN-2026-0001 — ledger reference
   project     Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String?   @unique
   enquiry     Enquiry?  @relation(fields: [enquiryId], references: [id])
@@ -565,6 +573,7 @@ enum ComplaintStatus {
 
 model Complaint {
   id         String          @id @default(cuid())
+  ticketNo   String          @unique // CMP-2026-0001 — support ticket number
   project    Project?        @relation(fields: [projectId], references: [id])
   projectId  String?
   filedBy    User            @relation(fields: [filedById], references: [id])
@@ -632,6 +641,7 @@ model TwoFactor {
 
 model CustomerProfile {
   id          String   @id @default(cuid())
+  orgNo       String   @unique // CUS-0001 — public account number
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String   @unique
   orgName     String?
@@ -766,6 +776,7 @@ model InvoiceItem {
 
 model Payment {
   id            String        @id @default(cuid())
+  paymentNo     String        @unique // PAY-2026-0001 — receipt reference
   invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   invoiceId     String
   amount        Float
@@ -786,6 +797,7 @@ model Payment {
 // settlement record — what Syntax owes a partner for a period, net of fees
 model Payout {
   id          String       @id @default(cuid())
+  payoutNo    String       @unique // PO-2026-0001 — settlement reference
   payeeType   String // PROVIDER | SUPPLIER
   payeeId     String // providerProfile.id / supplierProfile.id
   payeeUserId String
@@ -812,6 +824,25 @@ model InvoiceSequence {
   last Int @default(0)
 }
 
+// atomic human-readable reference numbering — key is e.g. "RFQ", "PRJ", "LAB", "CMP-2026"
+model RefSequence {
+  key  String @id
+  last Int    @default(0)
+}
+
+// web-push subscription — one row per browser/device per user
+model PushSubscription {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
 enum LeadType {
   QUOTE
   CONTACT
@@ -819,6 +850,7 @@ enum LeadType {
 
 model Lead {
   id        String   @id @default(cuid())
+  leadNo    String   @unique // LED-0001 — sales-pipeline reference
   type      LeadType
   firstName String
   lastName  String?

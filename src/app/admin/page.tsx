@@ -16,12 +16,13 @@ type QItem = { key: string; label: string; meta: string; kind?: QuickKind; id?: 
 export default async function AdminPage() {
   await connection();
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-  const stale = new Date(Date.now() - 3 * 86400e3);
-  const weekAgo = new Date(Date.now() - 7 * 86400e3);
+  const nowMs = new Date().getTime();
+  const stale = new Date(nowMs - 3 * 86400e3);
+  const weekAgo = new Date(nowMs - 7 * 86400e3);
   const [
     pendingProviders, pendingSuppliers, boardQueue, listingQueue,
     pendingPayments, unhandledLeads, openComplaints, subQueue, payoutsDue,
-    openRfqs, activeProjects, txns, complaintsCount, audit,
+    openRfqs, activeProjects, txns, audit,
     staleRfqs, stalledProjects, monthFees, monthGmv, newUsers, monthQuotes, feesDueAgg,
   ] = await Promise.all([
     prisma.providerProfile.findMany({ where: { status: "PENDING" }, orderBy: { createdAt: "asc" }, take: 4, select: { id: true, orgName: true, city: true, createdAt: true } }),
@@ -39,7 +40,6 @@ export default async function AdminPage() {
     prisma.rfq.count({ where: { status: "OPEN" } }),
     prisma.project.count({ where: { status: { notIn: ["COMPLETED", "CANCELLED"] } } }),
     prisma.transaction.findMany({ orderBy: { createdAt: "desc" }, take: 12, include: { project: { select: { refNo: true } }, enquiry: { select: { product: { select: { name: true } } } } } }),
-    prisma.complaint.count({ where: { status: { in: ["OPEN", "IN_REVIEW"] } } }),
     prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 15, include: { actor: { select: { name: true } } } }),
     // ---- marketplace health ----
     prisma.rfq.findMany({
@@ -144,7 +144,7 @@ export default async function AdminPage() {
       items: staleRfqs.map((r): QItem => ({
         key: r.id,
         label: r.title,
-        meta: `open ${Math.floor((Date.now() - r.createdAt.getTime()) / 86400e3)}d · zero quotes — consider routing invites`,
+        meta: `open ${Math.floor((nowMs - r.createdAt.getTime()) / 86400e3)}d · zero quotes — consider routing invites`,
         href: "/admin/rfqs",
       })),
     },
@@ -185,7 +185,7 @@ export default async function AdminPage() {
 
       {/* ---------- action queue ---------- */}
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold text-ink">Needs your action</h2>
+        <h2 className="text-[19px] font-bold tracking-tight text-ink">Needs your action</h2>
         {actionTotal > 0 && (
           <span className="rounded-full border border-(--st-amber-bd) bg-(--st-amber-bg) px-3 py-1 text-[11.5px] font-semibold text-(--st-amber-fg)">
             {actionTotal} items queued
@@ -203,7 +203,7 @@ export default async function AdminPage() {
           {queues.map((q) => (
             <div key={q.title} className="card flex flex-col overflow-hidden">
               <div className="flex items-center justify-between border-b border-line px-4.5 py-3">
-                <span className="flex items-center gap-2 text-[13px] font-semibold text-ink">
+                <span className="flex items-center gap-2 text-[15.5px] font-bold text-ink">
                   <span className="text-(--st-blue-fg)">{q.icon}</span>{q.title}
                 </span>
                 {q.count > 0 ? (
@@ -241,7 +241,7 @@ export default async function AdminPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-            <h3 className="text-[14px] font-semibold text-ink">Recent transactions</h3>
+            <h3 className="text-[15.5px] font-bold text-ink">Recent transactions</h3>
             <Link href="/admin/transactions" className="text-[12px] font-medium text-blue hover:underline">All →</Link>
           </div>
           <div className="scroll-slim max-h-72 divide-y divide-line overflow-y-auto">
@@ -259,7 +259,7 @@ export default async function AdminPage() {
         </div>
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-            <h3 className="text-[14px] font-semibold text-ink">Latest activity</h3>
+            <h3 className="text-[15.5px] font-bold text-ink">Latest activity</h3>
             <Link href="/admin/audit" className="text-[12px] font-medium text-blue hover:underline">Audit log →</Link>
           </div>
           <div className="scroll-slim max-h-72 divide-y divide-line overflow-y-auto">

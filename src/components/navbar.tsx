@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const LINKS = [
   { label: "Services", href: "/services" },
   { label: "Marketplace", href: "/marketplace" },
+  { label: "Seq Calculator", href: "/seq-calculator" },
   { label: "Partners", href: "/partners" },
   { label: "Pricing", href: "/#pricing" },
   { label: "Verified network", href: "/registry" },

@@ -65,7 +65,7 @@ export function PageHead({ title, sub, action }: { title: string; sub?: string; 
   return (
     <div className="mb-7 flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
-        <h1 className="font-display text-[21px] font-medium tracking-tight text-ink sm:text-[24px]">{title}</h1>
+        <h1 className="font-display text-[23px] font-semibold tracking-tight text-ink sm:text-[27px]">{title}</h1>
         {sub && <p className="mt-1 text-[13px] text-body">{sub}</p>}
       </div>
       {action}

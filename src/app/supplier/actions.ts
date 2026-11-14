@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { nextRef } from "@/lib/refs";
 import { assertPartnerActive } from "@/lib/entitlements";
 
 export async function addProduct(formData: FormData) {
@@ -12,6 +13,7 @@ export async function addProduct(formData: FormData) {
   await assertPartnerActive(session.user.id);
   await prisma.product.create({
     data: {
+      prodNo: await nextRef("PRD"),
       supplierId: profile.id,
       name: String(formData.get("name")),
       category: String(formData.get("category")),

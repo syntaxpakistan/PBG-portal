@@ -212,21 +212,6 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               </p>
             </Reveal>
           </div>
-          <Reveal className="mt-14">
-            <div className="relative mx-auto aspect-[21/9] max-w-5xl overflow-hidden rounded-2xl border border-line shadow-xl shadow-navy/10">
-              <Image
-                src="/media/lab-scientist.webp"
-                alt="Scientist working at a microscope in a laboratory"
-                fill
-                sizes="(min-width: 1024px) 1024px, 100vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/45 via-transparent to-transparent" />
-              <p className="absolute bottom-4 left-5 text-[11.5px] font-medium uppercase tracking-[0.12em] text-white/90">
-                Inside a verified partner laboratory
-              </p>
-            </div>
-          </Reveal>
         </div>
       </section>
 

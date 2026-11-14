@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { getPartnerAccess } from "@/lib/entitlements";
 import { BillingView } from "@/components/portal/billing-view";
-import { SupplierShell } from "../shell";
 
 export default async function SupplierBillingPage() {
   const session = await requireRole("SUPPLIER");
@@ -31,14 +30,12 @@ export default async function SupplierBillingPage() {
     }),
   ]);
   return (
-    <SupplierShell title="Supplier portal — billing" name={session.user.name}>
-      <BillingView
-        access={access}
-        payables={payables}
-        receivables={receivables}
-        payouts={payouts}
-        pendingForMe={pendingPayments.map((p) => ({ payment: p, canConfirm: true }))}
-      />
-    </SupplierShell>
+    <BillingView
+      access={access}
+      payables={payables}
+      receivables={receivables}
+      payouts={payouts}
+      pendingForMe={pendingPayments.map((p) => ({ payment: p, canConfirm: true }))}
+    />
   );
 }

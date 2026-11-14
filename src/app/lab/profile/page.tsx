@@ -24,7 +24,7 @@ export default async function LabProfilePage() {
       <div>
         <PageHead
           title="Facility profile"
-          sub="This is what Syntax reviews and what appears in the national registry once approved."
+          sub={`This is what Syntax reviews and what appears in the national registry once approved. · ${profile.orgNo}`}
           action={<StatusBadge status={profile.status} />}
         />
         <form action={updateProviderProfile} className="card space-y-5 p-6">

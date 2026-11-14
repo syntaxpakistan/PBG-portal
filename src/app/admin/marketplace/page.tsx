@@ -48,7 +48,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
               <tr key={p.id} className={p.active ? "hover:bg-paper-2/60" : "bg-paper-2/40 opacity-70"}>
                 <td className="px-5 py-3">
                   <div className="font-medium text-ink">{p.name}</div>
-                  <div className="text-[11px] text-muted">{p.category}{p.spec ? ` · ${p.spec}` : ""}</div>
+                  <div className="text-[11px] text-muted"><span className="font-mono font-semibold">{p.prodNo}</span> · {p.category}{p.spec ? ` · ${p.spec}` : ""}</div>
                 </td>
                 <td className="px-5 py-3 text-body">{p.supplier.orgName} · {p.supplier.city}</td>
                 <td className="px-5 py-3 text-ink">{p.price != null ? pkr(p.price) : "—"}{p.unit ? `/${p.unit}` : ""}</td>
@@ -87,7 +87,7 @@ export default async function AdminMarketplacePage({ searchParams }: { searchPar
                   <div className="font-medium text-ink">{e.buyer.name}</div>
                   <div className="text-[11px] text-muted">{e.buyer.email}</div>
                 </td>
-                <td className="px-5 py-3 text-body">{e.product.name} × {e.qty}</td>
+                <td className="px-5 py-3 text-body"><span className="font-mono text-[11.5px] font-semibold text-muted">{e.enquiryNo}</span> · {e.product.name} × {e.qty}</td>
                 <td className="px-5 py-3 text-body">{e.supplier.orgName}</td>
                 <td className="px-5 py-3 text-body">{e.quotedPrice != null ? pkr(e.quotedPrice) : "—"}{e.leadTimeDays != null ? ` · ${e.leadTimeDays}d` : ""}</td>
                 <td className="px-5 py-3"><StatusBadge status={e.status} /></td>

@@ -30,12 +30,12 @@ export async function setProviderStatus(id: string, status: VerificationStatus, 
   await notify({
     toUserId: p.userId,
     subject:
-      status === "APPROVED" ? `Verification approved — ${p.orgName} is live` :
+      status === "APPROVED" ? `Verification approved — ${p.orgName} (${p.orgNo}) is live` :
       status === "REJECTED" ? `Verification not approved — ${p.orgName}` :
       `Account ${status.toLowerCase()} — ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Syntax verified ${p.orgName}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
+        ? `Syntax verified ${p.orgName} — your lab account number is ${p.orgNo}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
         : `Your laboratory verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: status === "APPROVED" ? "/lab" : "/lab/profile",
   });
@@ -52,12 +52,12 @@ export async function setSupplierStatus(id: string, status: VerificationStatus, 
   await notify({
     toUserId: p.userId,
     subject:
-      status === "APPROVED" ? `Verification approved — ${p.orgName} is live` :
+      status === "APPROVED" ? `Verification approved — ${p.orgName} (${p.orgNo}) is live` :
       status === "REJECTED" ? `Verification not approved — ${p.orgName}` :
       `Account ${status.toLowerCase()} — ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Syntax verified ${p.orgName}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
+        ? `Syntax verified ${p.orgName} — your supplier account number is ${p.orgNo}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
         : `Your supplier verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/supplier",
   });
@@ -81,7 +81,7 @@ export async function setCustomerStatus(id: string, status: VerificationStatus, 
       `Account ${status.toLowerCase()} — ${label}`,
     body:
       status === "APPROVED"
-        ? `Syntax approved your registration. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
+        ? `Syntax approved your registration — your client account number is ${p.orgNo}. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
         : `Your client registration status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/dashboard",
   });

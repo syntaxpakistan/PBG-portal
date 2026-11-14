@@ -1,6 +1,5 @@
 export const instant = false
 
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";

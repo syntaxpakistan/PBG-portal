@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 
 /**
  * Transactional notifications. Always persisted in-app (bell feed); sends a
@@ -12,6 +13,13 @@ export async function notify(opts: { toUserId: string; subject: string; body: st
   await prisma.notification.create({
     data: { userId: opts.toUserId, subject: opts.subject, body: opts.body, href: opts.href ?? null },
   });
+
+  // browser/device push — no-ops when VAPID keys aren't configured
+  try {
+    await sendPushToUser(opts.toUserId, { title: opts.subject, body: opts.body, url: opts.href });
+  } catch (e) {
+    console.error("[notify] push failed:", e);
+  }
 
   if (process.env.RESEND_API_KEY) {
     try {

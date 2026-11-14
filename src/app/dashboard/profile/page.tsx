@@ -33,7 +33,9 @@ export default async function CustomerProfilePage() {
           <input value={session.user.email} disabled className={`${input} opacity-60`} />
         </div>
         <div className="border-t border-line pt-4">
-          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted">Organization</p>
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted">
+            Organization{profile?.orgNo && <span className="ml-2 font-mono font-semibold normal-case tracking-normal text-ink">{profile.orgNo}</span>}
+          </p>
         </div>
         <div>
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Organization name</label>

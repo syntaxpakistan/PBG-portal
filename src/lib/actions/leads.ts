@@ -2,12 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { nextRef } from "@/lib/refs";
 import { requireRole } from "@/lib/session";
 
 /** Where public lead forms are delivered. */
 const LEAD_INBOXES = {
-  QUOTE: "info@pakistanbiotechnologygateway.com",
-  CONTACT: "contact@pakistanbiotechnologygateway.com",
+  QUOTE: "info@biotechnologygateway.com",
+  CONTACT: "contact@biotechnologygateway.com",
 } as const;
 
 export type LeadResult = { ok: boolean; error?: string };
@@ -32,7 +33,7 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
   }
 
   const lead = await prisma.lead.create({
-    data: { type, firstName, lastName: lastName || null, org: org || null, email, interest: interest || null, message: message || null },
+    data: { leadNo: await nextRef("LED"), type, firstName, lastName: lastName || null, org: org || null, email, interest: interest || null, message: message || null },
   });
 
   const name = `${firstName} ${lastName}`.trim();

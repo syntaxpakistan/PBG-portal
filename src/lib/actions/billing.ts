@@ -9,6 +9,7 @@ import { saveUpload } from "@/lib/files";
 import { PLANS, type PlanKey } from "@/lib/plans";
 import { getFeePercent, getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Invoice, Payment, Plan } from "@prisma/client";
+import { nextRef } from "@/lib/refs";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
   await prisma.auditLog.create({ data: { actorId, action, entity, entityId, meta } });
@@ -162,6 +163,7 @@ async function applyConfirmedPayment(paymentId: string) {
       const quotedValue = invoice.total;
       const feeTxn = await prisma.transaction.create({
         data: {
+          txnNo: await nextRef("TXN", { yearly: true }),
           enquiryId: enquiry.id,
           quotedValue,
           feePercent,
@@ -215,6 +217,7 @@ export async function reportPayment(invoiceId: string, formData: FormData) {
   }
   const payment = await prisma.payment.create({
     data: {
+      paymentNo: await nextRef("PAY", { yearly: true }),
       invoiceId,
       amount,
       method: ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH", "OTHER"].includes(method)
@@ -330,6 +333,7 @@ export async function adminRecordPayment(invoiceId: string, formData: FormData) 
   if (!amount || amount <= 0) throw new Error("Enter a valid amount");
   const payment = await prisma.payment.create({
     data: {
+      paymentNo: await nextRef("PAY", { yearly: true }),
       invoiceId,
       amount,
       method: ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH", "OTHER"].includes(method)
@@ -518,6 +522,7 @@ export async function createPayout(formData: FormData) {
   }
   const payout = await prisma.payout.create({
     data: {
+      payoutNo: await nextRef("PO", { yearly: true }),
       payeeType, payeeId, payeeUserId, payeeOrg,
       periodStart, periodEnd, grossAmount, feeAmount, netAmount,
       note: String(formData.get("note") || "") || null,
@@ -525,7 +530,7 @@ export async function createPayout(formData: FormData) {
   });
   await notify({
     toUserId: payeeUserId,
-    subject: `Payout ${payout.id.slice(-6)} scheduled — ${netAmount.toLocaleString()} PKR`,
+    subject: `Payout ${payout.payoutNo} scheduled — ${netAmount.toLocaleString()} PKR`,
     body: `A settlement of PKR ${netAmount.toLocaleString()} (gross ${grossAmount.toLocaleString()} − fees ${feeAmount.toLocaleString()}) for ${periodStart.toLocaleDateString()} → ${periodEnd.toLocaleDateString()} is on the books. Track it under Billing → Payouts.`,
     href: payeeType === "PROVIDER" ? "/lab/billing" : "/supplier/billing",
   });

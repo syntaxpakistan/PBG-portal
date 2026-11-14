@@ -18,8 +18,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ kin
       },
       orderBy: { createdAt: "desc" },
     });
-    csv = ["project,customer,provider,quoted_value_pkr,fee_percent,fee_amount_pkr,status,date"].join(",") + "\n" +
-      rows.map((t) => [t.project?.refNo ?? "supply-sale", t.project?.customer.name ?? t.enquiry?.buyer.name ?? "", t.project?.provider.orgName ?? t.enquiry?.supplier.orgName ?? "", t.quotedValue, t.feePercent, t.feeAmount, t.status, t.createdAt.toISOString()].map(esc).join(",")).join("\n");
+    csv = ["txn_no,project,customer,provider,quoted_value_pkr,fee_percent,fee_amount_pkr,status,date"].join(",") + "\n" +
+      rows.map((t) => [t.txnNo, t.project?.refNo ?? "supply-sale", t.project?.customer.name ?? t.enquiry?.buyer.name ?? "", t.project?.provider.orgName ?? t.enquiry?.supplier.orgName ?? "", t.quotedValue, t.feePercent, t.feeAmount, t.status, t.createdAt.toISOString()].map(esc).join(",")).join("\n");
   } else if (kind === "audit") {
     const rows = await prisma.auditLog.findMany({ include: { actor: { select: { name: true, email: true } } }, orderBy: { createdAt: "desc" }, take: 5000 });
     csv = ["timestamp,actor,action,entity,entity_id,detail"].join(",") + "\n" +

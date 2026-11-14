@@ -12,7 +12,6 @@ import { getPartnerAccess } from "@/lib/entitlements";
 import Link from "next/link";
 import { SupplierProfileForm } from "./profile-form";
 import { ProductForm, ProductRow } from "./product-form";
-import { SupplierShell } from "./shell";
 import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function SupplierPage() {
@@ -40,7 +39,7 @@ export default async function SupplierPage() {
   const lowStock = profile.products.filter((p) => p.stockStatus === "LOW_STOCK" || p.stockStatus === "OUT_OF_STOCK").length;
 
   return (
-    <SupplierShell title="Supplier portal" name={session.user.name}>
+    <>
       <PageHead title={profile.orgName} sub={`${profile.city} · ${profile.categories}`} action={<StatusBadge status={profile.status} />} />
       {profile.status !== "APPROVED" && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
@@ -100,7 +99,7 @@ export default async function SupplierPage() {
           <div key={e.id} className="px-5 py-4">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-[13.5px] font-medium text-ink">{e.product.name} × {e.qty}</div>
+                <div className="text-[13.5px] font-medium text-ink"><span className="font-mono text-[11.5px] font-semibold text-muted">{e.enquiryNo}</span> · {e.product.name} × {e.qty}</div>
                 <div className="mt-0.5 text-[12px] text-muted">
                   {e.buyer.name}{buyerOrg ? ` · ${buyerOrg}` : ""} · {e.buyer.role === "PROVIDER" ? "laboratory" : "customer"} · {e.buyer.email} · received {e.createdAt.toLocaleDateString()}
                 </div>
@@ -118,7 +117,7 @@ export default async function SupplierPage() {
             )}
             {e.status === "INVOICED" && (
               <div className="mt-2.5 rounded-lg bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
-                Order accepted — invoice raised. Payment clears through Syntax escrow; you'll be notified when verified.
+                Order accepted — invoice raised. Payment clears through Syntax escrow; you&apos;ll be notified when verified.
               </div>
             )}
             {e.status === "PAID" && (
@@ -144,6 +143,6 @@ export default async function SupplierPage() {
           );
         })}
       </div>
-    </SupplierShell>
+    </>
   );
 }

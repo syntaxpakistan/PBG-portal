@@ -1,10 +1,10 @@
 export const instant = false
 
 import Link from "next/link";
-import { FileText, FolderKanban, Package, CreditCard, Inbox, ArrowRight, Wallet, FlaskConical, AlertTriangle, PauseCircle } from "lucide-react";
+import { FileText, FolderKanban, Package, CreditCard, Inbox, ArrowRight, Wallet, FlaskConical, PauseCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
-import { StatusBadge, PageHead, StatCard, StageTracker } from "@/components/portal/ui";
+import { StatusBadge, PageHead, StatCard } from "@/components/portal/ui";
 import { pkr, slaInfo } from "@/lib/constants";
 
 export default async function DashboardPage() {

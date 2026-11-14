@@ -70,6 +70,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
             {txns.map((t) => (
               <tr key={t.id} className="hover:bg-paper-2/60">
                 <td className="px-5 py-3 font-medium text-ink">
+                  <div className="font-mono text-[11.5px] font-semibold text-muted">{t.txnNo}</div>
                   {t.project ? (
                     <Link href={`/admin/projects/${t.project.id}`} className="hover:text-blue hover:underline">{t.project.refNo}</Link>
                   ) : (

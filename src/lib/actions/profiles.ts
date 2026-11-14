@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, assertCustomerApproved } from "@/lib/session";
 import { normalizeUrl } from "@/lib/utils";
+import { nextRef } from "@/lib/refs";
 
 export async function updateCustomerProfile(formData: FormData) {
   const session = await getSession();
@@ -17,6 +18,7 @@ export async function updateCustomerProfile(formData: FormData) {
       address: g("address"), department: g("department"), designation: g("designation"),
     },
     create: {
+      orgNo: await nextRef("CUS"),
       userId: session.user.id,
       orgName: g("orgName"), orgType: g("orgType"), city: g("city"),
       address: g("address"), department: g("department"), designation: g("designation"),

@@ -14,13 +14,10 @@ import { getInvoiceDueDays, getRfqRateLimit } from "@/lib/settings";
 import { rateLimit } from "@/lib/rate-limit";
 import { findCategory, findService, visibleFields, buildListingName, CONSULT_TOPICS, PRICE_UNITS } from "@/lib/service-catalog";
 import { issueInvoice, autoIssueFeeInvoice } from "@/lib/actions/billing";
+import { nextRef } from "@/lib/refs";
 
 async function audit(actorId: string, action: string, entity: string, entityId: string, meta?: string) {
   await prisma.auditLog.create({ data: { actorId, action, entity, entityId, meta } });
-}
-
-async function nextRef(prefix: string, count: number) {
-  return `${prefix}-${String(2600 + count + 1).padStart(4, "0")}`;
 }
 
 // capability routing — notify approved providers matching the RFQ's category + explicit invitees
@@ -88,10 +85,9 @@ export async function createRfq(formData: FormData) {
 
   const inviteIds = formData.getAll("inviteIds").map(String).filter(Boolean);
   const board = formData.get("visibility") === "BOARD";
-  const count = await prisma.rfq.count();
   const rfq = await prisma.rfq.create({
     data: {
-      refNo: await nextRef("RFQ", count),
+      refNo: await nextRef("RFQ"),
       customerId: session.user.id,
       title: String(formData.get("title")),
       organism: String(formData.get("organism")),
@@ -182,15 +178,15 @@ export async function selectQuote(quoteId: string, poNumber?: string) {
   if (quote.rfq.status !== "OPEN") throw new Error("RFQ already awarded");
   if (quote.validUntil && quote.validUntil < new Date()) throw new Error("This quote has expired — ask the lab to re-submit");
 
-  const count = await prisma.project.count();
   const feePercent = await getFeePercent();
+  const [projRef, txnRef] = await Promise.all([nextRef("PRJ"), nextRef("TXN", { yearly: true })]);
   await prisma.$transaction([
     prisma.quote.update({ where: { id: quoteId }, data: { status: "SELECTED" } }),
     prisma.quote.updateMany({ where: { rfqId: quote.rfqId, NOT: { id: quoteId }, status: "SUBMITTED" }, data: { status: "DECLINED" } }),
     prisma.rfq.update({ where: { id: quote.rfqId }, data: { status: "AWARDED" } }),
     prisma.project.create({
       data: {
-        refNo: `PRJ-${String(1000 + count + 1)}`,
+        refNo: projRef,
         rfqId: quote.rfqId,
         quoteId: quote.id,
         customerId: session.user.id,
@@ -203,6 +199,7 @@ export async function selectQuote(quoteId: string, poNumber?: string) {
         },
         transaction: {
           create: {
+            txnNo: txnRef,
             quotedValue: quote.price + quote.taxAmount,
             feePercent,
             feeAmount: Math.round((quote.price + quote.taxAmount) * (feePercent / 100)),
@@ -291,11 +288,15 @@ export async function submitQuote(rfqId: string, formData: FormData) {
     exclusions: String(formData.get("exclusions") || "") || null,
     notes: String(formData.get("notes") || "") || null,
   };
-  const quote = await prisma.quote.upsert({
+  const existing = await prisma.quote.findUnique({
     where: { rfqId_providerId: { rfqId, providerId: profile.id } },
-    update: data,
-    create: { rfqId, providerId: profile.id, ...data },
+    select: { id: true },
   });
+  const quote = existing
+    ? await prisma.quote.update({ where: { id: existing.id }, data })
+    : await prisma.quote.create({
+        data: { rfqId, providerId: profile.id, quoteNo: await nextRef("QO", { yearly: true }), ...data },
+      });
   await audit(session.user.id, "QUOTE_SUBMITTED", "Quote", quote.id, `RFQ ${rfqId} · ${quote.price}`);
   const rfq = await prisma.rfq.findUnique({ where: { id: rfqId }, select: { customerId: true, refNo: true } });
   if (rfq) await notify({
@@ -499,16 +500,17 @@ export async function fileComplaint(projectId: string, formData: FormData) {
   }
   const complaint = await prisma.complaint.create({
     data: {
+      ticketNo: await nextRef("CMP", { yearly: true }),
       projectId,
       filedById: session.user.id,
       subject: String(formData.get("subject")),
       details: String(formData.get("details")),
     },
   });
-  await audit(session.user.id, "COMPLAINT_FILED", "Project", projectId, String(formData.get("subject")));
+  await audit(session.user.id, "COMPLAINT_FILED", "Project", projectId, `${complaint.ticketNo} · ${String(formData.get("subject"))}`);
   await notifyAllAdmins(
-    `New complaint: ${String(formData.get("subject"))}`,
-    `${session.user.name ?? "A user"} filed a complaint on a project. Open it to mediate between the parties.`,
+    `Complaint ${complaint.ticketNo}: ${String(formData.get("subject"))}`,
+    `${session.user.name ?? "A user"} filed ticket ${complaint.ticketNo} on a project. Open it to mediate between the parties.`,
     `/admin/complaints/${complaint.id}`
   );
   revalidatePath(`/dashboard/projects/${projectId}`);
@@ -979,7 +981,9 @@ export async function saveService(formData: FormData) {
     if (existing) {
       await prisma.serviceListing.update({ where: { id: existing.id }, data });
     } else {
-      await prisma.serviceListing.create({ data: { ...data, providerId: profile.id } });
+      await prisma.serviceListing.create({
+        data: { ...data, providerId: profile.id, svcNo: await nextRef("SVC") },
+      });
     }
   }
   await notifyAllAdmins(
@@ -1094,6 +1098,7 @@ export async function payMilestone(milestoneId: string, formData: FormData) {
   if (!alreadyPending) {
     await prisma.payment.create({
       data: {
+        paymentNo: await nextRef("PAY", { yearly: true }),
         invoiceId: invoice.id,
         amount: outstanding,
         method: method as PaymentMethod,

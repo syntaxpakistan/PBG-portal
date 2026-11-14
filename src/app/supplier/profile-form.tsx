@@ -29,7 +29,9 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
       className="grid gap-3 sm:grid-cols-2"
     >
       <div className="sm:col-span-2">
-        <label className="mb-1 block text-[11.5px] font-medium text-ink">Company name</label>
+        <label className="mb-1 block text-[11.5px] font-medium text-ink">
+          Company name <span className="ml-1 font-mono font-semibold text-muted">{profile.orgNo}</span>
+        </label>
         <input name="orgName" required defaultValue={profile.orgName} className={input} />
       </div>
       <div>

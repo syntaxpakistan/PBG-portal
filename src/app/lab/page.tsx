@@ -2,7 +2,7 @@ export const instant = false
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BadgeCheck, Clock3, AlertTriangle, Gauge, Timer, Trophy, Star, Wallet, FileText } from "lucide-react";
+import { Clock3, AlertTriangle, Gauge, Timer, Trophy, Star, Wallet, FileText } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { StatusBadge, PageHead, StatCard, SlaScore, FunnelBar } from "@/components/portal/ui";

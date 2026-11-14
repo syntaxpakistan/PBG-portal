@@ -110,6 +110,7 @@ export async function BillingView({
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
                 <div className="text-[13px]">
                   <span className="font-medium text-ink">{p.invoice.number}</span>
+                  <span className="ml-2 font-mono text-[11.5px] font-semibold text-muted">{p.paymentNo}</span>
                   <span className="ml-2 text-body">{p.invoice.billedOrg} · {money(p.amount, p.invoice.currency)}</span>
                   <span className="ml-2 text-[11.5px] text-muted">{METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ref ${p.reference}` : ""}</span>
                   {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
@@ -155,7 +156,7 @@ export async function BillingView({
                   {inv.payments.map((p) => (
                     <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                       <StatusBadge status={p.status} />
-                      <span>{money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
+                      <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
                       {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       {p.status === "PENDING" && p.recordedById && <AttachReceiptForm paymentId={p.id} />}
                     </div>
@@ -192,7 +193,7 @@ export async function BillingView({
                     {inv.payments.map((p) => (
                       <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                         <StatusBadge status={p.status} />
-                        <span>{money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
+                        <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
                         {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       </div>
                     ))}
@@ -211,7 +212,8 @@ export async function BillingView({
         {payouts.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
             <div className="text-[13px]">
-              <span className="font-medium text-ink">{p.payeeOrg}</span>
+              <span className="font-mono text-[12px] font-semibold text-muted">{p.payoutNo}</span>
+              <span className="ml-2 font-medium text-ink">{p.payeeOrg}</span>
               <span className="ml-2 text-muted">{p.periodStart.toLocaleDateString()} → {p.periodEnd.toLocaleDateString()}</span>
               {p.reference && <span className="ml-2 text-[11.5px] text-muted">ref {p.reference}</span>}
             </div>

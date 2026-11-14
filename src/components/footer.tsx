@@ -49,8 +49,8 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
   {
     heading: "Contact",
     links: [
-      { label: "info@pakistanbiotechnologygateway.com", href: "mailto:info@pakistanbiotechnologygateway.com" },
-      { label: "contact@pakistanbiotechnologygateway.com", href: "mailto:contact@pakistanbiotechnologygateway.com" },
+      { label: "info@biotechnologygateway.com", href: "mailto:info@biotechnologygateway.com" },
+      { label: "contact@biotechnologygateway.com", href: "mailto:contact@biotechnologygateway.com" },
     ],
   },
 ];

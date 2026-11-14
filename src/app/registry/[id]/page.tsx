@@ -41,6 +41,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
               <div>
                 <h1 className="h-display on-dark !text-[2rem]">{p.orgName}</h1>
                 <p className="mt-1 flex items-center gap-3 text-[13px] text-[#9fb9cd]">
+                  <span className="font-mono font-semibold">{p.orgNo}</span>
                   <span className="flex items-center gap-1"><MapPin className="size-3.5" />{p.city}</span>
                   {p.establishedYear && <span>· est. {p.establishedYear}</span>}
                   {avg && <span className="flex items-center gap-1 text-yellow"><Star className="size-3.5 fill-yellow" />{avg.toFixed(1)} ({p.reviews.length})</span>}

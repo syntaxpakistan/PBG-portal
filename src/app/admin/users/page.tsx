@@ -33,7 +33,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: { providerProfile: { select: { orgName: true, status: true } }, supplierProfile: { select: { orgName: true, status: true } }, customerProfile: { select: { orgName: true } } },
+      include: { providerProfile: { select: { orgName: true, orgNo: true, status: true } }, supplierProfile: { select: { orgName: true, orgNo: true, status: true } }, customerProfile: { select: { orgName: true, orgNo: true } } },
     }),
     prisma.user.count({ where }),
   ]);
@@ -65,7 +65,9 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           </thead>
           <tbody className="divide-y divide-line">
             {users.map((u) => {
-              const org = u.providerProfile ?? u.supplierProfile;
+              const orgNo = u.providerProfile?.orgNo ?? u.supplierProfile?.orgNo ?? u.customerProfile?.orgNo;
+              const orgName = u.providerProfile?.orgName ?? u.supplierProfile?.orgName ?? u.customerProfile?.orgName;
+              const orgStatus = u.providerProfile?.status ?? u.supplierProfile?.status;
               return (
                 <tr key={u.id} className="cursor-pointer hover:bg-paper-2/60" onClick={undefined}>
                   <td className="px-5 py-3">
@@ -75,8 +77,11 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     </a>
                   </td>
                   <td className="px-5 py-3 text-body">{ROLE_LABEL[u.role] ?? u.role}</td>
-                  <td className="px-5 py-3 text-body">{org?.orgName ?? u.customerProfile?.orgName ?? "—"}</td>
-                  <td className="px-5 py-3">{org ? <StatusBadge status={org.status} /> : <span className="text-[11.5px] text-muted">—</span>}</td>
+                  <td className="px-5 py-3 text-body">
+                    {orgNo && <span className="mr-1.5 font-mono text-[11.5px] font-semibold text-muted">{orgNo}</span>}
+                    {orgName ?? "—"}
+                  </td>
+                  <td className="px-5 py-3">{orgStatus ? <StatusBadge status={orgStatus} /> : <span className="text-[11.5px] text-muted">—</span>}</td>
                   <td className="px-5 py-3 text-muted">{u.createdAt.toLocaleDateString()}</td>
                 </tr>
               );

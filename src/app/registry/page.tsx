@@ -92,6 +92,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
                   <div>
                     <h2 className="text-[16px] font-semibold text-ink">{p.orgName}</h2>
                     <p className="flex items-center gap-2 text-[12px] text-muted">
+                      <span className="font-mono font-semibold">{p.orgNo}</span>
                       <span className="flex items-center gap-1"><MapPin className="size-3" /> {p.city}</span>
                       {avg && <span className="flex items-center gap-0.5 text-(--st-gold)"><Star className="size-3 fill-(--st-gold)" />{avg.toFixed(1)}</span>}
                     </p>

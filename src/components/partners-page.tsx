@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight, Award, BadgeCheck, Bug, CircleCheck, Database, Dna,
@@ -90,6 +91,15 @@ const TARGETED_TYPES = [
 ];
 
 const WORKFLOW = ["Consultation", "Sample QC", "Library preparation", "Sequencing", "Basecalling / QC", "Bioinformatics", "Report discussion"];
+
+const TECH_STRIP = [
+  { name: "Oxford Nanopore MinION Mk1B", tag: "Portable long-read sequencing", img: "/media/instruments/minion-mk1b.webp" },
+  { name: "Oxford Nanopore PromethION 2i", tag: "High-output · 2 flow cells", img: "/media/instruments/promethion-2i.webp" },
+  { name: "Ion GeneStudio S5", tag: "Semiconductor targeted NGS", img: "/media/instruments/ion-genestudio-s5.webp" },
+  { name: "ABI Prism 3100", tag: "16-capillary Sanger analyzer", img: "/media/instruments/abi-prism-3100.webp" },
+  { name: "BRCA1/2 screening", tag: "Hereditary cancer testing", img: "/media/instruments/brca1-2-screening.webp" },
+  { name: "Targeted seq & WES bioinformatics", tag: "Panels · exome · analysis", img: "/media/bioinfo-structure.webp" },
+];
 
 const AUDIENCES = [
   "Plant breeders", "Plant pathologists", "Microbiologists", "Biotechnology researchers",
@@ -307,6 +317,36 @@ export function PartnersPage() {
               </p>
             </div>
           </div>
+
+          {/* technology marquee */}
+          <Reveal className="mt-12">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">In-house technology</p>
+                <h3 className="mt-2 font-display text-[22px] font-semibold tracking-tight text-ink">
+                  Platforms &amp; assays running at CAS-NGS
+                </h3>
+              </div>
+              <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-muted">Hover to pause</p>
+            </div>
+            <div className="relative overflow-hidden rounded-2xl border border-line bg-surface py-6 shadow-sm">
+              <span className="absolute inset-y-0 left-0 z-10 w-20 bg-gradient-to-r from-surface to-transparent" />
+              <span className="absolute inset-y-0 right-0 z-10 w-20 bg-gradient-to-l from-surface to-transparent" />
+              <div className="flex w-max animate-marquee items-stretch gap-5 px-5 hover:[animation-play-state:paused]">
+                {[...TECH_STRIP, ...TECH_STRIP].map((t, i) => (
+                  <div key={i} className="group w-56 shrink-0 overflow-hidden rounded-xl border border-line bg-paper shadow-sm transition-shadow hover:shadow-md sm:w-64">
+                    <div className="relative h-36 overflow-hidden bg-white sm:h-40">
+                      <Image src={t.img} alt={t.name} width={640} height={480} className="size-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    </div>
+                    <div className="border-t border-line px-4 py-3">
+                      <p className="text-[13.5px] font-semibold leading-snug text-ink">{t.name}</p>
+                      <p className="mt-0.5 text-[11.5px] font-medium text-muted">{t.tag}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
 
           {/* success stories */}
           <div className="mt-14">

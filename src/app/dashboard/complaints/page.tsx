@@ -25,6 +25,7 @@ export default async function CustomerComplaintsPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
+                  <span className="font-mono text-[12px] font-semibold text-muted">{c.ticketNo}</span>
                   <Link href={`/dashboard/complaints/${c.id}`} className="text-[14px] font-semibold text-ink hover:text-blue">{c.subject}</Link>
                   <StatusBadge status={c.status} />
                 </div>

@@ -1,14 +1,14 @@
 export const instant = false
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
-import { PageHead, StageTracker, StatusBadge, StageLadder } from "@/components/portal/ui";
+import { PageHead, StageTracker, StatusBadge } from "@/components/portal/ui";
 import { HistoryTimeline, MessageThread } from "@/components/portal/project-parts";
 import { FileLink } from "@/components/portal/file-link";
 import { PauseCircle, Lock, FlaskConical } from "lucide-react";
-import { advanceProjectStatus, addResultFile, addMilestone, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
-import { pkr, STAGE_LABELS, PROJECT_STAGES, stageIndex, slaInfo, QC_STAGE_LABELS, QC_DECISION_LABELS, WORK_STAGE_LABELS } from "@/lib/constants";
+import { addMilestone, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
+import { pkr, PROJECT_STAGES, stageIndex, slaInfo, QC_STAGE_LABELS, QC_DECISION_LABELS, WORK_STAGE_LABELS } from "@/lib/constants";
 import { StatusUpdateButtons, ResultUploadForm, AwardDecision, StageControls, QcForm, PauseControls, ReleaseButton, InternalsForm } from "./controls";
 import { SubmitButton } from "@/components/portal/submit-button";
 

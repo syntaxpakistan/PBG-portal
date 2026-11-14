@@ -38,6 +38,7 @@ export default async function LabServicesPage() {
               <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-[11.5px] font-semibold text-muted">{s.svcNo}</span>
                     <span className="text-[13.5px] font-medium text-ink">{s.name}</span>
                     {!s.active && <StatusBadge status="CLOSED" />}
                     {s.moderation === "PENDING" && (

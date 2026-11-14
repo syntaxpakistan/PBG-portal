@@ -28,7 +28,7 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
 
   return (
     <>
-      <PageHead title={`Complaint: ${complaint.subject}`} sub="Private conversation with Syntax support about this issue." />
+      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Syntax support about this issue." />
 
       <div className="card mb-6 p-5">
         <div className="flex flex-wrap items-center gap-2">

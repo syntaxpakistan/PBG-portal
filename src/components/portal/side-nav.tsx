@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NotificationsBell } from "./notifications-bell";
 
 export type NavItem = { href?: string; label: string; icon: React.ReactNode; children?: NavItem[]; badge?: number };
 
@@ -18,7 +19,7 @@ function matchLen(pathname: string, href: string) {
 
 export function SideNav({ items, unread }: { items: NavItem[]; unread: number }) {
   const pathname = usePathname();
-  const allItems: NavItem[] = [...items, { href: "/notifications", label: "Notifications", icon: <Bell className="size-4" /> }];
+  const allItems: NavItem[] = items;
   const allHrefs = allItems.flatMap((it) => (it.children?.length ? it.children.map((c) => c.href!) : it.href ? [it.href] : []));
   const best = Math.max(0, ...allHrefs.map((h) => matchLen(pathname, h)));
   const [closed, setClosed] = useState<Record<string, boolean>>({});
@@ -78,15 +79,13 @@ export function SideNav({ items, unread }: { items: NavItem[]; unread: number })
           >
             {it.icon}
             <span className="flex-1">{it.label}</span>
-            {it.href === "/notifications" && unread > 0 && (
-              <span className="rounded-full bg-yellow px-1.5 py-0.5 text-[9.5px] font-bold text-navy">{unread}</span>
-            )}
             {!!it.badge && it.badge > 0 && (
               <span className="rounded-full bg-yellow px-1.5 py-0.5 text-[9.5px] font-bold text-navy">{it.badge > 99 ? "99+" : it.badge}</span>
             )}
           </Link>
         );
       })}
+      <NotificationsBell unread={unread} variant="nav" />
     </nav>
   );
 }

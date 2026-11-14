@@ -151,6 +151,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
                     <span className="rounded-full bg-(--st-blue-bg) px-2.5 py-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">{p.category}</span>
                   </div>
                   <h3 className="mt-3 text-[15px] font-semibold text-ink">{p.name}</h3>
+                  <div className="font-mono text-[11px] font-semibold text-muted">{p.prodNo}</div>
                   {p.spec && <p className="mt-1 line-clamp-2 text-[12px] text-body">{p.spec}</p>}
                   <div className="mt-2 flex items-center justify-between">
                     {p.price != null ? <span className="font-display text-[15px] font-medium text-ink">{pkr(p.price)}{p.unit ? `/${p.unit}` : ""}</span> : <span className="text-[12px] text-muted">Price on enquiry</span>}

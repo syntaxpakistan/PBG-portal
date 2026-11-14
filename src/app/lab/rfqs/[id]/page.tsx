@@ -1,6 +1,6 @@
 export const instant = false
 
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { submitQuote, declineRfq, withdrawQuote } from "@/lib/actions/marketplace";
@@ -66,7 +66,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="card p-6">
-          <h2 className="mb-1 text-[15px] font-semibold text-ink">{myQuote ? "Update your quote" : "Submit a blind quote"}</h2>
+          <h2 className="mb-1 text-[15px] font-semibold text-ink">{myQuote ? <>Update your quote <span className="font-mono text-[12px] font-semibold text-muted">{myQuote.quoteNo}</span></> : "Submit a blind quote"}</h2>
           <p className="mb-5 text-[12px] text-muted">Competing labs never see your price — and you never see theirs. The customer compares offers anonymously until award.</p>
           <form action={submit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">

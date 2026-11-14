@@ -37,6 +37,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[12px] font-semibold text-muted">{l.leadNo}</span>
                   <span className="text-[14px] font-semibold text-ink">
                     {l.firstName} {l.lastName}
                   </span>

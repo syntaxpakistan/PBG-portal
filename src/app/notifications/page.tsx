@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { markAllNotificationsRead, markNotificationRead } from "@/lib/actions/marketplace";
 import { SubmitButton } from "@/components/portal/submit-button";
+import { PushOptIn } from "@/components/portal/push-opt-in";
 
 const HOME: Record<string, string> = { CUSTOMER: "/dashboard", PROVIDER: "/lab", SUPPLIER: "/supplier", ADMIN: "/admin" };
 
@@ -40,6 +41,8 @@ export default async function NotificationsPage() {
             </form>
           )}
         </div>
+
+        <PushOptIn />
 
         <div className="card mt-6 divide-y divide-line overflow-hidden">
           {items.length === 0 && (

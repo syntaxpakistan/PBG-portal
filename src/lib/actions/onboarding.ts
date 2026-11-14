@@ -7,6 +7,7 @@ import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Plan } from "@prisma/client";
 import { normalizeUrl } from "@/lib/utils";
 import { notifyAllAdmins } from "@/lib/notify";
+import { nextRef } from "@/lib/refs";
 
 export async function createOrgProfile(input: {
   userId: string;
@@ -36,6 +37,7 @@ export async function createOrgProfile(input: {
   if (input.role === "PROVIDER") {
     await prisma.providerProfile.create({
       data: {
+        orgNo: await nextRef("LAB"),
         userId: input.userId,
         orgName: input.orgName,
         city: input.city,
@@ -65,6 +67,7 @@ export async function createOrgProfile(input: {
   } else if (input.role === "SUPPLIER") {
     await prisma.supplierProfile.create({
       data: {
+        orgNo: await nextRef("SUP"),
         userId: input.userId,
         orgName: input.orgName,
         city: input.city,
@@ -90,6 +93,7 @@ export async function createOrgProfile(input: {
   } else if (input.role === "CUSTOMER") {
     await prisma.customerProfile.create({
       data: {
+        orgNo: await nextRef("CUS"),
         userId: input.userId,
         orgName: input.orgName || null,
         orgType: input.orgType,

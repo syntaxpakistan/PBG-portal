@@ -6,7 +6,7 @@ import { PauseCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
-import { pkr, slaInfo } from "@/lib/constants";
+import { slaInfo } from "@/lib/constants";
 
 export default async function LabProjectsPage({
   searchParams,
