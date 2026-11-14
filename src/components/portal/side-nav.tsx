@@ -23,12 +23,25 @@ export function SideNav({ items }: { items: NavItem[] }) {
   const best = Math.max(0, ...allHrefs.map((h) => matchLen(pathname, h)));
   const [closed, setClosed] = useState<Record<string, boolean>>({});
 
+  // re-open the group containing the active child when the route changes
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    setClosed((s) => {
+      const next = { ...s };
+      for (const it of allItems) {
+        if (it.children?.some((c) => c.href && matchLen(pathname, c.href) === best && best > 0)) delete next[it.label];
+      }
+      return next;
+    });
+  }
+
   return (
     <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
       {allItems.map((it) => {
         if (it.children?.length) {
           const childActive = it.children.some((c) => c.href && matchLen(pathname, c.href) === best && best > 0);
-          const open = !(closed[it.label] ?? false) || childActive;
+          const open = !(closed[it.label] ?? false);
           return (
             <div key={it.label}>
               <button
