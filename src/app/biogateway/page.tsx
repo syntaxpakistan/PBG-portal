@@ -155,7 +155,7 @@ export default function JoinPage() {
                     <button key={k} onClick={() => setPlan(k)} className="card card-hover group w-full p-5 text-left">
                       <div className="flex items-baseline justify-between">
                         <span className="text-[15px] font-semibold text-ink">{p.label}</span>
-                        <span className="font-display text-[22px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[12px] font-normal text-muted"> / {planTermLabel(k)}</span></span>
+                        <span className="whitespace-nowrap font-display text-[19px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(k)}</span></span>
                       </div>
                       <p className="mt-0.5 text-[12px] text-muted">{p.tagline}</p>
                       <ul className="mt-3 space-y-1.5">

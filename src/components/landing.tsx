@@ -408,11 +408,11 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                     )}
                     <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
                     <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
-                    <p className="mt-4">
-                      <span className="font-display text-[32px] font-semibold tracking-tight text-ink">
+                    <p className="mt-4 whitespace-nowrap">
+                      <span className="font-display text-[24px] font-semibold tracking-tight text-ink">
                         PKR {t.price.toLocaleString()}
                       </span>
-                      <span className="text-[13px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
+                      <span className="text-[12px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
                     </p>
                     <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
                       {t.features.map((f) => (
