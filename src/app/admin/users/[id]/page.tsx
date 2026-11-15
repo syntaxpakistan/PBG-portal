@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
-import { PLANS } from "@/lib/plans";
+import { PLANS, planTermLabel } from "@/lib/plans";
 
 export default async function AdminUserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -102,7 +102,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
                 <StatusBadge status={sub.status} />
               </div>
               <dl className="space-y-2 text-[13px]">
-                <Row k="Plan" v={`${PLANS[sub.plan].label} — $${sub.priceUsd}/mo`} />
+                <Row k="Plan" v={`${PLANS[sub.plan].label} — ${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)} term`} />
                 <Row k="Since" v={sub.startedAt?.toLocaleDateString()} />
                 <Row k="Renews until" v={sub.expiresAt?.toLocaleDateString()} />
               </dl>

@@ -41,7 +41,7 @@ export default async function SettingsPage() {
         <div className="card p-6">
           <h3 className="text-[14px] font-semibold text-ink">Subscription plan prices</h3>
           <p className="mt-1 text-[12.5px] text-body">
-            Monthly price in USD. New invoices use the updated price; existing subscriptions keep their billed rate.
+            Term price in PKR (covers the full plan term). New invoices use the updated price; existing subscriptions keep their billed rate.
           </p>
           <div className="mt-4 space-y-4">
             {planRows.map((p) => (
@@ -50,7 +50,7 @@ export default async function SettingsPage() {
                   <div className="text-[13px] font-semibold text-ink">{p.label} plan</div>
                   <div className="text-[11.5px] text-muted">{p.tagline}</div>
                 </div>
-                <SettingForm settingKey={`plan_price_${p.key.toLowerCase()}`} current={planPrices[p.key]} suffix="USD/mo" min={0} max={10000} />
+                <SettingForm settingKey={`plan_price_${p.key.toLowerCase()}`} current={planPrices[p.key]} suffix="PKR" min={0} max={10000000} />
               </div>
             ))}
           </div>

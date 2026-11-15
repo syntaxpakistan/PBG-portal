@@ -109,7 +109,7 @@ export default async function ReportsPage() {
   ];
   const enqMax = Math.max(1, enqRows[0].n);
 
-  // ---- subscription MRR by plan ----
+  // ---- active subscriptions by plan ----
   const activeSubs = subsByPlan.filter((s) => s.status === "ACTIVE");
   const planRows = ["BASIC", "PRO", "CUSTOM"].map((p) => ({ plan: p, n: activeSubs.filter((s) => s.plan === p).reduce((a, s) => a + s._count, 0) })).filter((r) => r.n > 0);
   const planMax = Math.max(1, ...planRows.map((r) => r.n));

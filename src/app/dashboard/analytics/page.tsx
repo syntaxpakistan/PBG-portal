@@ -38,10 +38,7 @@ export default async function CustomerAnalyticsPage() {
     }),
   ]);
 
-  const spendByCur = new Map<string, number>();
-  for (const inv of paidInvoices) spendByCur.set(inv.currency, (spendByCur.get(inv.currency) ?? 0) + inv.total);
-  const spendPkr = spendByCur.get("PKR") ?? 0;
-  const spendUsd = spendByCur.get("USD") ?? 0;
+  const spendPkr = paidInvoices.reduce((n, inv) => n + inv.total, 0);
   const avgQuotes = rfqs ? (quotes / rfqs).toFixed(1) : "0";
   const awardRate = rfqs ? Math.round((awarded / rfqs) * 100) : 0;
 
@@ -54,8 +51,8 @@ export default async function CustomerAnalyticsPage() {
         <StatCard label="Projects" value={projects} sub={`${completed} completed · ${awardRate}% award rate`} />
         <StatCard
           label="Total spend"
-          value={spendPkr ? pkr(spendPkr) : spendUsd ? `$${spendUsd.toLocaleString()}` : "—"}
-          sub={[spendPkr ? `${pkr(spendPkr)} PKR` : null, spendUsd ? `$${spendUsd.toLocaleString()} USD` : null].filter(Boolean).join(" + ") || "no paid invoices yet"}
+          value={spendPkr ? pkr(spendPkr) : "—"}
+          sub={spendPkr ? "paid invoices" : "no paid invoices yet"}
         />
       </div>
       <div className="card p-5">

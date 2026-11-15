@@ -3,7 +3,7 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
-import { PLANS } from "@/lib/plans";
+import { PLANS, planTermLabel } from "@/lib/plans";
 import { SubButtons } from "./buttons";
 import { getPlanPrices } from "@/lib/settings";
 
@@ -42,19 +42,19 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
       take: PAGE_SIZE,
     }),
     prisma.subscription.count({ where }),
-    prisma.subscription.aggregate({ where: { status: "ACTIVE" }, _sum: { priceUsd: true } }),
+    prisma.subscription.aggregate({ where: { status: "ACTIVE" }, _sum: { pricePkr: true } }),
     prisma.subscription.count({ where: { status: "PENDING_PAYMENT" } }),
     prisma.subscription.count({ where: { renewRequestedAt: { not: null } } }),
     prisma.subscription.count({ where: { planChangeRequestedAt: { not: null } } }),
     getPlanPrices(),
   ]);
-  const mrr = mrrAgg._sum.priceUsd ?? 0;
+  const mrr = mrrAgg._sum.pricePkr ?? 0;
 
   return (
     <>
       <PageHead
         title="Subscriptions"
-        sub={`${total} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ${planChanges} plan-change requests · ~$${mrr.toLocaleString()}/mo active MRR`}
+        sub={`${total} memberships · ${pending} awaiting payment · ${renewals} renewal requests · ${planChanges} plan-change requests · PKR ${mrr.toLocaleString()} active billed value`}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search org, name or email…" className="w-full max-w-xs rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3" />
@@ -67,9 +67,9 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
         </select>
         <select name="plan" defaultValue={plan ?? ""} className="rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3">
           <option value="">All plans</option>
-          <option value="BASIC">Basic $100</option>
-          <option value="PRO">Pro $300</option>
-          <option value="CUSTOM">Custom $500</option>
+          <option value="BASIC">Basic — PKR 50,000</option>
+          <option value="PRO">Pro — PKR 148,000</option>
+          <option value="CUSTOM">Custom — PKR 246,000</option>
         </select>
         <button type="submit" className="btn-outline !py-2 text-[12.5px]">Filter</button>
       </form>
@@ -104,7 +104,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
                       </div>
                     )}
                   </td>
-                  <td className="px-5 py-3 text-body">${s.priceUsd}/mo</td>
+                  <td className="px-5 py-3 text-body">PKR {s.pricePkr.toLocaleString()}<div className="text-[10.5px] text-muted">{planTermLabel(s.plan)} term</div></td>
                   <td className="px-5 py-3 text-muted">
                     {s.expiresAt ? `until ${s.expiresAt.toLocaleDateString()}` : "—"}
                     {s.renewRequestedAt && <div className="mt-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">renewal requested</div>}

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { saveUpload } from "@/lib/files";
-import { PLANS, type PlanKey } from "@/lib/plans";
+import { PLANS, planTermLabel, type PlanKey } from "@/lib/plans";
 import { getFeePercent, getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { Invoice, Payment, Plan } from "@prisma/client";
 import { nextRef } from "@/lib/refs";
@@ -380,16 +380,16 @@ export async function requestPlanChange(plan: string) {
     // no subscription yet — create one on the requested plan; invoice goes out immediately
     const planPrice = await getPlanPrice(planKey);
     const created = await prisma.subscription.create({
-      data: { userId: session.user.id, plan: planKey as Plan, priceUsd: planPrice },
+      data: { userId: session.user.id, plan: planKey as Plan, pricePkr: planPrice },
     });
     await issueInvoice({
       billedUserId: session.user.id,
       issuerType: "PLATFORM",
       subscriptionId: created.id,
-      currency: "USD",
+      currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
       note: `${PLANS[planKey].label} plan — first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — monthly`, unitPrice: planPrice }],
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
       `New subscription: ${planKey}`,

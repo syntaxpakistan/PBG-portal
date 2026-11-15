@@ -1,6 +1,7 @@
 export const PLANS = {
   BASIC: {
-    price: 100,
+    price: 50000,
+    termYears: 1,
     label: "Basic",
     tagline: "For facilities starting on the Gateway",
     features: [
@@ -11,7 +12,8 @@ export const PLANS = {
     ],
   },
   PRO: {
-    price: 300,
+    price: 148000,
+    termYears: 3,
     label: "Pro",
     tagline: "For established labs & suppliers",
     features: [
@@ -22,7 +24,8 @@ export const PLANS = {
     ],
   },
   CUSTOM: {
-    price: 500,
+    price: 246000,
+    termYears: 5,
     label: "Custom",
     tagline: "For high-capacity & HPC providers",
     features: [
@@ -35,6 +38,11 @@ export const PLANS = {
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
+
+export const planTermLabel = (key: PlanKey) =>
+  `${PLANS[key].termYears} year${PLANS[key].termYears > 1 ? "s" : ""}`;
+
+export const planTermMs = (key: PlanKey) => PLANS[key].termYears * 365 * 864e5;
 
 // what each plan actually unlocks — enforced in lib/entitlements.ts + actions
 export const PLAN_FLAGS: Record<PlanKey, {

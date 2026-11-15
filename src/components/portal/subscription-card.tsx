@@ -1,4 +1,4 @@
-import { PLANS } from "@/lib/plans";
+import { PLANS, planTermLabel } from "@/lib/plans";
 import { BadgeCheck, Clock3 } from "lucide-react";
 import { requestRenewal } from "@/lib/actions/marketplace";
 import type { Subscription } from "@prisma/client";
@@ -24,7 +24,7 @@ export function SubscriptionCard({ sub }: { sub: Subscription | null }) {
       <div className="p-5">
         <div className="flex items-baseline justify-between">
           <span className="text-[16px] font-semibold text-ink">{plan.label}</span>
-          <span className="font-display text-[24px] font-medium text-ink">${sub.priceUsd}<span className="text-[12px] font-normal text-muted">/mo</span></span>
+          <span className="font-display text-[24px] font-medium text-ink">PKR {sub.pricePkr.toLocaleString()}<span className="text-[12px] font-normal text-muted"> / {planTermLabel(sub.plan)}</span></span>
         </div>
         <ul className="mt-3 space-y-1.5">
           {plan.features.map((f) => (

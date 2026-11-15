@@ -6,7 +6,8 @@ import { getSession } from "@/lib/session";
 import { notify } from "@/lib/notify";
 import { notifyProvidersForRfq } from "@/lib/actions/marketplace";
 import { issueInvoice } from "@/lib/actions/billing";
-import { PLANS, type PlanKey } from "@/lib/plans";
+import { PLANS, planTermLabel, planTermMs, type PlanKey } from "@/lib/plans";
+import { pkr } from "@/lib/constants";
 import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
 import type { VerificationStatus, ComplaintStatus, TxnStatus } from "@prisma/client";
 
@@ -146,9 +147,9 @@ export async function setPlatformFee(formData: FormData) {
 // editable platform settings — whitelist keeps arbitrary keys out of the table
 const EDITABLE_SETTINGS: Record<string, { label: string; min: number; max: number; suffix?: string }> = {
   platform_fee_percent: { label: "Platform fee", min: 0, max: 30, suffix: "%" },
-  plan_price_basic: { label: "Basic plan price", min: 0, max: 10000, suffix: "USD/mo" },
-  plan_price_pro: { label: "Pro plan price", min: 0, max: 10000, suffix: "USD/mo" },
-  plan_price_custom: { label: "Custom plan price", min: 0, max: 10000, suffix: "USD/mo" },
+  plan_price_basic: { label: "Basic plan price", min: 0, max: 10000000, suffix: "PKR" },
+  plan_price_pro: { label: "Pro plan price", min: 0, max: 10000000, suffix: "PKR" },
+  plan_price_custom: { label: "Custom plan price", min: 0, max: 10000000, suffix: "PKR" },
   grace_days: { label: "Grace period", min: 0, max: 60, suffix: "days" },
   invoice_due_days: { label: "Invoice due window", min: 1, max: 90, suffix: "days" },
   rfq_rate_limit_per_day: { label: "RFQ rate limit", min: 1, max: 100, suffix: "per day" },
@@ -231,10 +232,11 @@ export async function setProductActive(id: string, active: boolean) {
 
 export async function setSubscriptionStatus(id: string, status: "ACTIVE" | "CANCELLED" | "EXPIRED") {
   const session = await requireAdmin();
+  const current = await prisma.subscription.findUniqueOrThrow({ where: { id } });
   const data: Record<string, unknown> = { status };
   if (status === "ACTIVE") {
     data.startedAt = new Date();
-    data.expiresAt = new Date(Date.now() + 30 * 864e5); // 30-day cycle
+    data.expiresAt = new Date(Date.now() + planTermMs(current.plan));
   }
   const sub = await prisma.subscription.update({ where: { id }, data });
   // first activation → raise the subscription invoice if none exists yet
@@ -246,10 +248,10 @@ export async function setSubscriptionStatus(id: string, status: "ACTIVE" | "CANC
         billedUserId: sub.userId,
         issuerType: "PLATFORM",
         subscriptionId: id,
-        currency: "USD",
+        currency: "PKR",
         dueAt: sub.expiresAt ?? undefined,
         note: `${plan.label} plan — activation`,
-        items: [{ description: `Gateway ${plan.label} subscription — monthly`, unitPrice: sub.priceUsd }],
+        items: [{ description: `Gateway ${plan.label} subscription — ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
       });
     }
   }
@@ -258,11 +260,11 @@ export async function setSubscriptionStatus(id: string, status: "ACTIVE" | "CANC
   revalidatePath("/admin/finance");
 }
 
-export async function setSubscriptionPlan(id: string, plan: "BASIC" | "PRO" | "CUSTOM", priceUsd: number) {
+export async function setSubscriptionPlan(id: string, plan: "BASIC" | "PRO" | "CUSTOM", pricePkr: number) {
   const session = await requireAdmin();
   const sub = await prisma.subscription.findUniqueOrThrow({ where: { id }, include: { user: { select: { role: true } } } });
   const p = PLANS[plan];
-  const data: Record<string, unknown> = { plan, priceUsd, requestedPlan: null, planChangeRequestedAt: null };
+  const data: Record<string, unknown> = { plan, pricePkr, requestedPlan: null, planChangeRequestedAt: null };
   // cancelled/expired subs can't just flip plans — send them back to awaiting payment with a fresh invoice
   const needsReactivation = sub.status === "CANCELLED" || sub.status === "EXPIRED";
   const refreshPendingInvoice = sub.status === "PENDING_PAYMENT";
@@ -285,21 +287,21 @@ export async function setSubscriptionPlan(id: string, plan: "BASIC" | "PRO" | "C
       billedUserId: sub.userId,
       issuerType: "PLATFORM",
       subscriptionId: id,
-      currency: "USD",
+      currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
       note: `${p.label} plan — ${needsReactivation ? "reactivation" : "updated invoice"}`,
-      items: [{ description: `Gateway ${p.label} subscription — monthly`, unitPrice: priceUsd }],
+      items: [{ description: `Gateway ${p.label} subscription — ${planTermLabel(plan)} term`, unitPrice: pricePkr }],
     });
   }
   if (needsReactivation) {
     await notify({
       toUserId: sub.userId,
       subject: `Plan changed to ${p.label} — payment needed`,
-      body: `Your subscription was moved to the ${p.label} plan ($${priceUsd}/mo). A new invoice is on your billing page — the plan activates once payment is confirmed.`,
+      body: `Your subscription was moved to the ${p.label} plan (${pkr(pricePkr)} · ${planTermLabel(plan)} term). A new invoice is on your billing page — the plan activates once payment is confirmed.`,
       href: sub.user.role === "PROVIDER" ? "/lab/billing" : sub.user.role === "SUPPLIER" ? "/supplier/billing" : "/dashboard/billing",
     });
   }
-  await audit(session.user.id, "SUBSCRIPTION_PLAN_CHANGED", "Subscription", id, `${sub.plan} → ${plan} $${priceUsd}${needsReactivation ? " (reactivation)" : ""}`);
+  await audit(session.user.id, "SUBSCRIPTION_PLAN_CHANGED", "Subscription", id, `${sub.plan} → ${plan} PKR ${pricePkr}${needsReactivation ? " (reactivation)" : ""}`);
   revalidatePath("/admin/subscriptions");
   revalidatePath("/admin/finance");
 }
@@ -325,18 +327,18 @@ export async function reactivateSubscription(id: string) {
     billedUserId: sub.userId,
     issuerType: "PLATFORM",
     subscriptionId: id,
-    currency: "USD",
+    currency: "PKR",
     dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
     note: `${p.label} plan — reactivation`,
-    items: [{ description: `Gateway ${p.label} subscription — monthly`, unitPrice: sub.priceUsd }],
+    items: [{ description: `Gateway ${p.label} subscription — ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
   });
   await notify({
     toUserId: sub.userId,
     subject: `Subscription reactivated — ${p.label} plan payment needed`,
-    body: `Your ${p.label} plan ($${sub.priceUsd}/mo) is back on the books. A fresh invoice is on your billing page — the plan activates once payment is confirmed.`,
+    body: `Your ${p.label} plan (${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)}) is back on the books. A fresh invoice is on your billing page — the plan activates once payment is confirmed.`,
     href: sub.user.role === "PROVIDER" ? "/lab/billing" : sub.user.role === "SUPPLIER" ? "/supplier/billing" : "/dashboard/billing",
   });
-  await audit(session.user.id, "SUBSCRIPTION_REACTIVATED", "Subscription", id, `${sub.plan} $${sub.priceUsd}`);
+  await audit(session.user.id, "SUBSCRIPTION_REACTIVATED", "Subscription", id, `${sub.plan} PKR ${sub.pricePkr}`);
   revalidatePath("/admin/subscriptions");
   revalidatePath("/admin/finance");
 }
@@ -350,27 +352,27 @@ export async function extendSubscription(id: string) {
   const effectivePlan = sub.requestedPlan && sub.requestedPlan in PLANS ? sub.requestedPlan : sub.plan;
   const plan = PLANS[effectivePlan as keyof typeof PLANS];
   // renewals bill the plan's current price — a pending plan change adopts the new plan's price
-  const renewalPrice = sub.requestedPlan ? await getPlanPrice(effectivePlan as PlanKey) : sub.priceUsd;
+  const renewalPrice = sub.requestedPlan ? await getPlanPrice(effectivePlan as PlanKey) : sub.pricePkr;
   await prisma.subscription.update({
     where: { id },
     data: {
       status: "ACTIVE",
       plan: effectivePlan as typeof sub.plan,
-      priceUsd: renewalPrice,
+      pricePkr: renewalPrice,
       startedAt: sub.startedAt ?? new Date(),
-      expiresAt: new Date(base.getTime() + 30 * 864e5),
+      expiresAt: new Date(base.getTime() + planTermMs(effectivePlan as PlanKey)),
       renewRequestedAt: null,
       requestedPlan: null,
       planChangeRequestedAt: null,
     },
   });
-  // renewal cycle → fresh invoice for the next 30 days
+  // renewal cycle → fresh invoice for the next term
   await issueInvoice({
     billedUserId: sub.userId,
     issuerType: "PLATFORM",
     subscriptionId: id,
-    currency: "USD",
-    dueAt: new Date(base.getTime() + 30 * 864e5),
+    currency: "PKR",
+    dueAt: new Date(base.getTime() + planTermMs(effectivePlan as PlanKey)),
     note: `${plan.label} plan — renewal`,
     items: [{ description: `Gateway ${plan.label} subscription — renewal cycle`, unitPrice: renewalPrice }],
   });

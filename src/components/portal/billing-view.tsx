@@ -1,6 +1,6 @@
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
-import { PLANS } from "@/lib/plans";
+import { PLANS, planTermLabel } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/settings";
 import type { PartnerAccess } from "@/lib/entitlements";
 import type { Invoice, Payment, Payout } from "@prisma/client";
@@ -19,8 +19,8 @@ const METHOD_LABELS: Record<string, string> = {
   CARD: "Card", CASH: "Cash", OTHER: "Other",
 };
 
-function money(amount: number, currency: string) {
-  return currency === "USD" ? `$${amount.toLocaleString()}` : `PKR ${amount.toLocaleString()}`;
+function money(amount: number) {
+  return `PKR ${amount.toLocaleString()}`;
 }
 
 function outstanding(inv: InvoiceWithDetails) {
@@ -42,7 +42,7 @@ export async function BillingView({
   const openPayables = payables.filter((i) => i.status !== "PAID" && i.status !== "VOID");
   const nextPayout = payouts.find((p) => p.status === "PLANNED" || p.status === "PROCESSING");
 
-  // totals are grouped per currency — invoices mix USD (subscriptions) and PKR (marketplace)
+  // totals are grouped per currency — legacy invoices may still carry USD
   const sumByCurrency = (list: InvoiceWithDetails[], fn: (i: InvoiceWithDetails) => number) => {
     const map = new Map<string, number>();
     for (const i of list) map.set(i.currency, (map.get(i.currency) ?? 0) + fn(i));
@@ -62,13 +62,13 @@ export async function BillingView({
         {owedByCur.length === 0
           ? <StatCard label="You owe" value="—" sub="no open invoices" />
           : owedByCur.map(([cur, amt]) => (
-              <StatCard key={cur} label="You owe" value={money(amt, cur)} sub={`${openPayables.filter((i) => i.currency === cur).length} open invoice${openPayables.filter((i) => i.currency === cur).length === 1 ? "" : "s"}`} />
+              <StatCard key={cur} label="You owe" value={money(amt)} sub={`${openPayables.filter((i) => i.currency === cur).length} open invoice${openPayables.filter((i) => i.currency === cur).length === 1 ? "" : "s"}`} />
             ))}
         {paidByCur.map(([cur, amt]) => (
-          <StatCard key={cur} label="Paid to Syntax" value={money(amt, cur)} sub="settled invoices" />
+          <StatCard key={cur} label="Paid to Syntax" value={money(amt)} sub="settled invoices" />
         ))}
         {collectedByCur.map(([cur, amt]) => (
-          <StatCard key={cur} label="Collected" value={money(amt, cur)} sub="confirmed on your invoices" />
+          <StatCard key={cur} label="Collected" value={money(amt)} sub="confirmed on your invoices" />
         ))}
         <StatCard label="Next payout" value={nextPayout ? `PKR ${nextPayout.netAmount.toLocaleString()}` : "—"} sub={nextPayout ? `${nextPayout.status.toLowerCase()} · ${nextPayout.periodEnd.toLocaleDateString()}` : "none scheduled"} />
       </div>
@@ -78,7 +78,7 @@ export async function BillingView({
         <div className="card mb-6 p-5">
           <div className="flex items-baseline justify-between gap-3">
             <h3 className="text-[16px] font-semibold text-ink">{PLANS[access.plan].label} plan</h3>
-            <span className="font-display text-[24px] font-medium text-ink">${access.priceUsd.toLocaleString()}<span className="text-[12px] font-normal text-muted">/mo</span></span>
+            <span className="font-display text-[24px] font-medium text-ink">PKR {access.pricePkr.toLocaleString()}<span className="text-[12px] font-normal text-muted"> / {planTermLabel(access.plan)}</span></span>
           </div>
           <p className="mt-1 text-[12px] text-muted">
             Status: <span className="font-medium text-ink">{access.status?.toLowerCase().replace("_", " ")}</span>
@@ -86,7 +86,7 @@ export async function BillingView({
             {access.inGrace && <span className="ml-1 font-medium text-(--st-amber-fg)">— grace period</span>}
           </p>
           <PlanPicker current={access.plan} plans={planOptions} />
-          <p className="mt-2 text-[11.5px] text-muted">Plan changes are reviewed by Syntax and applied from the next billing cycle.</p>
+          <p className="mt-2 text-[11.5px] text-muted">Plan changes are reviewed by Syntax and applied from the next term.</p>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export async function BillingView({
                 <div className="text-[13px]">
                   <span className="font-medium text-ink">{p.invoice.number}</span>
                   <span className="ml-2 font-mono text-[11.5px] font-semibold text-muted">{p.paymentNo}</span>
-                  <span className="ml-2 text-body">{p.invoice.billedOrg} · {money(p.amount, p.invoice.currency)}</span>
+                  <span className="ml-2 text-body">{p.invoice.billedOrg} · {money(p.amount)}</span>
                   <span className="ml-2 text-[11.5px] text-muted">{METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ref ${p.reference}` : ""}</span>
                   {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                 </div>
@@ -147,8 +147,8 @@ export async function BillingView({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-display text-[18px] font-medium text-ink">{money(inv.total, inv.currency)}</div>
-                  {out > 0 && inv.status !== "VOID" && <div className="text-[11.5px] text-(--st-amber-fg)">outstanding {money(out, inv.currency)}</div>}
+                  <div className="font-display text-[18px] font-medium text-ink">{money(inv.total)}</div>
+                  {out > 0 && inv.status !== "VOID" && <div className="text-[11.5px] text-(--st-amber-fg)">outstanding {money(out)}</div>}
                 </div>
               </div>
               {inv.payments.length > 0 && (
@@ -156,7 +156,7 @@ export async function BillingView({
                   {inv.payments.map((p) => (
                     <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                       <StatusBadge status={p.status} />
-                      <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
+                      <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
                       {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       {p.status === "PENDING" && p.recordedById && <AttachReceiptForm paymentId={p.id} />}
                     </div>
@@ -186,14 +186,14 @@ export async function BillingView({
                       {inv.billedOrg} · {inv.items.map((i) => i.description).join(" · ")} — {inv.issuedAt.toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="font-display text-[18px] font-medium text-ink">{money(inv.total, inv.currency)}</div>
+                  <div className="font-display text-[18px] font-medium text-ink">{money(inv.total)}</div>
                 </div>
                 {inv.payments.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {inv.payments.map((p) => (
                       <div key={p.id} className="flex flex-wrap items-center gap-2 text-[12px] text-body">
                         <StatusBadge status={p.status} />
-                        <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount, inv.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
+                        <span><span className="font-mono font-semibold text-ink">{p.paymentNo}</span> · {money(p.amount)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
                         {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
                       </div>
                     ))}

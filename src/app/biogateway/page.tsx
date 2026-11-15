@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Package, Users, Loader2, ArrowLeft, Check, BadgeCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { createOrgProfile } from "@/lib/actions/onboarding";
-import { PLANS, ORG_TYPES, type PlanKey } from "@/lib/plans";
+import { PLANS, planTermLabel, ORG_TYPES, type PlanKey } from "@/lib/plans";
 import { toast } from "sonner";
 
 const ROLES = [
@@ -105,9 +105,9 @@ export default function JoinPage() {
               suppliers choose a plan, then Syntax verifies the organization before it goes live.
             </p>
             <div className="mt-6 space-y-2 text-[13px] text-[#9fb9cd]">
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Basic — $100/mo · standard listing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro — $300/mo · priority routing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Custom — $500/mo · dedicated manager</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Basic — PKR 50,000 / 1 yr · standard listing</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro — PKR 148,000 / 3 yrs · priority routing</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Custom — PKR 246,000 / 5 yrs · dedicated manager</div>
             </div>
           </div>
           <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
@@ -147,7 +147,7 @@ export default function JoinPage() {
                 <ArrowLeft className="size-3.5" /> Back to roles
               </button>
               <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Choose your plan</h2>
-              <p className="mt-2 text-[13.5px] text-body">Billed monthly after Syntax approves your organization — invoiced offline, no card needed now.</p>
+              <p className="mt-2 text-[13.5px] text-body">Billed once per term after Syntax approves your organization — invoiced offline, no card needed now.</p>
               <div className="mt-7 space-y-3">
                 {(Object.keys(PLANS) as PlanKey[]).map((k) => {
                   const p = PLANS[k];
@@ -155,7 +155,7 @@ export default function JoinPage() {
                     <button key={k} onClick={() => setPlan(k)} className="card card-hover group w-full p-5 text-left">
                       <div className="flex items-baseline justify-between">
                         <span className="text-[15px] font-semibold text-ink">{p.label}</span>
-                        <span className="font-display text-[22px] font-medium text-ink">${p.price}<span className="text-[12px] font-normal text-muted">/mo</span></span>
+                        <span className="font-display text-[22px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[12px] font-normal text-muted"> / {planTermLabel(k)}</span></span>
                       </div>
                       <p className="mt-0.5 text-[12px] text-muted">{p.tagline}</p>
                       <ul className="mt-3 space-y-1.5">
@@ -177,7 +177,7 @@ export default function JoinPage() {
               </button>
               <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">
                 {ROLES.find((r) => r.id === role)?.title} profile
-                {plan && <span className="ml-2 rounded-full bg-navy px-3 py-1 align-middle text-[11px] font-semibold text-yellow">{PLANS[plan].label} ${PLANS[plan].price}/mo</span>}
+                {plan && <span className="ml-2 rounded-full bg-navy px-3 py-1 align-middle text-[11px] font-semibold text-yellow">{PLANS[plan].label} PKR {PLANS[plan].price.toLocaleString()} · {planTermLabel(plan)}</span>}
               </h2>
               {needsOrg ? (
                 <p className="mt-2 rounded-lg border border-(--st-amber-bd) bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">

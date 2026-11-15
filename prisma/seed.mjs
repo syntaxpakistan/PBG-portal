@@ -261,7 +261,7 @@ main().then(main2).finally(() => prisma.$disconnect());
 
 // ---- profiles & subscriptions (v2 additions) ----
 async function main2() {
-  const plans = { BASIC: 100, PRO: 300, CUSTOM: 500 };
+  const plans = { BASIC: 50000, PRO: 148000, CUSTOM: 246000 };
   for (const [email, plan] of [["genomelab@pbg.pk", "PRO"], ["ncgseq@pbg.pk", "BASIC"], ["pendinglab@pbg.pk", "BASIC"], ["biosupplies@pbg.pk", "BASIC"]]) {
     const u = await prisma.user.findUnique({ where: { email } });
     if (!u) continue;
@@ -269,9 +269,9 @@ async function main2() {
       where: { userId: u.id },
       update: {},
       create: {
-        userId: u.id, plan, priceUsd: plans[plan],
+        userId: u.id, plan, pricePkr: plans[plan],
         status: email === "pendinglab@pbg.pk" ? "PENDING_PAYMENT" : "ACTIVE",
-        startedAt: new Date(), expiresAt: new Date(Date.now() + 30 * 864e5),
+        startedAt: new Date(), expiresAt: new Date(Date.now() + (plan === "PRO" ? 3 : plan === "CUSTOM" ? 5 : 1) * 365 * 864e5),
       },
     });
   }

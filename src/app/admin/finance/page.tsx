@@ -13,7 +13,7 @@ const METHOD_LABELS: Record<string, string> = {
   BANK_TRANSFER: "Bank", JAZZCASH: "JazzCash", EASYPAISA: "EasyPaisa",
   CARD: "Card", CASH: "Cash", OTHER: "Other",
 };
-const money = (n: number, c = "PKR") => c === "USD" ? `$${n.toLocaleString()}` : `PKR ${n.toLocaleString()}`;
+const money = (n: number) => `PKR ${n.toLocaleString()}`;
 
 export default async function FinancePage() {
   await requireRole("ADMIN");
@@ -65,7 +65,7 @@ export default async function FinancePage() {
             <div className="text-[13px]">
               <span className="font-mono font-semibold text-ink">{p.invoice.number}</span>
               <span className="ml-2 text-body">{p.invoice.billedOrg} ({p.invoice.billedUser.email})</span>
-              <span className="ml-2 text-muted">{money(p.amount, p.invoice.currency)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
+              <span className="ml-2 text-muted">{money(p.amount)} · {METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ${p.reference}` : ""} · {p.createdAt.toLocaleDateString()}</span>
               {p.receiptKey && <FileLink storageKey={p.receiptKey} filename={p.receiptKey} label="receipt" />}
             </div>
             <div className="flex gap-2">
@@ -107,14 +107,14 @@ export default async function FinancePage() {
                     <div className="text-[11px] text-muted">{inv.billedUser.email}</div>
                   </td>
                   <td className="px-5 py-3 text-body">{inv.issuerType === "PLATFORM" ? "Syntax" : inv.issuerType.toLowerCase()}</td>
-                  <td className="px-5 py-3 font-medium text-ink">{money(inv.total, inv.currency)}</td>
+                  <td className="px-5 py-3 font-medium text-ink">{money(inv.total)}</td>
                   <td className="px-5 py-3"><StatusBadge status={inv.status} /></td>
                   <td className="px-5 py-3 text-[12px] text-body">
                     {inv.payments.length === 0 ? "—" : (
                       <>
-                        {money(confirmed, inv.currency)} confirmed
+                        {money(confirmed)} confirmed
                         {inv.payments.some((p) => p.status === "PENDING") && <span className="ml-1 text-(--st-amber-fg)">· {inv.payments.filter((p) => p.status === "PENDING").length} pending</span>}
-                        {out > 0 && <span className="ml-1 text-muted">· {money(out, inv.currency)} due</span>}
+                        {out > 0 && <span className="ml-1 text-muted">· {money(out)} due</span>}
                       </>
                     )}
                   </td>

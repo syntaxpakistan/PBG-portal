@@ -7,7 +7,7 @@ export type PartnerAccess = {
   hasSubscription: boolean;
   status: SubscriptionStatus | null;
   plan: PlanKey | null;
-  priceUsd: number;
+  pricePkr: number;
   /** may perform paid actions (quote, list, respond) right now */
   active: boolean;
   /** ACTIVE but past expiresAt — inside the GRACE_DAYS window */
@@ -20,7 +20,7 @@ export type PartnerAccess = {
 };
 
 const LOCKED: PartnerAccess = {
-  hasSubscription: false, status: null, plan: null, priceUsd: 0,
+  hasSubscription: false, status: null, plan: null, pricePkr: 0,
   active: false, inGrace: false, expiresAt: null, daysLeft: null,
   renewRequested: false, flags: null,
 };
@@ -38,7 +38,7 @@ export async function getPartnerAccess(userId: string): Promise<PartnerAccess> {
     hasSubscription: true,
     status: sub.status,
     plan,
-    priceUsd: sub.priceUsd,
+    pricePkr: sub.pricePkr,
     active,
     inGrace,
     expiresAt: sub.expiresAt,

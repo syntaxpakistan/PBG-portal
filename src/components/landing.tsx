@@ -343,8 +343,8 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               <p className="eyebrow justify-center">Pricing</p>
               <h2 className="h-section mt-4">Simple plans — <em className="grad-text">free to buy, fair to sell.</em></h2>
               <p className="mt-5 text-[15px] leading-relaxed text-body">
-                Customers always join free. Laboratories and suppliers choose a monthly plan —
-                billed after Syntax verifies your organization. No card needed to sign up.
+                Customers always join free. Laboratories and suppliers choose a 1, 3 or 5 year term —
+                billed once per term in PKR after Syntax verifies your organization. No card needed to sign up.
               </p>
             </div>
           </Reveal>
@@ -363,47 +363,76 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               </div>
             </div>
           </Reveal>
-          <Stagger className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {TIERS.map((t) => (
-              <motion.div
-                key={t.key}
-                variants={fadeUp}
-                className={`card card-hover relative flex flex-col p-7 ${t.popular ? "border-blue ring-1 ring-blue/40" : ""}`}
-              >
-                {t.popular && (
-                  <span className="absolute -top-3 left-6 rounded-full bg-blue px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">
-                    Most popular
-                  </span>
-                )}
-                <t.icon className="size-7 text-blue" />
-                {"duration" in t && t.duration && (
-                  <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-blue">{t.duration}</p>
-                )}
-                <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
-                <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
-                <p className="mt-4">
-                  <span className="font-display text-[32px] font-semibold tracking-tight text-ink">
-                    {t.price === 0 ? "Free" : `$${t.price}`}
-                  </span>
-                  {t.price > 0 && <span className="text-[13px] text-muted"> /mo</span>}
-                </p>
-                <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
-                  {t.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-body">
-                      <CircleCheck className="mt-0.5 size-4 shrink-0 text-(--st-green-fg)" /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/biogateway"
-                  className={`mt-6 inline-flex justify-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-colors ${
-                    t.popular ? "bg-navy text-white hover:bg-navy-2" : "border border-line text-ink hover:border-navy hover:bg-surface"
-                  }`}
-                >
-                  {t.cta}
-                </Link>
-              </motion.div>
-            ))}
+          <Stagger className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,300px)_1fr]">
+            {(() => {
+              const t = TIERS[0];
+              return (
+                <motion.div key={t.key} variants={fadeUp} className="card card-hover relative flex flex-col p-7">
+                  <t.icon className="size-7 text-blue" />
+                  <h3 className="mt-3 text-[17px] font-semibold text-ink">{t.label}</h3>
+                  <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
+                  <p className="mt-4">
+                    <span className="font-display text-[32px] font-semibold tracking-tight text-ink">Free</span>
+                  </p>
+                  <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
+                    {t.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-body">
+                        <CircleCheck className="mt-0.5 size-4 shrink-0 text-(--st-green-fg)" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/biogateway"
+                    className="mt-6 inline-flex justify-center rounded-full border border-line px-5 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:border-navy hover:bg-surface"
+                  >
+                    {t.cta}
+                  </Link>
+                </motion.div>
+              );
+            })()}
+            <motion.div variants={fadeUp} className="card overflow-hidden p-0">
+              <div className="grid divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                {TIERS.slice(1).map((t) => (
+                  <div
+                    key={t.key}
+                    className={`relative flex flex-col p-7 ${t.popular ? "bg-blue/[0.04]" : ""}`}
+                  >
+                    {t.popular && (
+                      <span className="absolute -top-0 left-6 rounded-b-lg bg-blue px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+                        Most popular
+                      </span>
+                    )}
+                    <t.icon className="size-7 text-blue" />
+                    {"duration" in t && t.duration && (
+                      <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-blue">{t.duration}</p>
+                    )}
+                    <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
+                    <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
+                    <p className="mt-4">
+                      <span className="font-display text-[32px] font-semibold tracking-tight text-ink">
+                        PKR {t.price.toLocaleString()}
+                      </span>
+                      <span className="text-[13px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
+                    </p>
+                    <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
+                      {t.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-body">
+                          <CircleCheck className="mt-0.5 size-4 shrink-0 text-(--st-green-fg)" /> {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href="/biogateway"
+                      className={`mt-6 inline-flex justify-center rounded-full px-5 py-2.5 text-[13px] font-semibold transition-colors ${
+                        t.popular ? "bg-navy text-white hover:bg-navy-2" : "border border-line text-ink hover:border-navy hover:bg-surface"
+                      }`}
+                    >
+                      {t.cta}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </Stagger>
           <Reveal className="mt-8">
             <p className="text-center text-[12.5px] text-muted">

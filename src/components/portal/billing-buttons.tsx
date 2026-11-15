@@ -9,6 +9,7 @@ import {
   requestPlanChange, adminRecordPayment, voidInvoice,
   createPayout, setPayoutStatus, issueFeeInvoice,
 } from "@/lib/actions/billing";
+import { planTermLabel, type PlanKey } from "@/lib/plans";
 
 const METHODS = ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH", "OTHER"];
 const input = "w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3";
@@ -105,7 +106,7 @@ export function PlanRequestButtons({ current, plans }: { current: string; plans:
         <button key={p.key} disabled={loading}
           onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — Syntax will confirm.`)}
           className="rounded-full border border-line px-3 py-1 text-[11.5px] font-medium text-ink hover:bg-paper-2 disabled:opacity-50">
-          Request {p.label} (${p.price}/mo)
+          Request {p.label} (PKR {p.price.toLocaleString()} / {planTermLabel(p.key as PlanKey)})
         </button>
       ))}
     </div>
@@ -127,7 +128,7 @@ export function PlanPicker({ current, plans }: { current: string; plans: { key: 
             {p.tagline && <div className="mt-0.5 truncate text-[11.5px] text-muted">{p.tagline}</div>}
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <span className="font-display text-[18px] font-medium text-ink">${p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted">/mo</span></span>
+            <span className="font-display text-[18px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span></span>
             {p.key !== current && (
               <button type="button" disabled={loading}
                 onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — Syntax will confirm.`)}
