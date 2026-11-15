@@ -6,18 +6,26 @@ import { sendEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  // enabled once GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET are set — new accounts
-  // default to CUSTOMER via the role field's defaultValue
+  // Google is sign-in only — all accounts are created through the registration
+  // form (role choice + org details + admin verification). disableSignUp blocks
+  // OAuth account creation; accountLinking attaches Google to the existing user
+  // row by verified email once an admin has approved them (emailVerified=true).
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
     ? {
         socialProviders: {
           google: {
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            disableSignUp: true,
           },
         },
       }
     : {}),
+  account: {
+    accountLinking: {
+      trustedProviders: ["google"],
+    },
+  },
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,

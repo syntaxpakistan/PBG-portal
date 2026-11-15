@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FlaskConical, Package, Users, Loader2, ArrowLeft, Check, BadgeCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { GoogleButton } from "@/components/google-button";
 import { createOrgProfile } from "@/lib/actions/onboarding";
 import { PLANS, ORG_TYPES, type PlanKey } from "@/lib/plans";
 import { toast } from "sonner";
@@ -139,7 +138,6 @@ export default function JoinPage() {
               <p className="mt-6 text-center text-[13px] text-muted">
                 Already registered? <Link href="/login" className="font-semibold text-blue hover:text-ink">Sign in</Link>
               </p>
-              <GoogleButton />
             </>
           )}
 

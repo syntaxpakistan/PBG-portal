@@ -26,6 +26,7 @@ export async function setProviderStatus(id: string, status: VerificationStatus, 
     where: { id },
     data: { status, statusNote: note || null, verifiedAt: status === "APPROVED" ? new Date() : null },
   });
+  await prisma.user.update({ where: { id: p.userId }, data: { emailVerified: status === "APPROVED" } });
   await audit(session.user.id, `PROVIDER_${status}`, "ProviderProfile", id, note);
   await notify({
     toUserId: p.userId,
@@ -48,6 +49,7 @@ export async function setSupplierStatus(id: string, status: VerificationStatus, 
     where: { id },
     data: { status, statusNote: note || null, verifiedAt: status === "APPROVED" ? new Date() : null },
   });
+  await prisma.user.update({ where: { id: p.userId }, data: { emailVerified: status === "APPROVED" } });
   await audit(session.user.id, `SUPPLIER_${status}`, "SupplierProfile", id, note);
   await notify({
     toUserId: p.userId,
@@ -71,6 +73,7 @@ export async function setCustomerStatus(id: string, status: VerificationStatus, 
     data: { status, statusNote: note || null, verifiedAt: status === "APPROVED" ? new Date() : null },
     include: { user: { select: { name: true } } },
   });
+  await prisma.user.update({ where: { id: p.userId }, data: { emailVerified: status === "APPROVED" } });
   await audit(session.user.id, `CUSTOMER_${status}`, "CustomerProfile", id, note);
   const label = p.orgName || p.user.name;
   await notify({
