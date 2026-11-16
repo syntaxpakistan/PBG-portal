@@ -18,6 +18,7 @@ const ALLOWED = [
   "text/html",
   "image/png",
   "image/jpeg",
+  "image/webp",
 ];
 
 // Neon object storage is S3-compatible; when its env vars are present we store

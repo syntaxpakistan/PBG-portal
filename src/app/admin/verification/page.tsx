@@ -47,7 +47,7 @@ export default async function VerificationPage({ searchParams }: { searchParams:
     <>
       <PageHead
         title="Verification queue"
-        sub="Approve, reject or suspend labs, suppliers and client accounts. Approved orgs receive the 'Syntax-verified' badge — explicitly non-governmental."
+        sub="Approve, reject or suspend labs, suppliers and client accounts. Approved orgs receive the 'Gateway-verified' badge — explicitly non-governmental."
       />
 
       {/* entity tabs — underline tab strip */}

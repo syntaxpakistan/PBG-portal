@@ -30,20 +30,35 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
   const { key } = await params;
   const inline = req.nextUrl.searchParams.get("inline") === "1";
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const uid = session.user.id;
-  const isAdmin = session.user.role === "ADMIN";
+  const uid = session?.user.id;
+  const isAdmin = session?.user.role === "ADMIN";
 
   // check which entity owns this key
-  const [resultFile, message, rfq, payment] = await Promise.all([
+  const [resultFile, message, rfq, payment, product, enquiry] = await Promise.all([
     prisma.resultFile.findFirst({ where: { storageKey: key }, include: { project: true } }),
     prisma.message.findFirst({ where: { attachmentKey: key }, include: { project: true } }),
     prisma.rfq.findFirst({ where: { attachmentKey: key } }),
     prisma.payment.findFirst({ where: { receiptKey: key }, include: { invoice: { include: { billedUser: { select: { role: true } } } } } }),
+    prisma.product.findFirst({ where: { OR: [{ imageKey: key }, { datasheetKey: key }] }, include: { supplier: { select: { userId: true } } } }),
+    prisma.enquiry.findFirst({ where: { quoteFileKey: key }, include: { supplier: { select: { userId: true } } } }),
   ]);
 
   let filename: string | null = null;
-  if (resultFile) {
+  if (product) {
+    // marketplace assets — public once the listing is approved; the owning
+    // supplier and admins can always fetch them (incl. pending images)
+    const owner = product.supplier.userId === uid;
+    if (product.moderation !== "APPROVED" && !owner && !isAdmin)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    filename = product.imageKey === key ? `${product.prodNo}` : `${product.prodNo}-datasheet`;
+  } else if (enquiry) {
+    // formal quotation — buyer, supplier and admin only
+    if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!isAdmin && uid !== enquiry.buyerId && uid !== enquiry.supplier.userId)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    filename = `quotation-${enquiry.enquiryNo}`;
+  } else if (resultFile) {
+    if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const p = resultFile.project;
     if (!isAdmin && uid !== p.customerId && uid !== p.providerUserId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -56,7 +71,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     filename = message.attachmentName;
   } else if (rfq) {
-    const isProvider = session.user.role === "PROVIDER";
+    const isProvider = session?.user.role === "PROVIDER";
     if (!isAdmin && !isProvider && uid !== rfq.customerId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     // providers only see attachments on requests they're eligible for — pending

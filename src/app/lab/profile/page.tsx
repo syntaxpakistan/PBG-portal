@@ -24,7 +24,7 @@ export default async function LabProfilePage() {
       <div>
         <PageHead
           title="Facility profile"
-          sub={`This is what Syntax reviews and what appears in the national registry once approved. · ${profile.orgNo}`}
+          sub={`This is what the Gateway team reviews and what appears in the national registry once approved. · ${profile.orgNo}`}
           action={<StatusBadge status={profile.status} />}
         />
         <form action={updateProviderProfile} className="card space-y-5 p-6">
@@ -78,6 +78,24 @@ export default async function LabProfilePage() {
           <div>
             <label className={label}>Bio</label>
             <textarea name="bio" rows={4} defaultValue={profile.bio ?? ""} className={input} />
+          </div>
+          <div className="rounded-xl border border-line bg-paper-2 p-4">
+            <h3 className="text-[13.5px] font-semibold text-ink">Payout bank account</h3>
+            <p className="mb-3 mt-0.5 text-[11.5px] text-muted">Where Syntax settles your earnings — admin sees this when scheduling payouts.</p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label className={label}>Account title</label>
+                <input name="bankTitle" defaultValue={profile.bankTitle ?? ""} className={input} />
+              </div>
+              <div>
+                <label className={label}>Bank name</label>
+                <input name="bankName" defaultValue={profile.bankName ?? ""} className={input} />
+              </div>
+              <div>
+                <label className={label}>IBAN / account no</label>
+                <input name="bankIban" defaultValue={profile.bankIban ?? ""} className={input} />
+              </div>
+            </div>
           </div>
           <SubmitButton className="btn-secondary !py-2.5">Save profile</SubmitButton>
         </form>

@@ -4,8 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
-import { setRfqBoardModeration, setServiceModeration } from "@/lib/actions/admin";
+import { setRfqBoardModeration, setServiceModeration, setProductModeration } from "@/lib/actions/admin";
 import { SubmitButton } from "@/components/portal/submit-button";
+import { ProductImage } from "@/components/marketplace/product-image";
 
 function ModerateForm({ action, approveLabel = "Approve", rejectLabel = "Reject" }: { action: (fd: FormData) => Promise<void>; approveLabel?: string; rejectLabel?: string }) {
   return (
@@ -25,13 +26,17 @@ async function svcDecision(svcId: string, fd: FormData) {
   "use server";
   await setServiceModeration(svcId, String(fd.get("decision")) as "APPROVED" | "REJECTED", String(fd.get("note") || "") || undefined);
 }
+async function productDecision(productId: string, fd: FormData) {
+  "use server";
+  await setProductModeration(productId, String(fd.get("decision")) as "APPROVED" | "REJECTED", String(fd.get("note") || "") || undefined);
+}
 
 const th = "px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted";
 const td = "px-4 py-4 align-top";
 
 export default async function ModerationPage() {
   await requireRole("ADMIN");
-  const [pendingRfqs, pendingServices, decided] = await Promise.all([
+  const [pendingRfqs, pendingServices, pendingProducts, decided] = await Promise.all([
     prisma.rfq.findMany({
       where: { visibility: "BOARD", moderation: "PENDING" },
       include: { customer: { select: { name: true, email: true, customerProfile: { select: { orgName: true, orgType: true, city: true } } } }, _count: { select: { invites: true } } },
@@ -41,6 +46,12 @@ export default async function ModerationPage() {
     prisma.serviceListing.findMany({
       where: { moderation: "PENDING" },
       include: { provider: { select: { orgName: true, city: true, status: true } } },
+      orderBy: { createdAt: "asc" },
+      take: 100,
+    }),
+    prisma.product.findMany({
+      where: { moderation: "PENDING" },
+      include: { supplier: { select: { orgName: true, city: true, status: true } } },
       orderBy: { createdAt: "asc" },
       take: 100,
     }),
@@ -54,7 +65,7 @@ export default async function ModerationPage() {
 
   return (
     <>
-      <PageHead title="Content moderation" sub="Nothing reaches the marketplace without your approval — request-board posts and lab service listings queue here." />
+      <PageHead title="Content moderation" sub="Nothing reaches the marketplace without your approval — request-board posts, lab service listings and supplier products queue here." />
 
       {/* request board queue */}
       <div className="card mb-8 overflow-hidden">
@@ -152,6 +163,60 @@ export default async function ModerationPage() {
                     )}
                   </td>
                   <td className={td}><ModerateForm action={svcDecision.bind(null, s.id)} approveLabel="Approve listing" rejectLabel="Reject" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* supplier product queue */}
+      <div className="card mt-8 overflow-hidden">
+        <div className="border-b border-line px-5 py-3.5">
+          <h2 className="text-[14px] font-semibold text-ink">Supplier products <span className="font-normal text-muted">({pendingProducts.length} pending)</span></h2>
+          <p className="mt-0.5 text-[12px] text-muted">Approved products go live on the supplies marketplace and the supplier&rsquo;s public storefront.</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px] text-[12.5px]">
+            <thead className="border-b border-line bg-paper-2">
+              <tr>
+                <th className={th}>Product</th>
+                <th className={th}>Listed by</th>
+                <th className={th}>Category</th>
+                <th className={th}>Price</th>
+                <th className={th}>Stock</th>
+                <th className={th}>Attachments</th>
+                <th className={th}>Decision</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {pendingProducts.length === 0 && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">No products waiting.</td></tr>}
+              {pendingProducts.map((p) => (
+                <tr key={p.id} className="hover:bg-paper-2/50">
+                  <td className={`${td} min-w-56`}>
+                    <div className="flex items-start gap-3">
+                      {p.imageKey && <ProductImage imageKey={p.imageKey} alt={p.name} className="size-12 shrink-0" imgClass="size-12 object-cover" hideExpand />}
+                      <div className="min-w-0">
+                        <div className="font-medium text-ink">{p.name}</div>
+                        <div className="mt-0.5 font-mono text-[11px] text-muted">{p.prodNo}{p.catalogNo ? ` · SKU #${p.catalogNo}` : ""}</div>
+                        {p.brand && <div className="mt-0.5 text-[11px] text-muted">{p.brand}</div>}
+                        {p.description && <div className="mt-1 line-clamp-2 text-[11px] text-body">{p.description}</div>}
+                      </div>
+                    </div>
+                  </td>
+                  <td className={`${td} min-w-36`}>
+                    <div className="font-medium text-ink">{p.supplier.orgName}</div>
+                    <div className="mt-0.5 text-[11px] text-muted">{p.supplier.city} · {p.supplier.status.toLowerCase()}</div>
+                  </td>
+                  <td className={`${td} whitespace-nowrap text-body`}>{p.category}{p.spec ? ` · ${p.spec}` : ""}</td>
+                  <td className={`${td} whitespace-nowrap text-body`}>{p.price != null ? `${pkr(p.price)}${p.unit ? `/${p.unit}` : ""}` : "—"}</td>
+                  <td className={`${td} whitespace-nowrap text-body`}>{p.stockStatus.replace(/_/g, " ").toLowerCase()}{p.leadTimeDays ? ` · ${p.leadTimeDays}d` : ""}</td>
+                  <td className={`${td} whitespace-nowrap text-[11.5px]`}>
+                    {p.imageKey && <a href={`/api/files/${p.imageKey}?inline=1`} target="_blank" rel="noopener noreferrer" className="block text-blue hover:underline">Photo</a>}
+                    {p.datasheetKey && <a href={`/api/files/${p.datasheetKey}?inline=1`} target="_blank" rel="noopener noreferrer" className="mt-0.5 block text-blue hover:underline">Datasheet</a>}
+                    {!p.imageKey && !p.datasheetKey && <span className="text-muted">—</span>}
+                  </td>
+                  <td className={td}><ModerateForm action={productDecision.bind(null, p.id)} approveLabel="Approve product" rejectLabel="Reject" /></td>
                 </tr>
               ))}
             </tbody>

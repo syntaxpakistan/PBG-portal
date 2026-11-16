@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/session";
 import { PLANS, planTermLabel, type PlanKey } from "@/lib/plans";
 import { issueInvoice } from "@/lib/actions/billing";
 import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
@@ -30,6 +31,10 @@ export async function createOrgProfile(input: {
   address?: string;
   plan?: string;
 }) {
+  const session = await getSession();
+  if (!session || session.user.id !== input.userId || (session.user as { role?: string }).role !== input.role) {
+    throw new Error("Unauthorized");
+  }
   const planKey = (input.plan && input.plan in PLANS ? input.plan : "BASIC") as PlanKey;
   const planPrice = await getPlanPrice(planKey);
   const dueIn = (await getInvoiceDueDays()) * 864e5;

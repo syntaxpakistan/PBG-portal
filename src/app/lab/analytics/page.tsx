@@ -21,7 +21,7 @@ export default async function LabAnalyticsPage() {
         <Lock className="mx-auto size-8 text-muted" />
         <h2 className="mt-4 font-display text-[20px] font-medium text-ink">Analytics is a Pro feature</h2>
         <p className="mt-2 text-[13px] text-body">
-          Quote win-rates, turnaround performance and revenue reporting unlock on the Pro and Custom plans.
+          Quote win-rates, turnaround performance and revenue reporting unlock on the Pro and Elite plans.
         </p>
         <Link href="/lab/billing" className="btn-primary mt-5 inline-flex !py-2.5 text-[13px]">View plans</Link>
       </div>

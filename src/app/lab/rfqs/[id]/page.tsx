@@ -115,13 +115,13 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <SubmitButton className="btn-primary !py-3">{myQuote ? "Update quote" : "Submit sealed quote"}</SubmitButton>
-              {myQuote?.status === "SUBMITTED" && (
-                <form action={withdraw}>
-                  <SubmitButton className="btn-outline !py-3">Withdraw quote</SubmitButton>
-                </form>
-              )}
             </div>
           </form>
+          {myQuote?.status === "SUBMITTED" && (
+            <form action={withdraw} className="mt-3">
+              <SubmitButton className="btn-outline !py-3">Withdraw quote</SubmitButton>
+            </form>
+          )}
         </div>
         <div className="card h-fit p-5">
           <h3 className="text-[14px] font-semibold text-ink">Blind quoting rules</h3>

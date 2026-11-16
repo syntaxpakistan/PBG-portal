@@ -52,3 +52,20 @@ export async function getRfqRateLimit(): Promise<number> {
 export async function getEnquiryRateLimit(): Promise<number> {
   return getNumberSetting("enquiry_rate_limit_per_day", 20);
 }
+
+// ---------- pay-to details shown on every invoice ----------
+
+export async function getPaymentInstructions(): Promise<{
+  accountTitle: string; bankName: string; iban: string; instructions: string;
+}> {
+  const rows = await prisma.platformSetting.findMany({
+    where: { key: { in: ["payment_account_title", "payment_bank_name", "payment_iban", "payment_instructions"] } },
+  });
+  const m = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  return {
+    accountTitle: m.payment_account_title ?? "",
+    bankName: m.payment_bank_name ?? "",
+    iban: m.payment_iban ?? "",
+    instructions: m.payment_instructions ?? "",
+  };
+}

@@ -11,7 +11,7 @@ export default async function AdminSecurityPage() {
 
   return (
     <div className="max-w-2xl">
-      <PageHead title="Security" sub="Multi-factor authentication is required for all Syntax administrator accounts." />
+      <PageHead title="Security" sub="Multi-factor authentication is required for all Gateway administrator accounts." />
       <div className="card p-6">
         <div className="flex items-center gap-3">
           {enabled

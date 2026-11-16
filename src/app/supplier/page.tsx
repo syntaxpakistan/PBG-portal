@@ -1,18 +1,13 @@
 export const instant = false
 
 import { notFound } from "next/navigation";
-import { Clock3 } from "lucide-react";
+import { Clock3, Package, Inbox, Store, ArrowRight, BadgeCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { StatusBadge, PageHead, StatCard } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
-import { respondEnquiry, fulfilEnquiry } from "@/lib/actions/marketplace";
-import { SubscriptionCard } from "@/components/portal/subscription-card";
 import { getPartnerAccess } from "@/lib/entitlements";
 import Link from "next/link";
-import { SupplierProfileForm } from "./profile-form";
-import { ProductForm, ProductRow } from "./product-form";
-import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function SupplierPage() {
   const session = await requireRole("SUPPLIER");
@@ -23,9 +18,10 @@ export default async function SupplierPage() {
       enquiries: {
         include: {
           product: { select: { name: true, price: true, unit: true } },
-          buyer: { select: { name: true, email: true, role: true, customerProfile: { select: { orgName: true, orgType: true } }, providerProfile: { select: { orgName: true } } } },
+          buyer: { select: { name: true, role: true, customerProfile: { select: { orgName: true } }, providerProfile: { select: { orgName: true } } } },
         },
         orderBy: { createdAt: "desc" },
+        take: 5,
       },
       user: { select: { subscription: true } },
     },
@@ -37,6 +33,16 @@ export default async function SupplierPage() {
   const quotedEnq = profile.enquiries.filter((e) => e.status === "QUOTED").length;
   const fulfilledEnq = profile.enquiries.filter((e) => e.status === "FULFILLED").length;
   const lowStock = profile.products.filter((p) => p.stockStatus === "LOW_STOCK" || p.stockStatus === "OUT_OF_STOCK").length;
+  const liveProducts = profile.products.filter((p) => p.moderation === "APPROVED" && p.active).length;
+  const inReview = profile.products.filter((p) => p.moderation === "PENDING").length;
+
+  const steps = [
+    { done: approved, label: "Organization verified by the Gateway team", href: "/supplier/profile" },
+    { done: access.active, label: "Subscription active (paid via invoice)", href: "/supplier/billing" },
+    { done: profile.products.length > 0, label: "List your first product", href: "/supplier/products" },
+    { done: liveProducts > 0, label: "Product live on the marketplace", href: "/supplier/products" },
+  ];
+  const allDone = steps.every((s) => s.done);
 
   return (
     <>
@@ -56,92 +62,86 @@ export default async function SupplierPage() {
         </div>
       )}
       <div className="mb-8 grid gap-4 sm:grid-cols-5">
-        <StatCard label="Products listed" value={profile.products.length} sub={lowStock ? `${lowStock} low/out of stock` : undefined} />
+        <StatCard label="Products listed" value={profile.products.length} sub={lowStock ? `${lowStock} low/out of stock` : inReview ? `${inReview} in review` : undefined} />
         <StatCard label="New enquiries" value={openEnq} />
         <StatCard label="Offers sent" value={quotedEnq} />
         <StatCard label="Fulfilled" value={fulfilledEnq} />
         <StatCard label="Conversion" value={profile.enquiries.length ? `${Math.round((fulfilledEnq / profile.enquiries.length) * 100)}%` : "—"} />
       </div>
 
-      <div className="mb-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="card p-5">
-          <h3 className="mb-4 text-[14px] font-semibold text-ink">Company profile</h3>
-          <SupplierProfileForm profile={profile} />
+      {!allDone && (
+        <div className="card mb-6 p-5">
+          <h3 className="mb-3 text-[14px] font-semibold text-ink">Getting your storefront live</h3>
+          <div className="space-y-2">
+            {steps.map((s) => (
+              <Link key={s.label} href={s.href} className="group flex items-center gap-2.5 text-[13px]">
+                {s.done
+                  ? <BadgeCheck className="size-4 shrink-0 text-(--st-green-fg)" />
+                  : <span className="grid size-4 shrink-0 place-items-center rounded-full border border-line text-[9px] font-bold text-muted">{steps.indexOf(s) + 1}</span>}
+                <span className={s.done ? "text-muted line-through" : "font-medium text-ink group-hover:text-blue"}>{s.label}</span>
+                {!s.done && <ArrowRight className="size-3.5 text-muted transition-transform group-hover:translate-x-0.5" />}
+              </Link>
+            ))}
+          </div>
         </div>
-        <SubscriptionCard sub={profile.user.subscription} />
-      </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card p-5">
-          <h3 className="mb-4 text-[14px] font-semibold text-ink">List a product</h3>
-          {approved ? <ProductForm /> : <p className="text-[12.5px] text-muted">Available after verification.</p>}
-        </div>
         <div className="card overflow-hidden">
-          <div className="border-b border-line px-5 py-3.5"><h3 className="text-[14px] font-semibold text-ink">Your catalog</h3></div>
+          <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+            <h3 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><Package className="size-4 text-blue" /> Recent products</h3>
+            <Link href="/supplier/products" className="text-[12px] font-semibold text-blue hover:text-ink">Manage catalog →</Link>
+          </div>
           <div className="divide-y divide-line">
-            {profile.products.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No products yet.</p>}
-            {profile.products.map((p) => (
-              <ProductRow key={p.id} product={p}
-                stockBadge={<StatusBadge status={p.stockStatus} />}
-                priceLabel={p.price != null ? <span className="text-[12.5px] font-medium text-ink">{pkr(p.price)}{p.unit ? `/${p.unit}` : ""}</span> : null}
-              />
+            {profile.products.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No products yet — list your first one.</p>}
+            {profile.products.slice(0, 4).map((p) => (
+              <div key={p.id} className="flex items-center justify-between px-5 py-3">
+                <div>
+                  <div className="text-[13px] font-medium text-ink">{p.name}</div>
+                  <div className="font-mono text-[11px] text-muted">{p.prodNo} · {p.category}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.moderation === "APPROVED" ? "bg-(--st-green-bg) text-(--st-green-fg)" : p.moderation === "REJECTED" ? "bg-(--st-red-bg) text-(--st-red-fg)" : "bg-(--st-amber-bg) text-(--st-amber-fg)"}`}>
+                    {p.moderation === "APPROVED" ? (p.active ? "Live" : "Hidden") : p.moderation === "REJECTED" ? "Rejected" : "In review"}
+                  </span>
+                  {p.price != null && <span className="text-[12.5px] font-medium text-ink">{pkr(p.price)}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card overflow-hidden">
+          <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+            <h3 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><Inbox className="size-4 text-blue" /> Latest enquiries</h3>
+            <Link href="/supplier/enquiries" className="text-[12px] font-semibold text-blue hover:text-ink">All enquiries →</Link>
+          </div>
+          <div className="divide-y divide-line">
+            {profile.enquiries.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">Customer order requests appear here.</p>}
+            {profile.enquiries.map((e) => (
+              <Link key={e.id} href="/supplier/enquiries" className="flex items-center justify-between px-5 py-3 hover:bg-paper-2/60">
+                <div>
+                  <div className="text-[13px] font-medium text-ink"><span className="font-mono text-[11px] font-semibold text-muted">{e.enquiryNo}</span> · {e.product.name} × {e.qty}</div>
+                  <div className="text-[11.5px] text-muted">{(e.buyer.customerProfile?.orgName ?? e.buyer.providerProfile?.orgName ?? e.buyer.name)} · {e.createdAt.toLocaleDateString()}</div>
+                </div>
+                <StatusBadge status={e.status} />
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      <h3 className="mb-3 mt-8 text-[15px] font-semibold text-ink">Enquiries</h3>
-      <div className="card divide-y divide-line">
-        {profile.enquiries.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">Customer order requests appear here.</p>}
-        {profile.enquiries.map((e) => {
-          const buyerOrg = e.buyer.customerProfile?.orgName ?? e.buyer.providerProfile?.orgName;
-          return (
-          <div key={e.id} className="px-5 py-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-[13.5px] font-medium text-ink"><span className="font-mono text-[11.5px] font-semibold text-muted">{e.enquiryNo}</span> · {e.product.name} × {e.qty}</div>
-                <div className="mt-0.5 text-[12px] text-muted">
-                  {e.buyer.name}{buyerOrg ? ` · ${buyerOrg}` : ""} · {e.buyer.role === "PROVIDER" ? "laboratory" : "customer"} · {e.buyer.email} · received {e.createdAt.toLocaleDateString()}
-                </div>
-                {e.product.price != null && <div className="mt-0.5 text-[11px] text-muted">List price: {pkr(e.product.price)}{e.product.unit ? `/${e.product.unit}` : ""}</div>}
-                {e.message && <p className="mt-1.5 text-[12.5px] text-body">&ldquo;{e.message}&rdquo;</p>}
-              </div>
-              <StatusBadge status={e.status} />
-            </div>
-            {e.status === "QUOTED" && (
-              <div className="mt-2.5 rounded-lg bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
-                Your offer: {e.quotedPrice != null ? pkr(e.quotedPrice) : "price on request"}
-                {e.leadTimeDays != null && ` · ${e.leadTimeDays}d lead`}
-                {e.reply && <span className="mt-1 block">{e.reply}</span>}
-              </div>
-            )}
-            {e.status === "INVOICED" && (
-              <div className="mt-2.5 rounded-lg bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
-                Order accepted — invoice raised. Payment clears through Syntax escrow; you&apos;ll be notified when verified.
-              </div>
-            )}
-            {e.status === "PAID" && (
-              <div className="mt-2.5 flex items-center justify-between gap-3 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                <span>Payment verified by Syntax — ship the order and mark it fulfilled.</span>
-                <form action={fulfilEnquiry.bind(null, e.id)}>
-                  <SubmitButton className="rounded-md bg-(--st-green-fg) px-3 py-1.5 text-[11.5px] font-semibold text-white hover:opacity-90">Mark fulfilled</SubmitButton>
-                </form>
-              </div>
-            )}
-            {(e.status === "OPEN" || e.status === "QUOTED") && (
-              <form action={respondEnquiry.bind(null, e.id)} className="mt-3 flex flex-wrap items-end gap-2 rounded-lg bg-paper-2 p-3">
-                <input name="quotedPrice" type="number" min={0} placeholder="Price PKR" defaultValue={e.quotedPrice ?? ""} className="w-28 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
-                <input name="leadTimeDays" type="number" min={0} placeholder="Lead days" defaultValue={e.leadTimeDays ?? ""} className="w-24 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
-                <input name="reply" placeholder="Message to buyer" defaultValue={e.reply ?? ""} className="min-w-40 flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
-                <SubmitButton className="btn-primary !py-2 text-[12px]">{e.status === "OPEN" ? "Send offer" : "Update offer"}</SubmitButton>
-                {e.status === "QUOTED" && (
-                  <SubmitButton formAction={fulfilEnquiry.bind(null, e.id)} className="btn-outline !py-2 text-[12px]">Mark fulfilled</SubmitButton>
-                )}
-              </form>
-            )}
+      <div className="mt-6 card flex items-center justify-between p-5">
+        <div className="flex items-center gap-3">
+          <Store className="size-5 text-blue" />
+          <div>
+            <p className="text-[13.5px] font-semibold text-ink">Your public storefront</p>
+            <p className="text-[12px] text-muted">See how buyers find your catalogue on the marketplace.</p>
           </div>
-          );
-        })}
+        </div>
+        {approved
+          ? <a href={`/suppliers/${profile.id}`} target="_blank" rel="noopener noreferrer" className="btn-outline !py-2 text-[12.5px]">Open storefront →</a>
+          : <span className="text-[12px] text-muted">Live after verification</span>}
       </div>
     </>
   );

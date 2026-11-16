@@ -50,7 +50,7 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
   const customerMsgs = parties.customerUserId ? serialize("CUSTOMER") : [];
   const providerMsgs = parties.providerUserId ? serialize("PROVIDER") : [];
   const customerName = complaint.project?.customer.name ?? complaint.filedBy.name;
-  const providerName = complaint.project?.provider.orgName ?? (complaint.filedBy.role === "PROVIDER" ? complaint.filedBy.name : null);
+  const providerName = complaint.project?.provider.orgName ?? (["PROVIDER", "SUPPLIER"].includes(complaint.filedBy.role ?? "") ? complaint.filedBy.name : null);
 
   return (
     <>

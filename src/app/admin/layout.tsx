@@ -47,5 +47,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     verify, moderation: modRfqs + modListings, finance: payments, leads, complaints,
   };
   const badgedItems = items.map((it) => ("key" in it ? { ...it, badge: badges[it.key as string] } : it));
-  return <PortalShell title="Syntax admin" items={badgedItems}>{children}</PortalShell>;
+  return <PortalShell title="Gateway admin" items={badgedItems}>{children}</PortalShell>;
 }

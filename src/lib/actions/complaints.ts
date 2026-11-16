@@ -63,11 +63,16 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
   });
 
   if (role === "ADMIN" && counterpartyUserId) {
+    const counterparty = await prisma.user.findUnique({ where: { id: counterpartyUserId }, select: { role: true } });
+    const base =
+      counterparty?.role === "SUPPLIER" ? "/supplier/complaints"
+      : channel === "PROVIDER" ? "/lab/complaints"
+      : "/dashboard/complaints";
     await notify({
       toUserId: counterpartyUserId,
       subject: `Support replied on complaint: ${complaint.subject}`,
       body: `New message on your complaint${complaint.project ? ` (${complaint.project.refNo})` : ""}: "${text.slice(0, 140)}${text.length > 140 ? "…" : ""}"`,
-      href: channel === "PROVIDER" ? `/lab/complaints/${complaintId}` : `/dashboard/complaints/${complaintId}`,
+      href: `${base}/${complaintId}`,
     });
   } else if (role !== "ADMIN") {
     await notifyAllAdmins(
@@ -80,4 +85,5 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
   revalidatePath(`/admin/complaints/${complaintId}`);
   revalidatePath(`/dashboard/complaints/${complaintId}`);
   revalidatePath(`/lab/complaints/${complaintId}`);
+  revalidatePath(`/supplier/complaints/${complaintId}`);
 }

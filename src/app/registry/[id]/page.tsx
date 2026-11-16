@@ -49,7 +49,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
               </div>
             </div>
             <span className="flex items-center gap-1.5 rounded-full border border-(--st-green-bd)/40 bg-(--st-green-bg)/10 px-3 py-1.5 text-[11.5px] font-semibold text-[#a9e5cb]">
-              <BadgeCheck className="size-4" /> Syntax-verified*
+              <BadgeCheck className="size-4" /> Gateway-verified*
             </span>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
           </div>
         </div>
         <p className="mt-8 text-[11.5px] text-muted">
-          *Verification is a platform-level review by Syntax of Life — not a government accreditation or license.
+          *Verification is a platform-level review by the Gateway team — not a government accreditation or license.
         </p>
       </section>
       <Footer />

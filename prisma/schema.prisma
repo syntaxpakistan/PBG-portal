@@ -38,6 +38,7 @@ model User {
   providerProfile  ProviderProfile?
   supplierProfile  SupplierProfile?
   customerProfile  CustomerProfile?
+  enquiryMessages  EnquiryMessage[]
   subscription     Subscription?
   rfqs             Rfq[]
   customerProjects Project[]        @relation("CustomerProjects")
@@ -139,6 +140,10 @@ model ProviderProfile {
   status            VerificationStatus @default(PENDING)
   statusNote        String?
   verifiedAt        DateTime?
+  // payout destination — Syntax settles partner earnings here
+  bankTitle         String?
+  bankName          String?
+  bankIban          String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -192,6 +197,10 @@ model SupplierProfile {
   status          VerificationStatus @default(PENDING)
   statusNote      String?
   verifiedAt      DateTime?
+  // payout destination — Syntax settles supplier earnings here
+  bankTitle       String?
+  bankName        String?
+  bankIban        String?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
@@ -209,11 +218,17 @@ model Product {
   name         String
   category     String
   spec         String?
+  description  String?
+  brand        String? // manufacturer / brand shown on the listing
   catalogNo    String? // supplier SKU / catalog number
   price        Float?
   unit         String?
   stockStatus  String          @default("IN_STOCK") // IN_STOCK LOW_STOCK BACKORDER OUT_OF_STOCK
   leadTimeDays Int?
+  imageKey     String? // uploaded product photo (public on approved listings)
+  datasheetKey String? // spec sheet / brochure PDF (public on approved listings)
+  moderation   String          @default("PENDING") // PENDING APPROVED REJECTED
+  moderationNote String?
   active       Boolean         @default(true)
   createdAt    DateTime        @default(now())
 
@@ -245,14 +260,31 @@ model Enquiry {
   quotedPrice  Float?
   leadTimeDays Int?
   reply        String?
+  quoteFileKey String? // supplier's formal quotation PDF/image
+  declineReason String?
+  courier      String?
+  trackingNo   String?
   status       EnquiryStatus   @default(OPEN)
   createdAt    DateTime        @default(now())
 
   invoice     Invoice?
   transaction Transaction?
+  messages    EnquiryMessage[]
 
   @@index([supplierId, status])
   @@index([buyerId])
+}
+
+model EnquiryMessage {
+  id        String   @id @default(cuid())
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  enquiryId String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([enquiryId, createdAt])
 }
 
 // ---------- RFQ / quoting ----------

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
 import { PLANS, planTermLabel } from "@/lib/plans";
@@ -86,7 +87,7 @@ export async function BillingView({
             {access.inGrace && <span className="ml-1 font-medium text-(--st-amber-fg)">— grace period</span>}
           </p>
           <PlanPicker current={access.plan} plans={planOptions} />
-          <p className="mt-2 text-[11.5px] text-muted">Plan changes are reviewed by Syntax and applied from the next term.</p>
+          <p className="mt-2 text-[11.5px] text-muted">Plan changes are reviewed by the Gateway team and applied from the next term.</p>
         </div>
       )}
 
@@ -109,7 +110,7 @@ export async function BillingView({
             {pendingForMe.map(({ payment: p, canConfirm }) => (
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
                 <div className="text-[13px]">
-                  <span className="font-medium text-ink">{p.invoice.number}</span>
+                  <Link href={`/invoices/${p.invoice.id}`} className="font-medium text-blue hover:underline">{p.invoice.number}</Link>
                   <span className="ml-2 font-mono text-[11.5px] font-semibold text-muted">{p.paymentNo}</span>
                   <span className="ml-2 text-body">{p.invoice.billedOrg} · {money(p.amount)}</span>
                   <span className="ml-2 text-[11.5px] text-muted">{METHOD_LABELS[p.method] ?? p.method}{p.reference ? ` · ref ${p.reference}` : ""}</span>
@@ -138,7 +139,7 @@ export async function BillingView({
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[12.5px] font-semibold text-ink">{inv.number}</span>
+                    <Link href={`/invoices/${inv.id}`} className="font-mono text-[12.5px] font-semibold text-blue hover:underline">{inv.number}</Link>
                     <StatusBadge status={inv.status} />
                   </div>
                   <div className="mt-1 text-[12px] text-muted">
@@ -179,7 +180,7 @@ export async function BillingView({
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[12.5px] font-semibold text-ink">{inv.number}</span>
+                      <Link href={`/invoices/${inv.id}`} className="font-mono text-[12.5px] font-semibold text-blue hover:underline">{inv.number}</Link>
                       <StatusBadge status={inv.status} />
                     </div>
                     <div className="mt-1 text-[12px] text-muted">

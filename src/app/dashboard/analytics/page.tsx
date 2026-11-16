@@ -18,7 +18,7 @@ export default async function CustomerAnalyticsPage() {
         <Lock className="mx-auto size-8 text-muted" />
         <h2 className="mt-4 font-display text-[20px] font-medium text-ink">Analytics is a Pro feature</h2>
         <p className="mt-2 text-[13px] text-body">
-          Spend reporting, quote comparison and project turnaround stats unlock on the Pro and Custom plans.
+          Spend reporting, quote comparison and project turnaround stats unlock on the Pro and Elite plans.
         </p>
         <Link href="/dashboard/billing" className="btn-primary mt-5 inline-flex !py-2.5 text-[13px]">View plans</Link>
       </div>

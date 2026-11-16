@@ -28,7 +28,7 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
 
   return (
     <>
-      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Syntax support about this issue." />
+      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Gateway support about this issue." />
 
       <div className="card mb-6 p-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -42,14 +42,14 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
         <p className="mt-2 max-w-3xl text-[13.5px] leading-relaxed text-body">{complaint.details}</p>
         <p className="mt-2 text-[12px] text-muted">Filed {complaint.createdAt.toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}</p>
         {complaint.resolution && (
-          <p className="mt-3 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12.5px] text-(--st-green-fg)">Syntax resolution: {complaint.resolution}</p>
+          <p className="mt-3 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12.5px] text-(--st-green-fg)">Gateway resolution: {complaint.resolution}</p>
         )}
       </div>
 
       <ComplaintThread
         complaintId={complaint.id}
         channel="CUSTOMER"
-        title="You ↔ Syntax support"
+        title="You ↔ Gateway support"
         subtitle={complaint.project ? `Complaint on ${complaint.project.refNo}` : "General complaint"}
         messages={complaint.messages.map((m) => ({
           id: m.id,

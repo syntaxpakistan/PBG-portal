@@ -66,7 +66,7 @@ export default function LoginPage() {
             </h1>
             <p className="mt-5 max-w-sm text-[14.5px] leading-relaxed text-[#c5d2e1]">
               Customers submit RFQs. Verified labs quote blind and deliver results.
-              Suppliers list products. Syntax governs it all.
+              Suppliers list products. the Gateway team governs it all.
             </p>
           </div>
           <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>

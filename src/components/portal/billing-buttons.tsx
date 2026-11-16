@@ -98,21 +98,6 @@ export function AttachReceiptForm({ paymentId }: { paymentId: string }) {
   );
 }
 
-export function PlanRequestButtons({ current, plans }: { current: string; plans: { key: string; label: string; price: number }[] }) {
-  const { loading, act } = useAct();
-  return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {plans.filter((p) => p.key !== current).map((p) => (
-        <button key={p.key} disabled={loading}
-          onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — Syntax will confirm.`)}
-          className="rounded-full border border-line px-3 py-1 text-[11.5px] font-medium text-ink hover:bg-paper-2 disabled:opacity-50">
-          Request {p.label} (PKR {p.price.toLocaleString()} / {planTermLabel(p.key as PlanKey)})
-        </button>
-      ))}
-    </div>
-  );
-}
-
 // plan list with price pinned right — used on billing pages in every portal
 export function PlanPicker({ current, plans }: { current: string; plans: { key: string; label: string; price: number; tagline?: string }[] }) {
   const { loading, act } = useAct();
@@ -131,7 +116,7 @@ export function PlanPicker({ current, plans }: { current: string; plans: { key: 
             <span className="font-display text-[18px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span></span>
             {p.key !== current && (
               <button type="button" disabled={loading}
-                onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — Syntax will confirm.`)}
+                onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — the Gateway team will confirm.`)}
                 className="rounded-full border border-line px-3 py-1 text-[11.5px] font-medium text-ink hover:bg-paper-2 disabled:opacity-50">
                 {loading ? <Loader2 className="size-3 animate-spin" /> : "Request"}
               </button>
@@ -187,21 +172,30 @@ export function IssueFeeButton({ transactionId }: { transactionId: string }) {
   );
 }
 
-export function PayoutForm({ payees }: { payees: { type: string; id: string; org: string }[] }) {
+export function PayoutForm({ payees }: { payees: { type: string; id: string; org: string; bankTitle?: string | null; bankName?: string | null; bankIban?: string | null }[] }) {
   const { loading, act } = useAct();
   const [type, setType] = useState("PROVIDER");
+  const [payeeId, setPayeeId] = useState("");
   const filtered = payees.filter((p) => p.type === type);
+  const payee = filtered.find((p) => p.id === payeeId);
   return (
     <form action={async (fd) => { await act(async () => { await createPayout(fd); }, "Payout scheduled."); }}
       className="grid gap-2 rounded-lg bg-paper-2 p-3 sm:grid-cols-3">
-      <select name="payeeType" value={type} onChange={(e) => setType(e.target.value)} className={input}>
+      <select name="payeeType" value={type} onChange={(e) => { setType(e.target.value); setPayeeId(""); }} className={input}>
         <option value="PROVIDER">Provider / Lab</option>
         <option value="SUPPLIER">Supplier</option>
       </select>
-      <select name="payeeId" required className={input}>
+      <select name="payeeId" required value={payeeId} onChange={(e) => setPayeeId(e.target.value)} className={input}>
         <option value="">Select payee…</option>
         {filtered.map((p) => <option key={p.id} value={p.id}>{p.org}</option>)}
       </select>
+      {payee && (
+        <div className="self-center text-[11.5px] text-muted sm:col-span-1">
+          {payee.bankTitle || payee.bankName || payee.bankIban
+            ? <>Pay to: <span className="font-medium text-ink">{[payee.bankTitle, payee.bankName, payee.bankIban].filter(Boolean).join(" · ")}</span></>
+            : "No bank details on file — ask the partner to complete their profile."}
+        </div>
+      )}
       <input name="periodStart" type="date" required className={input} />
       <input name="periodEnd" type="date" required className={input} />
       <input name="grossAmount" type="number" step="0.01" min="0" required placeholder="Gross PKR" className={input} />

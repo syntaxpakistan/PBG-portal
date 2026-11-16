@@ -37,7 +37,7 @@ export async function setProviderStatus(id: string, status: VerificationStatus, 
       `Account ${status.toLowerCase()} — ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Syntax verified ${p.orgName} — your lab account number is ${p.orgNo}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
+        ? `Gateway verified ${p.orgName} — your lab account number is ${p.orgNo}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
         : `Your laboratory verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: status === "APPROVED" ? "/lab" : "/lab/profile",
   });
@@ -60,7 +60,7 @@ export async function setSupplierStatus(id: string, status: VerificationStatus, 
       `Account ${status.toLowerCase()} — ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Syntax verified ${p.orgName} — your supplier account number is ${p.orgNo}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
+        ? `Gateway verified ${p.orgName} — your supplier account number is ${p.orgNo}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
         : `Your supplier verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/supplier",
   });
@@ -85,7 +85,7 @@ export async function setCustomerStatus(id: string, status: VerificationStatus, 
       `Account ${status.toLowerCase()} — ${label}`,
     body:
       status === "APPROVED"
-        ? `Syntax approved your registration — your client account number is ${p.orgNo}. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
+        ? `the Gateway team approved your registration — your client account number is ${p.orgNo}. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
         : `Your client registration status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/dashboard",
   });
@@ -102,12 +102,16 @@ export async function setComplaintStatus(id: string, status: ComplaintStatus, re
   await audit(session.user.id, `COMPLAINT_${status}`, "Complaint", id, resolution);
   // tell both parties — the filer and the counterparty — that the case moved
   const notifyIds = new Set([complaint.filedById, complaint.project?.customerId, complaint.project?.providerUserId].filter((x): x is string => !!x && x !== session.user.id));
+  const roles = new Map(
+    (await prisma.user.findMany({ where: { id: { in: [...notifyIds] } }, select: { id: true, role: true } })).map((u) => [u.id, u.role])
+  );
   for (const uid of notifyIds) {
+    const r = roles.get(uid);
     await notify({
       toUserId: uid,
       subject: `Complaint ${status === "RESOLVED" ? "resolved" : status === "DISMISSED" ? "closed" : "under review"}: ${complaint.subject}`,
       body: resolution ? `Resolution: ${resolution}` : `Your complaint is now ${status.toLowerCase().replace("_", " ")}.`,
-      href: `/dashboard/complaints/${id}`,
+      href: r === "PROVIDER" ? `/lab/complaints/${id}` : r === "ADMIN" ? `/admin/complaints/${id}` : `/dashboard/complaints/${id}`,
     });
   }
   revalidatePath("/admin/complaints");
@@ -125,23 +129,14 @@ export async function setEnquiryStatus(id: string, status: "OPEN" | "ANSWERED" |
   const session = await getSession();
   const role = (session?.user as { role?: string } | undefined)?.role;
   if (!session || !["ADMIN", "SUPPLIER"].includes(role ?? "")) throw new Error("Forbidden");
+  if (role === "SUPPLIER") {
+    const enquiry = await prisma.enquiry.findUnique({ where: { id }, select: { supplier: { select: { userId: true } } } });
+    if (enquiry?.supplier.userId !== session.user.id) throw new Error("Forbidden");
+  }
   await prisma.enquiry.update({ where: { id }, data: { status } });
   await audit(session.user.id, `ENQUIRY_${status}`, "Enquiry", id);
   revalidatePath("/admin/marketplace");
   revalidatePath("/admin");
-}
-
-export async function setPlatformFee(formData: FormData) {
-  const session = await requireAdmin();
-  const fee = Number(formData.get("fee"));
-  if (isNaN(fee) || fee < 0 || fee > 30) throw new Error("Fee must be 0–30%");
-  await prisma.platformSetting.upsert({
-    where: { key: "platform_fee_percent" },
-    update: { value: String(fee) },
-    create: { key: "platform_fee_percent", value: String(fee) },
-  });
-  await audit(session.user.id, "FEE_UPDATED", "PlatformSetting", "platform_fee_percent", `${fee}%`);
-  revalidatePath("/admin/settings");
 }
 
 // editable platform settings — whitelist keeps arbitrary keys out of the table
@@ -149,7 +144,7 @@ const EDITABLE_SETTINGS: Record<string, { label: string; min: number; max: numbe
   platform_fee_percent: { label: "Platform fee", min: 0, max: 30, suffix: "%" },
   plan_price_basic: { label: "Basic plan price", min: 0, max: 10000000, suffix: "PKR" },
   plan_price_pro: { label: "Pro plan price", min: 0, max: 10000000, suffix: "PKR" },
-  plan_price_custom: { label: "Custom plan price", min: 0, max: 10000000, suffix: "PKR" },
+  plan_price_custom: { label: "Elite plan price", min: 0, max: 10000000, suffix: "PKR" },
   grace_days: { label: "Grace period", min: 0, max: 60, suffix: "days" },
   invoice_due_days: { label: "Invoice due window", min: 1, max: 90, suffix: "days" },
   rfq_rate_limit_per_day: { label: "RFQ rate limit", min: 1, max: 100, suffix: "per day" },
@@ -170,6 +165,29 @@ export async function setPlatformSetting(key: string, value: string) {
     create: { key, value: String(num) },
   });
   await audit(session.user.id, "SETTING_UPDATED", "PlatformSetting", key, `${num}${def.suffix ? ` ${def.suffix}` : ""}`);
+  revalidatePath("/admin/settings");
+}
+
+// free-text settings — payment instructions shown on every invoice
+const EDITABLE_TEXT_SETTINGS: Record<string, { label: string; maxLen: number }> = {
+  payment_account_title: { label: "Account title", maxLen: 120 },
+  payment_bank_name: { label: "Bank name", maxLen: 120 },
+  payment_iban: { label: "IBAN / account no", maxLen: 60 },
+  payment_instructions: { label: "Payment instructions", maxLen: 600 },
+};
+
+export async function setPlatformTextSetting(key: string, value: string) {
+  const session = await requireAdmin();
+  const def = EDITABLE_TEXT_SETTINGS[key];
+  if (!def) throw new Error("Unknown setting");
+  const v = String(value ?? "").trim();
+  if (v.length > def.maxLen) throw new Error(`${def.label} must be under ${def.maxLen} characters`);
+  await prisma.platformSetting.upsert({
+    where: { key },
+    update: { value: v },
+    create: { key, value: v },
+  });
+  await audit(session.user.id, "SETTING_UPDATED", "PlatformSetting", key, v ? `${def.label} set` : `${def.label} cleared`);
   revalidatePath("/admin/settings");
 }
 
@@ -220,6 +238,26 @@ export async function setServiceModeration(id: string, decision: "APPROVED" | "R
   });
   revalidatePath("/admin/moderation");
   revalidatePath("/lab/services");
+  revalidatePath("/marketplace");
+}
+
+export async function setProductModeration(id: string, decision: "APPROVED" | "REJECTED", note?: string) {
+  const session = await requireAdmin();
+  const product = await prisma.product.findUniqueOrThrow({ where: { id }, include: { supplier: true } });
+  await prisma.product.update({ where: { id }, data: { moderation: decision, moderationNote: note || null } });
+  await audit(session.user.id, `PRODUCT_${decision}`, "Product", id, `${product.name}${note ? ` · ${note}` : ""}`);
+  await notify({
+    toUserId: product.supplier.userId,
+    subject: decision === "APPROVED" ? `Product live: ${product.name}` : `Product not approved: ${product.name}`,
+    body:
+      decision === "APPROVED"
+        ? `"${product.name}" is now visible on the supplies marketplace and your public storefront.`
+        : `"${product.name}" was not approved for the marketplace.${note ? ` Reason: ${note}.` : ""} Edit it and resubmit for review.`,
+    href: "/supplier",
+  });
+  revalidatePath("/admin/moderation");
+  revalidatePath("/supplier");
+  revalidatePath("/supplier/products");
   revalidatePath("/marketplace");
 }
 

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { FlaskConical, Package, Users, Loader2, ArrowLeft, Check, BadgeCheck } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { createOrgProfile } from "@/lib/actions/onboarding";
-import { PLANS, planTermLabel, ORG_TYPES, type PlanKey } from "@/lib/plans";
+import { PLANS, SUPPLIER_FEATURES, planTermLabel, ORG_TYPES, type PlanKey } from "@/lib/plans";
 import { toast } from "sonner";
 
 const ROLES = [
@@ -71,9 +71,9 @@ export default function JoinPage() {
     }
     setLoading(false);
     if (needsOrg) {
-      toast.success(`Account created on the ${PLANS[plan!].label} plan — Syntax will contact you about payment & verification.`);
+      toast.success(`Account created on the ${PLANS[plan!].label} plan — the Gateway team will contact you about payment & verification.`);
     } else {
-      toast.success("Account created — your portal unlocks once Syntax approves your registration.");
+      toast.success("Account created — your portal unlocks once the Gateway team approves your registration.");
     }
     router.push(ROLE_DEST[role] ?? "/dashboard");
     router.refresh();
@@ -102,19 +102,19 @@ export default function JoinPage() {
             </h1>
             <p className="mt-5 max-w-sm text-[14.5px] leading-relaxed text-[#c5d2e1]">
               The verified network — your full profile is created at signup; labs and
-              suppliers choose a plan, then Syntax verifies the organization before it goes live.
+              suppliers choose a plan, then the Gateway team verifies the organization before it goes live.
             </p>
             <div className="mt-6 space-y-2 text-[13px] text-[#9fb9cd]">
               <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Basic — PKR 50,000 / 1 yr · standard listing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro — PKR 148,000 / 3 yrs · priority routing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Custom — PKR 246,000 / 5 yrs · dedicated manager</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro — PKR 144,000 / 3 yrs · priority routing</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Elite — PKR 240,000 / 5 yrs · dedicated manager</div>
             </div>
           </div>
           <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
         </div>
         <div className="absolute bottom-10 right-10 flex items-center gap-3">
-          <span className="text-[13px] font-medium uppercase tracking-[0.16em] text-white/50">Powered by</span>
-          <Image src="/brand/syntax-logo-dark.webp" alt="Syntax of Life" width={820} height={269} className="h-16 w-auto" />
+          <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-white/50">Project by</span>
+          <Image src="/brand/syntax-logo-dark.webp" alt="Syntax of Life" width={820} height={269} className="h-7 w-auto" />
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function JoinPage() {
                 <ArrowLeft className="size-3.5" /> Back to roles
               </button>
               <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Choose your plan</h2>
-              <p className="mt-2 text-[13.5px] text-body">Billed once per term after Syntax approves your organization — invoiced offline, no card needed now.</p>
+              <p className="mt-2 text-[13.5px] text-body">Billed once per term after the Gateway team approves your organization — invoiced offline, no card needed now.</p>
               <div className="mt-7 space-y-3">
                 {(Object.keys(PLANS) as PlanKey[]).map((k) => {
                   const p = PLANS[k];
@@ -159,7 +159,7 @@ export default function JoinPage() {
                       </div>
                       <p className="mt-0.5 text-[12px] text-muted">{p.tagline}</p>
                       <ul className="mt-3 space-y-1.5">
-                        {p.features.map((ft) => (
+                        {(role === "SUPPLIER" ? SUPPLIER_FEATURES[k] : p.features).map((ft) => (
                           <li key={ft} className="flex items-center gap-2 text-[12.5px] text-body"><Check className="size-3.5 shrink-0 text-green" />{ft}</li>
                         ))}
                       </ul>
@@ -181,11 +181,11 @@ export default function JoinPage() {
               </h2>
               {needsOrg ? (
                 <p className="mt-2 rounded-lg border border-(--st-amber-bd) bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
-                  Your profile is created now and goes live after payment + Syntax verification — usually within 2 business days.
+                  Your profile is created now and goes live after payment + Gateway verification — usually within 2 business days.
                 </p>
               ) : (
                 <p className="mt-2 rounded-lg border border-(--st-blue-bd) bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
-                  Free to join — no plan needed. Your portal unlocks once Syntax approves your registration, usually within 1 business day.
+                  Free to join — no plan needed. Your portal unlocks once the Gateway team approves your registration, usually within 1 business day.
                 </p>
               )}
               <form onSubmit={onSubmit} className="mt-7 space-y-4">
@@ -269,8 +269,8 @@ export default function JoinPage() {
       </div>
 
       <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-line bg-white px-3.5 py-2 shadow-md lg:hidden">
-        <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-[#5a6b80]">Powered by</span>
-        <Image src="/brand/syntax-logo.webp" alt="Syntax of Life" width={820} height={269} className="h-8 w-auto" />
+        <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-[#5a6b80]">Project by</span>
+        <Image src="/brand/syntax-logo.webp" alt="Syntax of Life" width={820} height={269} className="h-5 w-auto" />
       </div>
     </main>
   );

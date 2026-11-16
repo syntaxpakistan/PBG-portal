@@ -58,6 +58,24 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
         <label className="mb-1 block text-[11.5px] font-medium text-ink">Bio</label>
         <textarea name="bio" rows={3} defaultValue={profile.bio ?? ""} className={input} />
       </div>
+      <div className="sm:col-span-2 rounded-xl border border-line bg-paper-2 p-4">
+        <h3 className="text-[13px] font-semibold text-ink">Payout bank account</h3>
+        <p className="mb-3 mt-0.5 text-[11px] text-muted">Where Syntax settles your earnings — admin sees this when scheduling payouts.</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <label className="mb-1 block text-[11.5px] font-medium text-ink">Account title</label>
+            <input name="bankTitle" defaultValue={profile.bankTitle ?? ""} className={input} />
+          </div>
+          <div>
+            <label className="mb-1 block text-[11.5px] font-medium text-ink">Bank name</label>
+            <input name="bankName" defaultValue={profile.bankName ?? ""} className={input} />
+          </div>
+          <div>
+            <label className="mb-1 block text-[11.5px] font-medium text-ink">IBAN / account no</label>
+            <input name="bankIban" defaultValue={profile.bankIban ?? ""} className={input} />
+          </div>
+        </div>
+      </div>
       <button type="submit" disabled={loading} className="btn-secondary sm:col-span-2 justify-center !py-2.5">
         {loading ? <Loader2 className="size-4 animate-spin" /> : "Save profile"}
       </button>

@@ -1,5 +1,6 @@
 export const instant = false
 
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
@@ -29,8 +30,8 @@ export default async function FinancePage() {
       take: 150,
     }),
     prisma.payout.findMany({ orderBy: { createdAt: "desc" }, take: 100 }),
-    prisma.providerProfile.findMany({ where: { status: "APPROVED" }, select: { id: true, orgName: true }, orderBy: { orgName: "asc" } }),
-    prisma.supplierProfile.findMany({ where: { status: "APPROVED" }, select: { id: true, orgName: true }, orderBy: { orgName: "asc" } }),
+    prisma.providerProfile.findMany({ where: { status: "APPROVED" }, select: { id: true, orgName: true, bankTitle: true, bankName: true, bankIban: true }, orderBy: { orgName: "asc" } }),
+    prisma.supplierProfile.findMany({ where: { status: "APPROVED" }, select: { id: true, orgName: true, bankTitle: true, bankName: true, bankIban: true }, orderBy: { orgName: "asc" } }),
   ]);
 
   const collected = invoices.reduce((n, i) => n + i.payments.filter((p) => p.status === "CONFIRMED").reduce((s, p) => s + p.amount, 0), 0);
@@ -42,8 +43,8 @@ export default async function FinancePage() {
   }, 0);
 
   const payees = [
-    ...providers.map((p) => ({ type: "PROVIDER", id: p.id, org: p.orgName })),
-    ...suppliers.map((p) => ({ type: "SUPPLIER", id: p.id, org: p.orgName })),
+    ...providers.map((p) => ({ type: "PROVIDER", id: p.id, org: p.orgName, bankTitle: p.bankTitle, bankName: p.bankName, bankIban: p.bankIban })),
+    ...suppliers.map((s) => ({ type: "SUPPLIER", id: s.id, org: s.orgName, bankTitle: s.bankTitle, bankName: s.bankName, bankIban: s.bankIban })),
   ];
 
   return (
@@ -99,7 +100,7 @@ export default async function FinancePage() {
               return (
                 <tr key={inv.id} className="hover:bg-paper-2/60">
                   <td className="px-5 py-3">
-                    <div className="font-mono text-[12px] font-semibold text-ink">{inv.number}</div>
+                    <Link href={`/invoices/${inv.id}`} className="font-mono text-[12px] font-semibold text-blue hover:underline">{inv.number}</Link>
                     <div className="text-[11px] text-muted">{inv.issuedAt.toLocaleDateString()}{inv.dueAt ? ` · due ${inv.dueAt.toLocaleDateString()}` : ""}</div>
                   </td>
                   <td className="px-5 py-3">

@@ -5,15 +5,16 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { FlaskConical, MapPin, Cpu, TestTubes, BadgeCheck, Star, Sparkles } from "lucide-react";
+import { FlaskConical, MapPin, Cpu, TestTubes, BadgeCheck, Star, Sparkles, Boxes } from "lucide-react";
 
 export const metadata = { title: "National Facility Registry — Pakistan Biotechnology Gateway" };
 
 const isFeatured = (sub: { plan: string; status: string; expiresAt: Date | null } | null | undefined) =>
   !!sub && sub.status === "ACTIVE" && (sub.plan === "PRO" || sub.plan === "CUSTOM");
 
-export default async function RegistryPage({ searchParams }: { searchParams: Promise<{ q?: string; city?: string; cat?: string }> }) {
-  const { q, city, cat } = await searchParams;
+export default async function RegistryPage({ searchParams }: { searchParams: Promise<{ q?: string; city?: string; cat?: string; tab?: string }> }) {
+  const { q, city, cat, tab } = await searchParams;
+  const view = tab === "suppliers" ? "suppliers" : "labs";
   const providers = await prisma.providerProfile.findMany({
     where: { status: "APPROVED" },
     include: {
@@ -32,8 +33,28 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
   });
   // featured (PRO/CUSTOM partners) rank first
   filtered.sort((a, b) => Number(isFeatured(b.user.subscription)) - Number(isFeatured(a.user.subscription)));
-  const cities = [...new Set(providers.map((p) => p.city))];
-  const cats = [...new Set(providers.flatMap((p) => p.serviceCategories.split(",").map((c) => c.trim())).filter(Boolean))];
+
+  const suppliers = await prisma.supplierProfile.findMany({
+    where: { status: "APPROVED" },
+    include: {
+      user: { select: { subscription: { select: { plan: true, status: true, expiresAt: true } } } },
+      _count: { select: { products: { where: { active: true, moderation: "APPROVED" } }, enquiries: true } },
+    },
+    orderBy: { verifiedAt: "desc" },
+  });
+  const filteredSuppliers = suppliers.filter((s) => {
+    const text = `${s.orgName} ${s.city} ${s.categories}`.toLowerCase();
+    if (q && !text.includes(q.toLowerCase())) return false;
+    if (city && !s.city.toLowerCase().includes(city.toLowerCase())) return false;
+    if (cat && !s.categories.toLowerCase().includes(cat.toLowerCase())) return false;
+    return true;
+  });
+  filteredSuppliers.sort((a, b) => Number(isFeatured(b.user.subscription)) - Number(isFeatured(a.user.subscription)));
+
+  const cities = [...new Set(view === "labs" ? providers.map((p) => p.city) : suppliers.map((s) => s.city))];
+  const cats = [...new Set(view === "labs"
+    ? providers.flatMap((p) => p.serviceCategories.split(",").map((c) => c.trim())).filter(Boolean)
+    : suppliers.flatMap((s) => s.categories.split(",").map((c) => c.trim())).filter(Boolean))];
 
   return (
     <main className="min-h-screen bg-paper">
@@ -55,12 +76,22 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
             Pakistan&apos;s <em className="grad-text">verified sequencing capacity</em>
           </h1>
           <p className="mt-4 max-w-xl text-[14.5px] text-[#c5d2e1]">
-            Every facility is reviewed by Syntax before listing. Badges are platform-level
+            Every facility is reviewed by the Gateway team before listing. Badges are platform-level
             verification — explicitly non-governmental.
           </p>
+          {/* tab switch */}
+          <div className="mt-7 inline-flex rounded-full border border-white/15 bg-white/5 p-1">
+            <Link href="/registry?tab=labs" className={`flex items-center gap-2 rounded-full px-5 py-2 text-[13px] font-medium transition-colors ${view === "labs" ? "bg-white text-navy" : "text-white/70 hover:text-white"}`}>
+              <FlaskConical className="size-4" /> Laboratories
+            </Link>
+            <Link href="/registry?tab=suppliers" className={`flex items-center gap-2 rounded-full px-5 py-2 text-[13px] font-medium transition-colors ${view === "suppliers" ? "bg-white text-navy" : "text-white/70 hover:text-white"}`}>
+              <Boxes className="size-4" /> Suppliers
+            </Link>
+          </div>
           {/* search */}
           <form className="mt-8 flex flex-wrap gap-3">
-            <input name="q" defaultValue={q ?? ""} placeholder="Search platforms, sample types, services…"
+            <input type="hidden" name="tab" value={view} />
+            <input name="q" defaultValue={q ?? ""} placeholder={view === "labs" ? "Search platforms, sample types, services…" : "Search suppliers, categories…"}
               className="w-full max-w-sm rounded-full border border-white/20 bg-white/10 px-5 py-3 text-[14px] text-white placeholder-white/50 outline-none focus:border-yellow" />
             <select name="city" defaultValue={city ?? ""} className="rounded-full border border-white/20 bg-white/10 px-4 py-3 text-[14px] text-white outline-none [&>option]:text-navy">
               <option value="">All cities</option>
@@ -77,6 +108,57 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
 
       {/* listing */}
       <section className="mx-auto max-w-6xl px-6 py-14">
+        {view === "suppliers" ? (
+          <>
+            <p className="mb-5 text-[13px] text-muted">{filteredSuppliers.length} verified supplier{filteredSuppliers.length === 1 ? "" : "s"}</p>
+            <div className="grid gap-5 md:grid-cols-2">
+              {filteredSuppliers.map((s) => {
+                const featured = isFeatured(s.user.subscription);
+                return (
+                  <Link key={s.id} href={`/suppliers/${s.id}`} className="card card-hover block p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="grid size-11 place-items-center rounded-xl bg-navy text-yellow">
+                          <Boxes className="size-5" strokeWidth={1.8} />
+                        </span>
+                        <div>
+                          <h2 className="text-[16px] font-semibold text-ink">{s.orgName}</h2>
+                          <p className="flex items-center gap-2 text-[12px] text-muted">
+                            <span className="font-mono font-semibold">{s.orgNo}</span>
+                            <span className="flex items-center gap-1"><MapPin className="size-3" /> {s.city}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        {featured && (
+                          <span className="flex items-center gap-1 rounded-full bg-(--st-amber-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-amber-fg)">
+                            <Sparkles className="size-3" /> Featured partner
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 rounded-full border border-(--st-green-bd) bg-(--st-green-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-green-fg)">
+                          <BadgeCheck className="size-3.5" /> Gateway-verified*
+                        </span>
+                      </div>
+                    </div>
+                    {s.bio && <p className="mt-4 text-[13px] leading-relaxed text-body">{s.bio}</p>}
+                    <dl className="mt-4 space-y-2 border-t border-line pt-4 text-[12.5px]">
+                      <div className="flex gap-2"><dt className="w-28 shrink-0 font-medium text-muted">Catalogue</dt><dd className="text-ink">{s._count.products} products · {s._count.enquiries} enquiries served</dd></div>
+                    </dl>
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {s.categories.split(",").map((c) => (
+                        <span key={c} className="rounded-full bg-(--st-blue-bg) px-2.5 py-1 text-[11px] font-medium text-(--st-blue-fg)">{c.trim()}</span>
+                      ))}
+                    </div>
+                  </Link>
+                );
+              })}
+              {filteredSuppliers.length === 0 && (
+                <div className="card col-span-full p-14 text-center text-[14px] text-muted">No suppliers match — widen your filters.</div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
         <p className="mb-5 text-[13px] text-muted">{filtered.length} verified facilit{filtered.length === 1 ? "y" : "ies"}</p>
         <div className="grid gap-5 md:grid-cols-2">
           {filtered.map((p) => {
@@ -105,7 +187,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
                     </span>
                   )}
                   <span className="flex items-center gap-1 rounded-full border border-(--st-green-bd) bg-(--st-green-bg) px-2.5 py-1 text-[10.5px] font-semibold text-(--st-green-fg)">
-                    <BadgeCheck className="size-3.5" /> Syntax-verified*
+                    <BadgeCheck className="size-3.5" /> Gateway-verified*
                   </span>
                 </div>
               </div>
@@ -128,8 +210,10 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
             <div className="card col-span-full p-14 text-center text-[14px] text-muted">No facilities match — widen your filters.</div>
           )}
         </div>
+          </>
+        )}
         <p className="mt-8 text-[11.5px] text-muted">
-          *Verification is a platform-level review by Syntax of Life — not a government accreditation or license.
+          *Verification is a platform-level review by the Gateway team — not a government accreditation or license.
         </p>
       </section>
       <Footer />

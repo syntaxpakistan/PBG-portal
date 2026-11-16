@@ -68,8 +68,8 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
         <select name="plan" defaultValue={plan ?? ""} className="rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3">
           <option value="">All plans</option>
           <option value="BASIC">Basic — PKR 50,000</option>
-          <option value="PRO">Pro — PKR 148,000</option>
-          <option value="CUSTOM">Custom — PKR 246,000</option>
+          <option value="PRO">Pro — PKR 144,000</option>
+          <option value="CUSTOM">Elite — PKR 240,000</option>
         </select>
         <button type="submit" className="btn-outline !py-2 text-[12.5px]">Filter</button>
       </form>

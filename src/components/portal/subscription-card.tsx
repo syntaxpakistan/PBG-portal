@@ -1,4 +1,4 @@
-import { PLANS, planTermLabel } from "@/lib/plans";
+import { PLANS, SUPPLIER_FEATURES, planTermLabel } from "@/lib/plans";
 import { BadgeCheck, Clock3 } from "lucide-react";
 import { requestRenewal } from "@/lib/actions/marketplace";
 import type { Subscription } from "@prisma/client";
@@ -11,9 +11,10 @@ const STATUS_TXT: Record<string, [string, string]> = {
   EXPIRED: ["bg-(--st-red-bg) text-(--st-red-fg)", "Expired"],
 };
 
-export function SubscriptionCard({ sub }: { sub: Subscription | null }) {
+export function SubscriptionCard({ sub, isSupplier }: { sub: Subscription | null; isSupplier?: boolean }) {
   if (!sub) return null;
   const plan = PLANS[sub.plan];
+  const features = isSupplier ? SUPPLIER_FEATURES[sub.plan] : plan.features;
   const [cls, label] = STATUS_TXT[sub.status] ?? STATUS_TXT.CANCELLED;
   return (
     <div className="card overflow-hidden">
@@ -27,7 +28,7 @@ export function SubscriptionCard({ sub }: { sub: Subscription | null }) {
           <span className="font-display text-[24px] font-medium text-ink">PKR {sub.pricePkr.toLocaleString()}<span className="text-[12px] font-normal text-muted"> / {planTermLabel(sub.plan)}</span></span>
         </div>
         <ul className="mt-3 space-y-1.5">
-          {plan.features.map((f) => (
+          {features.map((f) => (
             <li key={f} className="flex items-center gap-2 text-[12.5px] text-body">
               {sub.status === "ACTIVE" ? <BadgeCheck className="size-3.5 shrink-0 text-green" /> : <Clock3 className="size-3.5 shrink-0 text-muted" />}
               {f}

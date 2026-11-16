@@ -2,25 +2,31 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
-import { acceptEnquiryQuote } from "@/lib/actions/marketplace";
+import { acceptEnquiryQuote, sendEnquiryMessage } from "@/lib/actions/marketplace";
 import { SubmitButton } from "@/components/portal/submit-button";
 import { EnquiryForm } from "./enquiry-form";
+import { ProductImage } from "./product-image";
 
 // supplies browse — shared by customers (/dashboard/marketplace) and providers (/lab/supplies)
 export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string; cat?: string; buyerId: string; basePath: string }) {
   const products = await prisma.product.findMany({
     where: {
       active: true,
+      moderation: "APPROVED",
       ...(cat ? { category: cat } : {}),
       ...(q ? { OR: [{ name: { contains: q } }, { category: { contains: q } }, { supplier: { orgName: { contains: q } } }] } : {}),
     },
-    include: { supplier: { select: { orgName: true, city: true, status: true } } },
+    include: { supplier: { select: { id: true, orgName: true, city: true, status: true } } },
     orderBy: { createdAt: "desc" },
   });
-  const categories = (await prisma.product.findMany({ where: { active: true }, select: { category: true }, distinct: ["category"] })).map((p) => p.category);
+  const categories = (await prisma.product.findMany({ where: { active: true, moderation: "APPROVED" }, select: { category: true }, distinct: ["category"] })).map((p) => p.category);
   const myEnquiries = await prisma.enquiry.findMany({
     where: { buyerId },
-    include: { product: { select: { name: true } }, supplier: { select: { orgName: true } } },
+    include: {
+      product: { select: { name: true } },
+      supplier: { select: { orgName: true } },
+      messages: { include: { author: { select: { name: true, role: true } } }, orderBy: { createdAt: "asc" } },
+    },
     orderBy: { createdAt: "desc" },
     take: 10,
   });
@@ -44,6 +50,9 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                       Offer: {e.quotedPrice != null ? `${pkr(e.quotedPrice)}` : "price on request"}
                       {e.leadTimeDays != null && ` · ${e.leadTimeDays}d lead time`}
                       {e.reply && <span className="block mt-1 text-(--st-blue-fg)">{e.reply}</span>}
+                      {e.quoteFileKey && (
+                        <a href={`/api/files/${e.quoteFileKey}?inline=1`} target="_blank" rel="noopener noreferrer" className="mt-1 block font-medium underline underline-offset-2">View formal quotation →</a>
+                      )}
                     </span>
                     {e.quotedPrice != null && (
                       <form action={acceptEnquiryQuote.bind(null, e.id)} className="ml-auto">
@@ -65,8 +74,31 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                 )}
                 {e.status === "FULFILLED" && (
                   <div className="mt-2 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                    Delivered{e.quotedPrice != null ? ` — ${pkr(e.quotedPrice)}` : ""}.
+                    Delivered{e.quotedPrice != null ? ` — ${pkr(e.quotedPrice)}` : ""}
+                    {(e.courier || e.trackingNo) && <span className="block mt-0.5">Shipped via {[e.courier, e.trackingNo].filter(Boolean).join(" · ")}</span>}
                   </div>
+                )}
+                {e.status === "CLOSED" && (
+                  <div className="mt-2 rounded-lg bg-paper-2 px-3.5 py-2.5 text-[12.5px] text-muted">
+                    The supplier declined this enquiry{e.declineReason ? ` — ${e.declineReason}` : ""}. You can enquire with another supplier below.
+                  </div>
+                )}
+                {e.messages.length > 0 && (
+                  <div className="mt-2.5 space-y-1.5 border-t border-line pt-2.5">
+                    {e.messages.map((m) => (
+                      <p key={m.id} className="text-[12px] leading-snug">
+                        <span className="font-semibold text-ink">{m.author.role === "SUPPLIER" ? e.supplier.orgName : "You"}:</span>{" "}
+                        <span className="text-body">{m.body}</span>
+                        <span className="ml-1.5 text-[10.5px] text-muted">{m.createdAt.toLocaleDateString()}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {!["CLOSED", "FULFILLED"].includes(e.status) && (
+                  <form action={sendEnquiryMessage.bind(null, e.id)} className="mt-2 flex gap-2">
+                    <input name="body" placeholder="Ask the supplier a question…" className="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
+                    <SubmitButton className="btn-outline !py-2 text-[12px]">Send</SubmitButton>
+                  </form>
                 )}
               </div>
             ))}
@@ -88,23 +120,30 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((p) => (
           <div key={p.id} className="card card-hover p-5">
+            {p.imageKey && <div className="mb-3"><ProductImage imageKey={p.imageKey} alt={p.name} /></div>}
             <div className="flex items-start justify-between">
               <span className="rounded-full bg-(--st-blue-bg) px-2.5 py-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">{p.category}</span>
               <StatusBadge status={p.stockStatus} />
             </div>
             <h3 className="mt-3 text-[15px] font-semibold text-ink">{p.name}</h3>
+            {p.brand && <p className="mt-0.5 text-[11.5px] text-muted">{p.brand}{p.catalogNo ? ` · #${p.catalogNo}` : ""}</p>}
             {p.spec && <p className="mt-1 text-[12px] text-body">{p.spec}</p>}
+            {p.description && <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-body">{p.description}</p>}
             <div className="mt-2 flex items-center justify-between">
               {p.price != null ? <span className="font-display text-[15px] font-medium text-ink">{pkr(p.price)}{p.unit ? `/${p.unit}` : ""}</span> : <span className="text-[12px] text-muted">Price on enquiry</span>}
-              <span className="text-[11px] text-muted">{p.catalogNo && `#${p.catalogNo} · `}{p.leadTimeDays ? `${p.leadTimeDays}d lead` : ""}</span>
+              <span className="text-[11px] text-muted">{p.leadTimeDays ? `${p.leadTimeDays}d lead` : ""}</span>
             </div>
-            <p className="mt-2 text-[11.5px] text-muted">{p.supplier.orgName} · {p.supplier.city} · <span className="text-green">Syntax-verified*</span></p>
+            <div className="mt-2 flex items-center gap-2 text-[11.5px] text-muted">
+              <Link href={`/suppliers/${p.supplier.id}`} className="hover:text-ink">{p.supplier.orgName} · {p.supplier.city}</Link>
+              <span>·</span><span className="text-green">Gateway-verified*</span>
+              {p.datasheetKey && <a href={`/api/files/${p.datasheetKey}?inline=1`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue hover:underline">Datasheet</a>}
+            </div>
             <EnquiryForm productId={p.id} />
           </div>
         ))}
         {products.length === 0 && <p className="col-span-full py-12 text-center text-[13px] text-muted">No products match.</p>}
       </div>
-      <p className="mt-6 text-[11px] text-muted">*Verification is a platform-level review by Syntax — not a government accreditation.</p>
+      <p className="mt-6 text-[11px] text-muted">*Verification is a platform-level review by the Gateway team — not a government accreditation.</p>
     </>
   );
 }

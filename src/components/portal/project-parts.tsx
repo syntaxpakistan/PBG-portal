@@ -44,7 +44,7 @@ export function MessageThread({
     <div className="card flex flex-col p-5">
       <h3 className="mb-4 flex items-center gap-2 text-[14px] font-semibold text-ink">
         <MessageSquare className="size-4 text-muted" /> Project channel
-        <span className="text-[11px] font-normal text-muted">customer · lab · Syntax only</span>
+        <span className="text-[11px] font-normal text-muted">customer · lab · Gateway only</span>
       </h3>
       <div className="mb-4 max-h-80 flex-1 space-y-3 overflow-y-auto">
         {messages.length === 0 && <p className="py-6 text-center text-[12.5px] text-muted">No messages yet.</p>}
@@ -58,7 +58,7 @@ export function MessageThread({
                 }`}
               >
                 <div className={`mb-0.5 text-[10px] font-semibold ${mine ? "text-yellow" : "text-muted"}`}>
-                  {m.sender.name}{m.sender.role === "ADMIN" ? " · Syntax" : ""}
+                  {m.sender.name}{m.sender.role === "ADMIN" ? " · Gateway" : ""}
                 </div>
                 {m.body}
                 {m.attachmentName && (

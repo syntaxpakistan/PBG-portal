@@ -7,12 +7,13 @@ import { getSession } from "@/lib/session";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ServiceGrid, type ServiceCardData } from "@/components/marketplace/service-grid";
+import { ProductImage } from "@/components/marketplace/product-image";
 import { BadgeCheck, FlaskConical, Boxes, Search } from "lucide-react";
 import { pkr } from "@/lib/constants";
 
 export const metadata = {
   title: "Marketplace — Pakistan Biotechnology Gateway",
-  description: "Browse sequencing & bioinformatics services and indigenous lab supplies from Syntax-verified providers.",
+  description: "Browse sequencing & bioinformatics services and indigenous lab supplies from Gateway-verified providers.",
 };
 
 function priceLabel(vis: string, priceFrom: number | null, unit: string | null, isCustomer: boolean): string {
@@ -69,17 +70,18 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
     ? await prisma.product.findMany({
         where: {
           active: true,
+          moderation: "APPROVED",
           supplier: { status: "APPROVED" },
           ...(cat ? { category: cat } : {}),
           ...(q ? { OR: [{ name: { contains: q } }, { category: { contains: q } }, { supplier: { orgName: { contains: q } } }] } : {}),
         },
-        include: { supplier: { select: { orgName: true, city: true } } },
+        include: { supplier: { select: { id: true, orgName: true, city: true } } },
         orderBy: { createdAt: "desc" },
         take: 60,
       })
     : [];
   const productCats = view === "supplies"
-    ? (await prisma.product.findMany({ where: { active: true, supplier: { status: "APPROVED" } }, select: { category: true }, distinct: ["category"] })).map((p) => p.category)
+    ? (await prisma.product.findMany({ where: { active: true, moderation: "APPROVED", supplier: { status: "APPROVED" } }, select: { category: true }, distinct: ["category"] })).map((p) => p.category)
     : [];
 
   const chips = view === "services" ? categories : productCats;
@@ -102,7 +104,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <h1 className="h-display on-dark !text-[2.4rem]">Marketplace</h1>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#9fb9cd]">
-            Browse services from Syntax-verified laboratories and supplies from indigenous vendors.
+            Browse services from Gateway-verified laboratories and supplies from indigenous vendors.
             Request quotes from one facility — or compare several at once; every quote arrives sealed.
           </p>
           {/* tab switch */}
@@ -147,17 +149,19 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((p) => (
                 <div key={p.id} className="card card-hover p-5">
+                  {p.imageKey && <div className="mb-3"><ProductImage imageKey={p.imageKey} alt={p.name} /></div>}
                   <div className="flex items-start justify-between">
                     <span className="rounded-full bg-(--st-blue-bg) px-2.5 py-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">{p.category}</span>
                   </div>
                   <h3 className="mt-3 text-[15px] font-semibold text-ink">{p.name}</h3>
                   <div className="font-mono text-[11px] font-semibold text-muted">{p.prodNo}</div>
+                  {p.brand && <p className="mt-0.5 text-[11.5px] text-muted">{p.brand}{p.catalogNo ? ` · #${p.catalogNo}` : ""}</p>}
                   {p.spec && <p className="mt-1 line-clamp-2 text-[12px] text-body">{p.spec}</p>}
                   <div className="mt-2 flex items-center justify-between">
                     {p.price != null ? <span className="font-display text-[15px] font-medium text-ink">{pkr(p.price)}{p.unit ? `/${p.unit}` : ""}</span> : <span className="text-[12px] text-muted">Price on enquiry</span>}
                     <span className="text-[11px] text-muted">{p.leadTimeDays ? `${p.leadTimeDays}d lead` : ""}</span>
                   </div>
-                  <p className="mt-2 flex items-center gap-1.5 text-[11.5px] text-muted"><BadgeCheck className="size-3.5 text-green" />{p.supplier.orgName} · {p.supplier.city}</p>
+                  <Link href={`/suppliers/${p.supplier.id}`} className="mt-2 flex items-center gap-1.5 text-[11.5px] text-muted hover:text-ink"><BadgeCheck className="size-3.5 text-green" />{p.supplier.orgName} · {p.supplier.city}</Link>
                   <Link href="/login" className="btn-outline mt-3.5 w-full justify-center !py-2 text-[12.5px]">Sign in to enquire →</Link>
                 </div>
               ))}

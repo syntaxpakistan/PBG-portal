@@ -13,6 +13,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Reveal, Stagger, fadeUp } from "@/components/motion-primitives";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { LeadForm } from "@/components/lead-form";
 
 const HOW = [
   {
@@ -79,7 +80,7 @@ const WHY = [
   },
   {
     icon: ShieldCheck, title: "Administered & auditable",
-    desc: "Syntax of Life governs verification, moderation and disputes — with a full audit trail — while providers stay independent businesses.",
+    desc: "The Gateway team governs verification, moderation and disputes — with a full audit trail — while providers stay independent businesses.",
   },
 ];
 
@@ -344,7 +345,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               <h2 className="h-section mt-4">Simple plans — <em className="grad-text">free to buy, fair to sell.</em></h2>
               <p className="mt-5 text-[15px] leading-relaxed text-body">
                 Customers always join free. Laboratories and suppliers choose a 1, 3 or 5 year term —
-                billed once per term in PKR after Syntax verifies your organization. No card needed to sign up.
+                billed once per term in PKR after the Gateway team verifies your organization. No card needed to sign up.
               </p>
             </div>
           </Reveal>
@@ -462,6 +463,31 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                     <Timer className="size-4" /> Administered · audited · transparent by design
                   </p>
                 </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── Contact ──────────────────────────────────────────── */}
+      <section id="contact" className="bg-paper-2 py-16 sm:py-20">
+        <div className="container-x">
+          <Reveal>
+            <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-[1fr_1.2fr] lg:items-start">
+              <div>
+                <p className="eyebrow">Contact</p>
+                <h2 className="h-section mt-4">Talk to <em className="grad-text">the team.</em></h2>
+                <p className="mt-4 text-[14px] leading-relaxed text-body">
+                  Planning a sequencing run, sourcing reagents, or listing your facility?
+                  Send us a note — quotes and onboarding questions land directly with the team.
+                </p>
+                <div className="mt-5 space-y-1.5 text-[13px] text-body">
+                  <p>Quotes — <a href="mailto:info@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">info@biotechnologygateway.com</a></p>
+                  <p>General — <a href="mailto:contact@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">contact@biotechnologygateway.com</a></p>
+                </div>
+              </div>
+              <div className="card p-6 sm:p-7">
+                <LeadForm />
               </div>
             </div>
           </Reveal>

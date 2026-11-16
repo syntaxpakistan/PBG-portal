@@ -7,7 +7,7 @@ import { PageHead, StageTracker, StatusBadge } from "@/components/portal/ui";
 import { HistoryTimeline, MessageThread } from "@/components/portal/project-parts";
 import { FileLink } from "@/components/portal/file-link";
 import { PauseCircle, Lock, FlaskConical } from "lucide-react";
-import { addMilestone, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
+import { addMilestone, fileComplaint, invoiceMilestone, receiveSamples } from "@/lib/actions/marketplace";
 import { pkr, PROJECT_STAGES, stageIndex, slaInfo, QC_STAGE_LABELS, QC_DECISION_LABELS, WORK_STAGE_LABELS } from "@/lib/constants";
 import { StatusUpdateButtons, ResultUploadForm, AwardDecision, StageControls, QcForm, PauseControls, ReleaseButton, InternalsForm } from "./controls";
 import { SubmitButton } from "@/components/portal/submit-button";
@@ -36,6 +36,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
   const awaitingDecision = project.status === "OFFER_SELECTED" && !project.acceptedAt;
   const addMs = addMilestone.bind(null, project.id);
   const receive = receiveSamples.bind(null, project.id);
+  const complain = fileComplaint.bind(null, project.id);
   const sla = slaInfo(project.dueAt, project.status, project.pausedAt);
   const paused = !!project.pausedAt;
   const live = project.acceptedAt && project.status !== "CANCELLED" && project.status !== "COMPLETED";
@@ -268,6 +269,14 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
             </div>
           )}
           <HistoryTimeline history={project.history} />
+          <details className="card px-5 py-3">
+            <summary className="cursor-pointer text-[13px] font-medium text-ink">Raise a complaint</summary>
+            <form action={complain} className="mt-3 space-y-3">
+              <input name="subject" required placeholder="Subject" className="w-72 rounded-lg border border-line px-3 py-2 text-[13px] outline-none focus:border-navy-3" />
+              <textarea name="details" required rows={3} placeholder="What went wrong?" className="w-72 rounded-lg border border-line px-3 py-2 text-[13px] outline-none focus:border-navy-3" />
+              <SubmitButton className="btn-outline block !py-2 text-[12.5px]">Submit complaint</SubmitButton>
+            </form>
+          </details>
         </div>
         <MessageThread projectId={project.id} messages={project.messages} currentUserId={session.user.id} />
       </div>

@@ -37,6 +37,17 @@ export const auth = betterAuth({
       }).catch((e) => console.error("[auth] reset email failed", e));
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const role = (user as { role?: string }).role;
+          const allowed = ["CUSTOMER", "PROVIDER", "SUPPLIER"];
+          return { data: { ...user, role: role && allowed.includes(role) ? role : "CUSTOMER" } };
+        },
+      },
+    },
+  },
   user: {
     additionalFields: {
       role: {

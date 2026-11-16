@@ -15,7 +15,7 @@ export default async function CustomerComplaintsPage() {
 
   return (
     <>
-      <PageHead title="My complaints" sub="Disputes you've filed with Syntax — track triage and resolution." />
+      <PageHead title="My complaints" sub="Disputes you've filed with the Gateway team — track triage and resolution." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && (
           <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints filed. Open a project and use “Report an issue” to file one.</p>
@@ -34,9 +34,9 @@ export default async function CustomerComplaintsPage() {
                 </div>
                 <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-body">{c.details}</p>
                 {c.resolution && (
-                  <p className="mt-2 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] text-(--st-green-fg)">Syntax resolution: {c.resolution}</p>
+                  <p className="mt-2 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] text-(--st-green-fg)">Gateway resolution: {c.resolution}</p>
                 )}
-                {c.status === "OPEN" && <p className="mt-2 text-[11.5px] text-muted">Awaiting review by Syntax operations.</p>}
+                {c.status === "OPEN" && <p className="mt-2 text-[11.5px] text-muted">Awaiting review by the Gateway team.</p>}
               </div>
             </div>
           </div>

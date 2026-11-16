@@ -3,19 +3,21 @@ export const instant = false
 import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
 import { SettingForm } from "./setting-form";
-import { getFeePercent, getPlanPrices, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit } from "@/lib/settings";
+import { TextSettingForm } from "./text-setting-form";
+import { getFeePercent, getPlanPrices, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions } from "@/lib/settings";
 import { PLANS, type PlanKey } from "@/lib/plans";
 
 const FEE_KEY = "platform_fee_percent";
 
 export default async function SettingsPage() {
-  const [fee, planPrices, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, settings] = await Promise.all([
+  const [fee, planPrices, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings] = await Promise.all([
     getFeePercent(),
     getPlanPrices(),
     getGraceDays(),
     getInvoiceDueDays(),
     getRfqRateLimit(),
     getEnquiryRateLimit(),
+    getPaymentInstructions(),
     prisma.platformSetting.findMany({ orderBy: { key: "asc" } }),
   ]);
 
@@ -73,6 +75,31 @@ export default async function SettingsPage() {
                 <div className="text-[11.5px] text-muted">Days until new subscription invoices are due</div>
               </div>
               <SettingForm settingKey="invoice_due_days" current={invoiceDueDays} suffix="days" min={1} max={90} />
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <h3 className="text-[14px] font-semibold text-ink">Payment instructions</h3>
+          <p className="mt-1 text-[12.5px] text-body">
+            Shown on every invoice so payers know where to send money. Leave blank until your account is ready.
+          </p>
+          <div className="mt-4 space-y-4">
+            <div>
+              <div className="text-[13px] font-semibold text-ink">Account title</div>
+              <TextSettingForm settingKey="payment_account_title" current={payTo.accountTitle} placeholder="Syntax of Life (Pvt) Ltd" />
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-ink">Bank name</div>
+              <TextSettingForm settingKey="payment_bank_name" current={payTo.bankName} placeholder="e.g. Meezan Bank — DHA Lahore branch" />
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-ink">IBAN / account number</div>
+              <TextSettingForm settingKey="payment_iban" current={payTo.iban} placeholder="PK00XXXX0000000000000000" />
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-ink">Instructions</div>
+              <TextSettingForm settingKey="payment_instructions" current={payTo.instructions} textarea placeholder="e.g. Quote your invoice number (INV-…) as the transfer reference, then report the payment with your receipt." />
             </div>
           </div>
         </div>

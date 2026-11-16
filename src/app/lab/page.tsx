@@ -142,7 +142,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
 
       {profile.status === "PENDING" && (
         <Banner icon={<Clock3 className="size-4" />} tone="yellow"
-          text="Verification in progress — Syntax reviews your credentials before RFQs route to you. You'll be notified on approval." />
+          text="Verification in progress — the Gateway team reviews your credentials before RFQs route to you. You'll be notified on approval." />
       )}
       {profile.status === "REJECTED" && (
         <Banner icon={<AlertTriangle className="size-4" />} tone="red"
@@ -266,7 +266,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
 
       {complaints.some((c) => c.status !== "RESOLVED" && c.status !== "DISMISSED") && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
-          <AlertTriangle className="size-4" /> A customer complaint on one of your projects is under Syntax review — see below.
+          <AlertTriangle className="size-4" /> A customer complaint on one of your projects is under Gateway review — see below.
         </div>
       )}
 

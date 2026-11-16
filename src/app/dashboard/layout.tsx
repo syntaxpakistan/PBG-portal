@@ -41,7 +41,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <p className="mt-2 text-[13.5px] leading-relaxed text-body">
               {profile?.status === "REJECTED" || profile?.status === "SUSPENDED"
                 ? `Your client account is ${profile.status.toLowerCase()}.${profile.statusNote ? ` Reason: ${profile.statusNote}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`
-                : "Your registration is in the review queue — Syntax approves every client account manually, usually within 1 business day. You'll get a notification the moment your portal unlocks."}
+                : "Your registration is in the review queue — the Gateway team approves every client account manually, usually within 1 business day. You'll get a notification the moment your portal unlocks."}
             </p>
           </div>
         </div>

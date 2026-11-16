@@ -17,7 +17,7 @@ export default async function LabComplaintsPage() {
 
   return (
     <>
-      <PageHead title="Complaints" sub="Tickets you've filed plus disputes raised on your projects — each has a private thread with Syntax." />
+      <PageHead title="Complaints" sub="Tickets you've filed plus disputes raised on your projects — each has a private thread with the Gateway team." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && (
           <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints — tickets filed by you or about your projects appear here.</p>
@@ -37,7 +37,7 @@ export default async function LabComplaintsPage() {
               </div>
               <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-body">{c.details}</p>
               {c.resolution && (
-                <p className="mt-2 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] text-(--st-green-fg)">Syntax resolution: {c.resolution}</p>
+                <p className="mt-2 rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] text-(--st-green-fg)">Gateway resolution: {c.resolution}</p>
               )}
             </div>
           );

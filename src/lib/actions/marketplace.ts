@@ -489,6 +489,16 @@ export async function completeProject(projectId: string) {
 export async function fileComplaint(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { customerId: true, providerUserId: true },
+  });
+  const isParty =
+    project &&
+    (session.user.id === project.customerId ||
+      session.user.id === project.providerUserId ||
+      (session.user as { role?: string }).role === "ADMIN");
+  if (!isParty) throw new Error("Only project parties can file a complaint on this project.");
   // idempotent — one open complaint per project per filer; double-clicks can't spam the queue
   const open = await prisma.complaint.findFirst({
     where: { projectId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
@@ -805,6 +815,8 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
   if (e.status !== "OPEN" && e.status !== "QUOTED" && e.status !== "ANSWERED")
     throw new Error("Offer already accepted — the price is locked in the invoice");
+  const quoteFile = formData.get("quoteFile");
+  const quoteFileKey = quoteFile instanceof File && quoteFile.size > 0 ? (await saveUpload(quoteFile)).key : undefined;
   await prisma.enquiry.update({
     where: { id: enquiryId },
     data: {
@@ -812,6 +824,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
       quotedPrice: formData.get("quotedPrice") ? Number(formData.get("quotedPrice")) : null,
       leadTimeDays: formData.get("leadTimeDays") ? Number(formData.get("leadTimeDays")) : null,
       reply: String(formData.get("reply") || "") || null,
+      ...(quoteFileKey ? { quoteFileKey } : {}),
     },
   });
   await notify({
@@ -822,6 +835,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   });
   await audit(session.user.id, "ENQUIRY_QUOTED", "Enquiry", enquiryId, e.product.name);
   revalidatePath("/supplier");
+  revalidatePath("/supplier/enquiries");
 }
 
 // buyer accepts a supplier's quoted price — raises an escrowed invoice (Syntax verifies payment)
@@ -859,10 +873,11 @@ export async function acceptEnquiryQuote(enquiryId: string) {
   const base = session.user.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace";
   revalidatePath(base);
   revalidatePath("/supplier");
+  revalidatePath("/supplier/enquiries");
   redirect(base);
 }
 
-export async function fulfilEnquiry(enquiryId: string) {
+export async function fulfilEnquiry(enquiryId: string, formData?: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") redirect("/login");
   const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
@@ -872,17 +887,105 @@ export async function fulfilEnquiry(enquiryId: string) {
     include: { product: { select: { name: true } }, buyer: { select: { role: true } }, invoice: true },
   });
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
+  if (!["PAID", "INVOICED"].includes(e.status)) throw new Error("The buyer must accept and pay before fulfilment");
   if (e.invoice && e.invoice.status !== "PAID" && e.invoice.status !== "VOID")
     throw new Error("Await buyer payment — the invoice must settle before fulfilment");
-  await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "FULFILLED" } });
-  await audit(session.user.id, "ENQUIRY_FULFILLED", "Enquiry", enquiryId);
+  const courier = formData ? String(formData.get("courier") || "") || null : null;
+  const trackingNo = formData ? String(formData.get("trackingNo") || "") || null : null;
+  await prisma.enquiry.update({
+    where: { id: enquiryId },
+    data: { status: "FULFILLED", courier, trackingNo },
+  });
+  await audit(session.user.id, "ENQUIRY_FULFILLED", "Enquiry", enquiryId, [courier, trackingNo].filter(Boolean).join(" ") || undefined);
   await notify({
     toUserId: e.buyerId,
-    subject: `Enquiry fulfilled: ${e.product.name}`,
-    body: `${profile.orgName} marked your enquiry for ${e.qty} × ${e.product.name} as fulfilled${e.quotedPrice != null ? ` (PKR ${e.quotedPrice.toLocaleString()})` : ""}.`,
+    subject: `Order shipped: ${e.product.name}`,
+    body: `${profile.orgName} fulfilled your order for ${e.qty} × ${e.product.name}${courier || trackingNo ? ` — shipped via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}.`,
     href: e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
   });
   revalidatePath("/supplier");
+  revalidatePath("/supplier/enquiries");
+}
+
+// supplier politely declines an enquiry — buyer sees the reason, thread closes
+export async function declineEnquiry(enquiryId: string, formData: FormData) {
+  const session = await getSession();
+  if (!session || session.user.role !== "SUPPLIER") redirect("/login");
+  const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  const e = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, buyer: { select: { role: true } } },
+  });
+  if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
+  if (["INVOICED", "PAID", "FULFILLED", "CLOSED"].includes(e.status))
+    throw new Error("This enquiry can't be declined at this stage");
+  const reason = String(formData.get("reason") || formData.get("reply") || "") || null;
+  await prisma.enquiry.update({
+    where: { id: enquiryId },
+    data: { status: "CLOSED", declineReason: reason },
+  });
+  await audit(session.user.id, "ENQUIRY_DECLINED", "Enquiry", enquiryId, reason ?? undefined);
+  await notify({
+    toUserId: e.buyerId,
+    subject: `Enquiry declined: ${e.product.name}`,
+    body: `${profile.orgName} can't fulfil your enquiry for ${e.qty} × ${e.product.name}${reason ? ` — ${reason}` : ""}. You can enquire with another supplier.`,
+    href: e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+  });
+  revalidatePath("/supplier");
+  revalidatePath("/supplier/enquiries");
+}
+
+// back-and-forth clarification between buyer and supplier on an open enquiry
+export async function sendEnquiryMessage(enquiryId: string, formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const body = String(formData.get("body") || "").trim();
+  if (!body) throw new Error("Write a message first");
+  if (body.length > 2000) throw new Error("Message too long");
+  const e = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, supplier: { select: { userId: true, orgName: true } }, buyer: { select: { role: true, name: true } } },
+  });
+  const isBuyer = e.buyerId === session.user.id;
+  const isSupplier = e.supplier.userId === session.user.id;
+  if (!isBuyer && !isSupplier) throw new Error("Not your enquiry");
+  if (["CLOSED", "FULFILLED"].includes(e.status)) throw new Error("This enquiry is closed");
+  await prisma.enquiryMessage.create({ data: { enquiryId, authorId: session.user.id, body } });
+  await notify({
+    toUserId: isBuyer ? e.supplier.userId : e.buyerId,
+    subject: `New message on ${e.enquiryNo}`,
+    body: `${session.user.name ?? (isBuyer ? "The buyer" : e.supplier.orgName)} replied on your enquiry for ${e.product.name}.`,
+    href: isBuyer ? "/supplier/enquiries" : e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+  });
+  revalidatePath("/supplier");
+  revalidatePath("/supplier/enquiries");
+  revalidatePath("/dashboard/marketplace");
+  revalidatePath("/lab/supplies");
+}
+
+// support ticket without a project — suppliers (and any signed-in user) can
+// raise payment/delivery/general issues to the Gateway team
+export async function fileSupportComplaint(formData: FormData) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+  const subject = String(formData.get("subject") || "").trim();
+  const details = String(formData.get("details") || "").trim();
+  if (!subject || !details) throw new Error("Subject and details are required");
+  const open = await prisma.complaint.findFirst({
+    where: { filedById: session.user.id, projectId: null, status: { in: ["OPEN", "IN_REVIEW"] } },
+    select: { id: true },
+  });
+  if (open) throw new Error("You already have an open ticket — add messages there instead");
+  const complaint = await prisma.complaint.create({
+    data: { ticketNo: await nextRef("CMP", { yearly: true }), filedById: session.user.id, subject, details },
+  });
+  await audit(session.user.id, "COMPLAINT_FILED", "Complaint", complaint.id, complaint.ticketNo);
+  await notifyAllAdmins(
+    `Ticket ${complaint.ticketNo}: ${subject}`,
+    `${session.user.name ?? "A user"} opened support ticket ${complaint.ticketNo}.`,
+    `/admin/complaints/${complaint.id}`
+  );
+  revalidatePath("/supplier/complaints");
 }
 
 // ---------- notification feed ----------

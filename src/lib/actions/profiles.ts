@@ -44,6 +44,7 @@ export async function updateProviderProfile(formData: FormData) {
       serviceCategories: g("serviceCategories") ?? "", hpcCapacity: g("hpcCapacity"),
       website: normalizeUrl(g("website")), accreditations: g("accreditations"),
       contactPerson: g("contactPerson"), bio: g("bio"),
+      bankTitle: g("bankTitle"), bankName: g("bankName"), bankIban: g("bankIban"),
       establishedYear: formData.get("establishedYear") ? Number(formData.get("establishedYear")) : null,
     },
   });
@@ -61,6 +62,7 @@ export async function updateSupplierProfile(formData: FormData) {
       city: String(formData.get("city")),
       categories: g("categories") ?? "", website: normalizeUrl(g("website")),
       contactPerson: g("contactPerson"), bio: g("bio"),
+      bankTitle: g("bankTitle"), bankName: g("bankName"), bankIban: g("bankIban"),
       establishedYear: formData.get("establishedYear") ? Number(formData.get("establishedYear")) : null,
     },
   });
