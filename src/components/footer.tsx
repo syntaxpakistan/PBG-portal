@@ -53,6 +53,15 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
       { label: "contact@biotechnologygateway.com", href: "mailto:contact@biotechnologygateway.com" },
     ],
   },
+  {
+    heading: "Legal",
+    links: [
+      { label: "Terms of Service", href: "/legal" },
+      { label: "Privacy Policy", href: "/legal/privacy" },
+      { label: "Data & Research Ethics", href: "/legal/data" },
+      { label: "Compliance & Standards", href: "/legal/compliance" },
+    ],
+  },
 ];
 
 export function Footer() {
@@ -71,7 +80,7 @@ export function Footer() {
         <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
           <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-32 w-auto sm:h-36" />
         </Link>
-        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-14">
+        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(4,auto)] lg:gap-14">
           <div>
             <p className="max-w-xs text-[13.5px] leading-relaxed text-[#a2c1d7]">
               A federated digital marketplace connecting Pakistan&apos;s research community with
