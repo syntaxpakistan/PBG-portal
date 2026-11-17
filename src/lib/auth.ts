@@ -28,7 +28,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    minPasswordLength: 8,
+    minPasswordLength: 12,
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
@@ -66,6 +66,13 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24,
+  },
+  // enabled by default in production already — stated explicitly so it can't
+  // silently flip off; stricter built-in rules apply on sign-in/sign-up/reset
+  rateLimit: {
+    enabled: true,
+    window: 10, // seconds
+    max: 100,   // per IP per window (global ceiling; auth paths are stricter)
   },
   plugins: [
     twoFactor({ issuer: "Pakistan Biotechnology Gateway" }),

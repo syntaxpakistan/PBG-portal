@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { nextRef } from "@/lib/refs";
 import { requireRole } from "@/lib/session";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** Where public lead forms are delivered. */
 const LEAD_INBOXES = {
@@ -24,6 +25,10 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
 
   // honeypot — bots fill this hidden field
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
+  // spam brake — a few submissions per address per day is plenty
+  if (email && !rateLimit(`lead:${email}`, 3, 24 * 3600e3)) {
+    return { ok: false, error: "Too many submissions — please try again later or email us directly." };
+  }
 
   if (!firstName || !/^\S+@\S+\.\S+$/.test(email)) {
     return { ok: false, error: "Please provide your name and a valid work email." };

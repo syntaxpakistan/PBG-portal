@@ -239,6 +239,7 @@ export async function postMessage(projectId: string, formData: FormData) {
   const allowed = [project.customerId, project.providerUserId];
   const isAdmin = session.user.role === "ADMIN";
   if (!allowed.includes(session.user.id) && !isAdmin) throw new Error("Not in this project");
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
   const file = formData.get("attachment");
   let attachmentName: string | null = null;
   let attachmentKey: string | null = null;
@@ -499,6 +500,7 @@ export async function fileComplaint(projectId: string, formData: FormData) {
       session.user.id === project.providerUserId ||
       (session.user as { role?: string }).role === "ADMIN");
   if (!isParty) throw new Error("Only project parties can file a complaint on this project.");
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today — please contact support directly.");
   // idempotent — one open complaint per project per filer; double-clicks can't spam the queue
   const open = await prisma.complaint.findFirst({
     where: { projectId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
@@ -974,6 +976,7 @@ export async function sendEnquiryMessage(enquiryId: string, formData: FormData) 
   const isSupplier = e.supplier.userId === session.user.id;
   if (!isBuyer && !isSupplier) throw new Error("Not your enquiry");
   if (e.status === "CLOSED") throw new Error("This enquiry is closed");
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
   await prisma.enquiryMessage.create({
     data: { enquiryId, authorId: session.user.id, body: body || (attachmentName ?? "Attachment"), attachmentName, attachmentKey },
   });
@@ -1046,6 +1049,7 @@ export async function fileSupportComplaint(formData: FormData) {
   const subject = String(formData.get("subject") || "").trim();
   const details = String(formData.get("details") || "").trim();
   if (!subject || !details) throw new Error("Subject and details are required");
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many tickets filed today — please contact support directly.");
   const open = await prisma.complaint.findFirst({
     where: { filedById: session.user.id, projectId: null, status: { in: ["OPEN", "IN_REVIEW"] } },
     select: { id: true },

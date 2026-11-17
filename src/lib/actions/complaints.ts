@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { nextRef } from "@/lib/refs";
 import { complaintParties, type ComplaintChannel } from "@/lib/complaints";
+import { rateLimit } from "@/lib/rate-limit";
 
 export type { ComplaintChannel };
 
@@ -25,6 +26,7 @@ export async function fileEnquiryComplaint(enquiryId: string, formData: FormData
       session.user.id === enquiry.supplier.userId ||
       (session.user.role ?? "") === "ADMIN");
   if (!isParty) throw new Error("Only the buyer or supplier can file a complaint on this order.");
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today — please contact support directly.");
   // idempotent — one open complaint per order per filer; double-clicks can't spam the queue
   const open = await prisma.complaint.findFirst({
     where: { enquiryId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
@@ -102,6 +104,7 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
       : null;
     if (!allowedChannel || channel !== allowedChannel) throw new Error("Not your complaint.");
   }
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
 
   await prisma.complaintMessage.create({
     data: { complaintId, channel, senderId: session.user.id, body: text },

@@ -21,6 +21,10 @@ const ALLOWED = [
   "image/webp",
 ];
 
+// positive extension allowlist — the browser's claimed MIME is not trusted on
+// its own; a renamed executable must fail on the extension too
+const ALLOWED_EXT = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".zip", ".csv", ".txt", ".html", ".htm", ".png", ".jpg", ".jpeg", ".webp"];
+
 // Neon object storage is S3-compatible; when its env vars are present we store
 // there instead of the local disk (serverless runtimes have no writable fs).
 const s3 = process.env.AWS_ENDPOINT_URL_S3
@@ -40,6 +44,8 @@ function checkName(name: string) {
   const ext = path.extname(name).toLowerCase();
   if ([".fastq", ".fq", ".bam", ".vcf", ".fasta", ".fa", ".sam", ".gz"].includes(ext))
     throw new Error("Raw genomic data is never hosted on the Gateway");
+  if (!ALLOWED_EXT.includes(ext))
+    throw new Error("Unsupported file type — PDF, Office docs, CSV, TXT, HTML, ZIP or images only");
   return ext;
 }
 
