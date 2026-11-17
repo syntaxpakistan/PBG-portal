@@ -47,13 +47,6 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
     ],
   },
   {
-    heading: "Contact",
-    links: [
-      { label: "info@biotechnologygateway.com", href: "mailto:info@biotechnologygateway.com" },
-      { label: "contact@biotechnologygateway.com", href: "mailto:contact@biotechnologygateway.com" },
-    ],
-  },
-  {
     heading: "Legal",
     links: [
       { label: "Terms of Service", href: "/legal" },
@@ -80,12 +73,16 @@ export function Footer() {
         <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
           <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-32 w-auto sm:h-36" />
         </Link>
-        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(4,auto)] lg:gap-14">
+        <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-14">
           <div>
             <p className="max-w-xs text-[13.5px] leading-relaxed text-[#a2c1d7]">
               A federated digital marketplace connecting Pakistan&apos;s research community with
               verified sequencing capacity, bioinformatics providers and indigenous biotech suppliers.
             </p>
+            <ul className="mt-4 space-y-1.5">
+              <li><a href="mailto:info@biotechnologygateway.com" className="text-[13.5px] text-[#a2c1d7] transition-colors hover:text-white">info@biotechnologygateway.com</a></li>
+              <li><a href="mailto:contact@biotechnologygateway.com" className="text-[13.5px] text-[#a2c1d7] transition-colors hover:text-white">contact@biotechnologygateway.com</a></li>
+            </ul>
             <div className="mt-5 flex items-center gap-4">
               {SOCIALS.map((s) => (
                 <a
