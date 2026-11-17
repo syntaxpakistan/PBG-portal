@@ -97,11 +97,14 @@ export async function setComplaintStatus(id: string, status: ComplaintStatus, re
   const complaint = await prisma.complaint.update({
     where: { id },
     data: { status, resolution: resolution || null },
-    include: { project: { select: { providerUserId: true, customerId: true } } },
+    include: {
+      project: { select: { providerUserId: true, customerId: true } },
+      enquiry: { select: { buyerId: true, supplier: { select: { userId: true } } } },
+    },
   });
   await audit(session.user.id, `COMPLAINT_${status}`, "Complaint", id, resolution);
   // tell both parties — the filer and the counterparty — that the case moved
-  const notifyIds = new Set([complaint.filedById, complaint.project?.customerId, complaint.project?.providerUserId].filter((x): x is string => !!x && x !== session.user.id));
+  const notifyIds = new Set([complaint.filedById, complaint.project?.customerId, complaint.project?.providerUserId, complaint.enquiry?.buyerId, complaint.enquiry?.supplier.userId].filter((x): x is string => !!x && x !== session.user.id));
   const roles = new Map(
     (await prisma.user.findMany({ where: { id: { in: [...notifyIds] } }, select: { id: true, role: true } })).map((u) => [u.id, u.role])
   );
@@ -111,7 +114,7 @@ export async function setComplaintStatus(id: string, status: ComplaintStatus, re
       toUserId: uid,
       subject: `Complaint ${status === "RESOLVED" ? "resolved" : status === "DISMISSED" ? "closed" : "under review"}: ${complaint.subject}`,
       body: resolution ? `Resolution: ${resolution}` : `Your complaint is now ${status.toLowerCase().replace("_", " ")}.`,
-      href: r === "PROVIDER" ? `/lab/complaints/${id}` : r === "ADMIN" ? `/admin/complaints/${id}` : `/dashboard/complaints/${id}`,
+      href: r === "PROVIDER" ? `/lab/complaints/${id}` : r === "SUPPLIER" ? `/supplier/complaints/${id}` : r === "ADMIN" ? `/admin/complaints/${id}` : `/dashboard/complaints/${id}`,
     });
   }
   revalidatePath("/admin/complaints");
