@@ -3,12 +3,14 @@ import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
 import { PLANS, planTermLabel } from "@/lib/plans";
 import { getPlanPrices } from "@/lib/settings";
-import type { PartnerAccess } from "@/lib/entitlements";
+import type { PartnerAccess, AnalyticsAddOnState } from "@/lib/entitlements";
 import type { Invoice, Payment, Payout } from "@prisma/client";
 import {
   ReportPaymentForm, ConfirmPaymentButton, RejectPaymentButton,
   AttachReceiptForm, PlanPicker,
 } from "@/components/portal/billing-buttons";
+import { SubmitButton } from "@/components/portal/submit-button";
+import { requestAnalyticsAddOn } from "@/lib/actions/billing";
 
 export type InvoiceWithDetails = Invoice & {
   items: { id: string; description: string; qty: number; unitPrice: number; amount: number }[];
@@ -30,7 +32,7 @@ function outstanding(inv: InvoiceWithDetails) {
 }
 
 export async function BillingView({
-  access, payables, receivables, payouts, pendingForMe, canSubscribe = true,
+  access, payables, receivables, payouts, pendingForMe, canSubscribe = true, analyticsAddOn,
 }: {
   access: PartnerAccess;
   payables: InvoiceWithDetails[];
@@ -39,6 +41,8 @@ export async function BillingView({
   pendingForMe: { payment: Payment & { invoice: Invoice }; canConfirm: boolean }[];
   /** false for customers — subscriptions are partner-only; clients never pick a plan */
   canSubscribe?: boolean;
+  /** Analytics add-on purchase state — renders the add-on card when provided */
+  analyticsAddOn?: AnalyticsAddOnState;
 }) {
   const openPayables = payables.filter((i) => i.status !== "PAID" && i.status !== "VOID");
   const nextPayout = payouts.find((p) => p.status === "PLANNED" || p.status === "PROCESSING");
@@ -99,6 +103,30 @@ export async function BillingView({
             {access.plan ? "" : "No subscription on file. Pick a plan to activate paid features — an invoice is issued immediately and your plan activates once payment is confirmed."}
           </p>
           <PlanPicker current="" plans={planOptions} />
+        </div>
+      )}
+
+      {/* analytics add-on */}
+      {analyticsAddOn && (
+        <div className="card mb-6 flex flex-wrap items-center justify-between gap-3 p-5">
+          <div>
+            <h3 className="text-[14px] font-semibold text-ink">Analytics add-on</h3>
+            <p className="mt-0.5 text-[12px] text-muted">
+              Sample &amp; report analysis dashboard —{" "}
+              {analyticsAddOn.state === "INCLUDED" ? "included in your plan"
+                : analyticsAddOn.state === "ACTIVE" ? `active${analyticsAddOn.expiresAt ? ` until ${analyticsAddOn.expiresAt.toLocaleDateString()}` : ""}`
+                : analyticsAddOn.state === "PENDING" ? `invoice ${analyticsAddOn.invoiceNo ?? ""} awaiting payment`
+                : `${money(analyticsAddOn.price)}/year`}.
+            </p>
+          </div>
+          {analyticsAddOn.state === "NONE" && (
+            <form action={requestAnalyticsAddOn}>
+              <SubmitButton className="btn-primary !py-2 text-[12.5px]">Get Analytics</SubmitButton>
+            </form>
+          )}
+          {analyticsAddOn.state === "PENDING" && <span className="rounded-full bg-(--st-amber-bg) px-3 py-1 text-[11.5px] font-semibold text-(--st-amber-fg)">Awaiting payment</span>}
+          {analyticsAddOn.state === "ACTIVE" && <span className="rounded-full bg-(--st-green-bg) px-3 py-1 text-[11.5px] font-semibold text-(--st-green-fg)">Active</span>}
+          {analyticsAddOn.state === "INCLUDED" && <span className="rounded-full bg-(--st-blue-bg) px-3 py-1 text-[11.5px] font-semibold text-(--st-blue-fg)">Plan feature</span>}
         </div>
       )}
 

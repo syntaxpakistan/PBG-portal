@@ -14,6 +14,7 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
     where: { id },
     include: {
       project: { select: { id: true, refNo: true, customerId: true, providerUserId: true } },
+      enquiry: { select: { id: true, enquiryNo: true, buyerId: true } },
       messages: {
         where: { channel: "CUSTOMER" },
         include: { sender: { select: { name: true, role: true } } },
@@ -21,8 +22,8 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
       },
     },
   });
-  // filer or the project's customer only
-  if (!complaint || (complaint.filedById !== session.user.id && complaint.project?.customerId !== session.user.id)) notFound();
+  // filer, the project's customer, or the buyer on a disputed supply order
+  if (!complaint || (complaint.filedById !== session.user.id && complaint.project?.customerId !== session.user.id && complaint.enquiry?.buyerId !== session.user.id)) notFound();
 
   const locked = complaint.status === "RESOLVED" || complaint.status === "DISMISSED";
 
@@ -38,6 +39,11 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
               {complaint.project.refNo} → view project
             </Link>
           )}
+          {complaint.enquiry && (
+            <Link href={`/dashboard/enquiries/${complaint.enquiry.id}`} className="text-[12px] font-medium text-blue hover:underline">
+              {complaint.enquiry.enquiryNo} → view order
+            </Link>
+          )}
         </div>
         <p className="mt-2 max-w-3xl text-[13.5px] leading-relaxed text-body">{complaint.details}</p>
         <p className="mt-2 text-[12px] text-muted">Filed {complaint.createdAt.toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}</p>
@@ -50,7 +56,7 @@ export default async function CustomerComplaintPage({ params }: { params: Promis
         complaintId={complaint.id}
         channel="CUSTOMER"
         title="You ↔ Gateway support"
-        subtitle={complaint.project ? `Complaint on ${complaint.project.refNo}` : "General complaint"}
+        subtitle={complaint.project ? `Complaint on ${complaint.project.refNo}` : complaint.enquiry ? `Dispute on ${complaint.enquiry.enquiryNo}` : "General complaint"}
         messages={complaint.messages.map((m) => ({
           id: m.id,
           senderId: m.senderId,

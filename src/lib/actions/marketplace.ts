@@ -827,15 +827,16 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
       ...(quoteFileKey ? { quoteFileKey } : {}),
     },
   });
+  const price = formData.get("quotedPrice") ? Number(formData.get("quotedPrice")) : null;
+  await logEnquiryEvent(enquiryId, session.user.id, `Offer sent — ${price != null ? `PKR ${price.toLocaleString()}` : "price on request"}${formData.get("leadTimeDays") ? ` · ${formData.get("leadTimeDays")}d lead` : ""}`);
   await notify({
     toUserId: e.buyerId,
     subject: `Supplier responded: ${e.product.name}`,
     body: `${profile.orgName} replied to your enquiry for ${e.qty} × ${e.product.name}. Check your marketplace enquiries for the offer.`,
-    href: e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+    href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
   await audit(session.user.id, "ENQUIRY_QUOTED", "Enquiry", enquiryId, e.product.name);
-  revalidatePath("/supplier");
-  revalidatePath("/supplier/enquiries");
+  revalidateEnquiry(enquiryId);
 }
 
 // buyer accepts a supplier's quoted price — raises an escrowed invoice (Syntax verifies payment)
@@ -863,17 +864,16 @@ export async function acceptEnquiryQuote(enquiryId: string) {
     items: [{ description: `${e.product.name} × ${e.qty}${e.leadTimeDays != null ? ` · ${e.leadTimeDays}d lead` : ""}`, qty: e.qty, unitPrice: e.quotedPrice }],
   });
   await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "INVOICED" } });
+  await logEnquiryEvent(enquiryId, session.user.id, "Offer accepted — invoice issued, awaiting payment");
   await notify({
     toUserId: e.supplier.userId,
     subject: `Order accepted — ${e.product.name}`,
     body: `${session.user.name} accepted your offer for ${e.qty} × ${e.product.name} (PKR ${(e.quotedPrice * e.qty).toLocaleString()}). Payment goes through Syntax escrow — you'll be notified when it's verified.`,
-    href: "/supplier",
+    href: `/supplier/enquiries/${enquiryId}`,
   });
   await audit(session.user.id, "ENQUIRY_ACCEPTED", "Enquiry", enquiryId, `${e.product.name} × ${e.qty}`);
-  const base = session.user.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace";
-  revalidatePath(base);
-  revalidatePath("/supplier");
-  revalidatePath("/supplier/enquiries");
+  const base = session.user.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`;
+  revalidateEnquiry(enquiryId);
   redirect(base);
 }
 
@@ -896,15 +896,15 @@ export async function fulfilEnquiry(enquiryId: string, formData?: FormData) {
     where: { id: enquiryId },
     data: { status: "FULFILLED", courier, trackingNo },
   });
+  await logEnquiryEvent(enquiryId, session.user.id, `Order shipped${courier || trackingNo ? ` — via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""} — awaiting buyer confirmation`);
   await audit(session.user.id, "ENQUIRY_FULFILLED", "Enquiry", enquiryId, [courier, trackingNo].filter(Boolean).join(" ") || undefined);
   await notify({
     toUserId: e.buyerId,
     subject: `Order shipped: ${e.product.name}`,
-    body: `${profile.orgName} fulfilled your order for ${e.qty} × ${e.product.name}${courier || trackingNo ? ` — shipped via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}.`,
-    href: e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+    body: `${profile.orgName} fulfilled your order for ${e.qty} × ${e.product.name}${courier || trackingNo ? ` — shipped via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}. Confirm receipt when it arrives.`,
+    href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
-  revalidatePath("/supplier");
-  revalidatePath("/supplier/enquiries");
+  revalidateEnquiry(enquiryId);
 }
 
 // supplier politely declines an enquiry — buyer sees the reason, thread closes
@@ -924,23 +924,47 @@ export async function declineEnquiry(enquiryId: string, formData: FormData) {
     where: { id: enquiryId },
     data: { status: "CLOSED", declineReason: reason },
   });
+  await logEnquiryEvent(enquiryId, session.user.id, `Enquiry declined${reason ? ` — ${reason}` : ""}`);
   await audit(session.user.id, "ENQUIRY_DECLINED", "Enquiry", enquiryId, reason ?? undefined);
   await notify({
     toUserId: e.buyerId,
     subject: `Enquiry declined: ${e.product.name}`,
     body: `${profile.orgName} can't fulfil your enquiry for ${e.qty} × ${e.product.name}${reason ? ` — ${reason}` : ""}. You can enquire with another supplier.`,
-    href: e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+    href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
-  revalidatePath("/supplier");
-  revalidatePath("/supplier/enquiries");
+  revalidateEnquiry(enquiryId);
 }
 
-// back-and-forth clarification between buyer and supplier on an open enquiry
+// timeline entry on the order — rendered as a centered event in the shared thread
+async function logEnquiryEvent(enquiryId: string, authorId: string, body: string) {
+  await prisma.enquiryMessage.create({ data: { enquiryId, authorId, kind: "EVENT", body } });
+}
+
+function revalidateEnquiry(enquiryId: string) {
+  revalidatePath(`/supplier/enquiries/${enquiryId}`);
+  revalidatePath("/supplier/enquiries");
+  revalidatePath("/supplier/orders");
+  revalidatePath(`/dashboard/enquiries/${enquiryId}`);
+  revalidatePath(`/lab/enquiries/${enquiryId}`);
+  revalidatePath("/dashboard/marketplace");
+  revalidatePath("/lab/supplies");
+}
+
+// back-and-forth chat between buyer and supplier — stays open through fulfilment
+// so shipping questions land on the same thread; supports file attachments
 export async function sendEnquiryMessage(enquiryId: string, formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
   const body = String(formData.get("body") || "").trim();
-  if (!body) throw new Error("Write a message first");
+  const file = formData.get("attachment");
+  let attachmentName: string | null = null;
+  let attachmentKey: string | null = null;
+  if (file instanceof File && file.size > 0) {
+    const saved = await saveUpload(file);
+    attachmentName = file.name;
+    attachmentKey = saved.key;
+  }
+  if (!body && !attachmentKey) throw new Error("Write a message or attach a file first");
   if (body.length > 2000) throw new Error("Message too long");
   const e = await prisma.enquiry.findUniqueOrThrow({
     where: { id: enquiryId },
@@ -949,18 +973,69 @@ export async function sendEnquiryMessage(enquiryId: string, formData: FormData) 
   const isBuyer = e.buyerId === session.user.id;
   const isSupplier = e.supplier.userId === session.user.id;
   if (!isBuyer && !isSupplier) throw new Error("Not your enquiry");
-  if (["CLOSED", "FULFILLED"].includes(e.status)) throw new Error("This enquiry is closed");
-  await prisma.enquiryMessage.create({ data: { enquiryId, authorId: session.user.id, body } });
+  if (e.status === "CLOSED") throw new Error("This enquiry is closed");
+  await prisma.enquiryMessage.create({
+    data: { enquiryId, authorId: session.user.id, body: body || (attachmentName ?? "Attachment"), attachmentName, attachmentKey },
+  });
   await notify({
     toUserId: isBuyer ? e.supplier.userId : e.buyerId,
     subject: `New message on ${e.enquiryNo}`,
     body: `${session.user.name ?? (isBuyer ? "The buyer" : e.supplier.orgName)} replied on your enquiry for ${e.product.name}.`,
-    href: isBuyer ? "/supplier/enquiries" : e.buyer.role === "PROVIDER" ? "/lab/supplies" : "/dashboard/marketplace",
+    href: isBuyer ? `/supplier/enquiries/${enquiryId}` : e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
-  revalidatePath("/supplier");
-  revalidatePath("/supplier/enquiries");
-  revalidatePath("/dashboard/marketplace");
-  revalidatePath("/lab/supplies");
+  revalidateEnquiry(enquiryId);
+}
+
+// supplier posts a fulfilment update (packed / dispatched / courier fix…) — lands
+// on the order timeline and notifies the buyer
+export async function postShipmentUpdate(enquiryId: string, formData: FormData) {
+  const session = await getSession();
+  if (!session || session.user.role !== "SUPPLIER") redirect("/login");
+  const profile = await prisma.supplierProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
+  const e = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, buyer: { select: { role: true } } },
+  });
+  if (e.supplierId !== profile.id) throw new Error("Not your order");
+  if (!["PAID", "FULFILLED"].includes(e.status)) throw new Error("Shipment updates start once the order is paid");
+  const note = String(formData.get("note") || "").trim();
+  const courier = String(formData.get("courier") || "") || null;
+  const trackingNo = String(formData.get("trackingNo") || "") || null;
+  if (!note && !courier && !trackingNo) throw new Error("Add a note or tracking details first");
+  if (courier || trackingNo) {
+    await prisma.enquiry.update({ where: { id: enquiryId }, data: { ...(courier ? { courier } : {}), ...(trackingNo ? { trackingNo } : {}) } });
+  }
+  await logEnquiryEvent(enquiryId, session.user.id, `Shipment update — ${[note, courier && `via ${courier}`, trackingNo && `#${trackingNo}`].filter(Boolean).join(" · ")}`);
+  await notify({
+    toUserId: e.buyerId,
+    subject: `Shipment update — ${e.product.name}`,
+    body: note || `Shipping details updated${courier ? ` — ${courier}` : ""}${trackingNo ? ` #${trackingNo}` : ""}.`,
+    href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
+  });
+  await audit(session.user.id, "ENQUIRY_SHIPMENT_UPDATE", "Enquiry", enquiryId, note || [courier, trackingNo].filter(Boolean).join(" ") || undefined);
+  revalidateEnquiry(enquiryId);
+}
+
+// buyer confirms the goods arrived — closes the delivery loop for the supplier
+export async function confirmEnquiryReceived(enquiryId: string) {
+  const session = await getSession();
+  if (!session || (session.user.role !== "CUSTOMER" && session.user.role !== "PROVIDER")) redirect("/login");
+  const e = await prisma.enquiry.findUniqueOrThrow({
+    where: { id: enquiryId },
+    include: { product: { select: { name: true } }, supplier: { select: { userId: true, orgName: true } } },
+  });
+  if (e.buyerId !== session.user.id) throw new Error("Not your order");
+  if (e.status !== "FULFILLED") throw new Error("Nothing to confirm yet — the supplier hasn't marked this order shipped");
+  await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "DELIVERED" } });
+  await logEnquiryEvent(enquiryId, session.user.id, "Delivery confirmed by the buyer — order complete");
+  await notify({
+    toUserId: e.supplier.userId,
+    subject: `Delivered — ${e.product.name}`,
+    body: `${session.user.name} confirmed receipt of ${e.qty} × ${e.product.name}. The order is complete — Syntax will settle your payout.`,
+    href: `/supplier/enquiries/${enquiryId}`,
+  });
+  await audit(session.user.id, "ENQUIRY_DELIVERED", "Enquiry", enquiryId, e.product.name);
+  revalidateEnquiry(enquiryId);
 }
 
 // support ticket without a project — suppliers (and any signed-in user) can

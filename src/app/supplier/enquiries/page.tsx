@@ -1,5 +1,6 @@
 export const instant = false
 
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
@@ -45,8 +46,16 @@ export default async function SupplierEnquiriesPage() {
                 {e.product.price != null && <div className="mt-0.5 text-[11px] text-muted">List price: {pkr(e.product.price)}{e.product.unit ? `/${e.product.unit}` : ""}</div>}
                 {e.message && <p className="mt-1.5 text-[12.5px] text-body">&ldquo;{e.message}&rdquo;</p>}
               </div>
-              <StatusBadge status={e.status} />
+              <div className="flex shrink-0 items-center gap-3">
+                <StatusBadge status={e.status} />
+                <Link href={`/supplier/enquiries/${e.id}`} className="text-[12px] font-medium text-blue hover:underline">Open order →</Link>
+              </div>
             </div>
+            {e.status === "DELIVERED" && (
+              <div className="mt-2.5 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
+                Delivered — the buyer confirmed receipt. Order complete.
+              </div>
+            )}
             {e.status === "QUOTED" && (
               <div className="mt-2.5 rounded-lg bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
                 Your offer: {e.quotedPrice != null ? pkr(e.quotedPrice) : "price on request"}
@@ -99,16 +108,23 @@ export default async function SupplierEnquiriesPage() {
             {/* clarification thread */}
             {e.messages.length > 0 && (
               <div className="mt-3 space-y-1.5 border-t border-line pt-3">
-                {e.messages.map((m) => (
-                  <p key={m.id} className="text-[12px] leading-snug">
-                    <span className="font-semibold text-ink">{m.author.role === "SUPPLIER" ? "You" : m.author.name ?? "Buyer"}:</span>{" "}
-                    <span className="text-body">{m.body}</span>
-                    <span className="ml-1.5 text-[10.5px] text-muted">{m.createdAt.toLocaleDateString()}</span>
-                  </p>
-                ))}
+                {e.messages.slice(-4).map((m) =>
+                  m.kind === "EVENT" ? (
+                    <p key={m.id} className="text-[11px] italic text-muted">— {m.body}</p>
+                  ) : (
+                    <p key={m.id} className="text-[12px] leading-snug">
+                      <span className="font-semibold text-ink">{m.author.role === "SUPPLIER" ? "You" : m.author.name ?? "Buyer"}:</span>{" "}
+                      <span className="text-body">{m.body}</span>
+                      <span className="ml-1.5 text-[10.5px] text-muted">{m.createdAt.toLocaleDateString()}</span>
+                    </p>
+                  )
+                )}
+                {e.messages.length > 4 && (
+                  <Link href={`/supplier/enquiries/${e.id}`} className="block text-[11.5px] font-medium text-blue hover:underline">View full thread →</Link>
+                )}
               </div>
             )}
-            {!["CLOSED", "FULFILLED"].includes(e.status) && (
+            {e.status !== "CLOSED" && (
               <form action={sendEnquiryMessage.bind(null, e.id)} className="mt-2.5 flex gap-2">
                 <input name="body" placeholder="Message the buyer…" className="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <SubmitButton className="btn-outline !py-2 text-[12px]">Send</SubmitButton>

@@ -4,13 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
 import { SettingForm } from "./setting-form";
 import { TextSettingForm } from "./text-setting-form";
-import { getFeePercent, getPlanPrices, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions } from "@/lib/settings";
+import { getFeePercent, getPlanPrices, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions, getAnalyticsAddonPrice } from "@/lib/settings";
 import { PLANS, type PlanKey } from "@/lib/plans";
 
 const FEE_KEY = "platform_fee_percent";
 
 export default async function SettingsPage() {
-  const [fee, planPrices, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings] = await Promise.all([
+  const [fee, planPrices, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings, addonPrice] = await Promise.all([
     getFeePercent(),
     getPlanPrices(),
     getGraceDays(),
@@ -19,6 +19,7 @@ export default async function SettingsPage() {
     getEnquiryRateLimit(),
     getPaymentInstructions(),
     prisma.platformSetting.findMany({ orderBy: { key: "asc" } }),
+    getAnalyticsAddonPrice(),
   ]);
 
   const planRows: { key: PlanKey; label: string; tagline: string }[] = [
@@ -55,6 +56,13 @@ export default async function SettingsPage() {
                 <SettingForm settingKey={`plan_price_${p.key.toLowerCase()}`} current={planPrices[p.key]} suffix="PKR" min={0} max={10000000} />
               </div>
             ))}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div>
+                <div className="text-[13px] font-semibold text-ink">Analytics add-on</div>
+                <div className="text-[11.5px] text-muted">Yearly price for customers &amp; Basic-tier partners</div>
+              </div>
+              <SettingForm settingKey="addon_analytics_price" current={addonPrice} suffix="PKR" min={0} max={10000000} />
+            </div>
           </div>
         </div>
 

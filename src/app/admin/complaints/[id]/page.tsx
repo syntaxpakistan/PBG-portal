@@ -23,6 +23,14 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
           provider: { select: { orgName: true } },
         },
       },
+      enquiry: {
+        select: {
+          id: true, enquiryNo: true, status: true, buyerId: true,
+          buyer: { select: { name: true } },
+          supplier: { select: { userId: true, orgName: true } },
+          product: { select: { name: true } },
+        },
+      },
       messages: { include: { sender: { select: { name: true, role: true } } }, orderBy: { createdAt: "asc" } },
     },
   });
@@ -30,9 +38,13 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
 
   const parties = complaintParties({
     projectId: complaint.projectId,
+    enquiryId: complaint.enquiryId,
     filedById: complaint.filedById,
     filerRole: complaint.filedBy.role,
     project: complaint.project,
+    enquiry: complaint.enquiry
+      ? { buyerId: complaint.enquiry.buyerId, supplierUserId: complaint.enquiry.supplier.userId }
+      : null,
   });
 
   const serialize = (channel: string) =>
@@ -49,14 +61,17 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
   const locked = complaint.status === "RESOLVED" || complaint.status === "DISMISSED";
   const customerMsgs = parties.customerUserId ? serialize("CUSTOMER") : [];
   const providerMsgs = parties.providerUserId ? serialize("PROVIDER") : [];
-  const customerName = complaint.project?.customer.name ?? complaint.filedBy.name;
-  const providerName = complaint.project?.provider.orgName ?? (["PROVIDER", "SUPPLIER"].includes(complaint.filedBy.role ?? "") ? complaint.filedBy.name : null);
+  const customerName = complaint.project?.customer.name ?? complaint.enquiry?.buyer.name ?? complaint.filedBy.name;
+  const providerName = complaint.project?.provider.orgName ?? complaint.enquiry?.supplier.orgName ?? (["PROVIDER", "SUPPLIER"].includes(complaint.filedBy.role ?? "") ? complaint.filedBy.name : null);
+  const contextRef = complaint.project?.refNo ?? complaint.enquiry?.enquiryNo;
+  const customerTitle = complaint.enquiry ? "Buyer ↔ Support" : "Client ↔ Support";
+  const providerTitle = complaint.enquiry ? "Supplier ↔ Support" : "Lab ↔ Support";
 
   return (
     <>
       <PageHead
         title={`${complaint.ticketNo}: ${complaint.subject}`}
-        sub="Private channels — the client and the lab never see each other's side."
+        sub="Private channels — the parties never see each other's side."
       />
 
       <div className="card mb-6 p-5">
@@ -68,6 +83,11 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
                 <Link href={`/admin/projects/${complaint.project.id}`} className="text-[12px] font-medium text-blue hover:underline">
                   {complaint.project.refNo} → view project
                 </Link>
+              )}
+              {complaint.enquiry && (
+                <span className="text-[12px] font-medium text-muted">
+                  Supply order {complaint.enquiry.enquiryNo} · {complaint.enquiry.product.name} · {complaint.enquiry.buyer.name} ↔ {complaint.enquiry.supplier.orgName}
+                </span>
               )}
             </div>
             <p className="mt-2 max-w-3xl text-[13.5px] leading-relaxed text-body">{complaint.details}</p>
@@ -87,8 +107,8 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
           <ComplaintThread
             complaintId={complaint.id}
             channel="CUSTOMER"
-            title={`Client ↔ Support`}
-            subtitle={`${customerName}${complaint.project ? ` · ${complaint.project.refNo}` : ""}`}
+            title={customerTitle}
+            subtitle={`${customerName}${contextRef ? ` · ${contextRef}` : ""}`}
             messages={customerMsgs}
             selfId={session.user.id}
             locked={locked}
@@ -98,8 +118,8 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
           <ComplaintThread
             complaintId={complaint.id}
             channel="PROVIDER"
-            title={`Lab ↔ Support`}
-            subtitle={`${providerName}${complaint.project ? ` · ${complaint.project.refNo}` : ""}`}
+            title={providerTitle}
+            subtitle={`${providerName}${contextRef ? ` · ${contextRef}` : ""}`}
             messages={providerMsgs}
             selfId={session.user.id}
             locked={locked}

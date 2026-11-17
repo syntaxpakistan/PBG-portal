@@ -30,6 +30,11 @@ export async function getPlanPrices(): Promise<Record<PlanKey, number>> {
   return { BASIC: basic, PRO: pro, CUSTOM: custom };
 }
 
+/** Analytics add-on — yearly price for customers / Basic-tier partners (PKR) */
+export async function getAnalyticsAddonPrice(): Promise<number> {
+  return getNumberSetting("addon_analytics_price", 25000);
+}
+
 // ---------- billing terms ----------
 
 export async function getGraceDays(): Promise<number> {

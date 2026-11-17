@@ -90,7 +90,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           {/* header */}
           <div className="flex items-start justify-between border-b-2 border-navy px-8 py-6">
             <div className="flex items-center gap-3">
-              <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-11 w-auto" />
+              <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-11 w-auto" />
             </div>
             <div className="text-right">
               <div className="font-display text-[24px] font-semibold uppercase tracking-wide text-ink">Invoice</div>

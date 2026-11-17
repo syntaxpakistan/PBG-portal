@@ -44,7 +44,7 @@ export function PortalMobileNav({
       <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-navy px-4 lg:hidden">
         <div className="flex min-w-0 items-center gap-2.5">
           <Link href="/" className="flex shrink-0 items-center" aria-label="Pakistan Biotechnology Gateway home">
-            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-11 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-11 w-auto" />
           </Link>
         </div>
         <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export function PortalMobileNav({
             >
               <div className="flex h-14 items-center justify-between px-5">
                 <div className="flex items-center">
-                  <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-11 w-auto" />
+                  <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-11 w-auto" />
                 </div>
                 <button onClick={() => setOpen(false)} aria-label="Close menu" className="grid size-9 place-items-center rounded-full text-white/80 hover:bg-white/10">
                   <X className="size-5" />

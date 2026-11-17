@@ -8,9 +8,11 @@ import { PageHead, StatusBadge } from "@/components/portal/ui";
 export default async function CustomerComplaintsPage() {
   const session = await requireRole("CUSTOMER");
   const complaints = await prisma.complaint.findMany({
-    where: { filedById: session.user.id },
+    where: {
+      OR: [{ filedById: session.user.id }, { enquiry: { buyerId: session.user.id } }],
+    },
     orderBy: { createdAt: "desc" },
-    include: { project: { select: { refNo: true, id: true } } },
+    include: { project: { select: { refNo: true, id: true } }, enquiry: { select: { id: true, enquiryNo: true } } },
   });
 
   return (
@@ -30,7 +32,11 @@ export default async function CustomerComplaintsPage() {
                   <StatusBadge status={c.status} />
                 </div>
                 <div className="mt-1 text-[12px] text-muted">
-                  {c.project ? <Link href={`/dashboard/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link> : "General"} · filed {c.createdAt.toLocaleDateString()}
+                  {c.project ? (
+                    <Link href={`/dashboard/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link>
+                  ) : c.enquiry ? (
+                    <Link href={`/dashboard/enquiries/${c.enquiry.id}`} className="font-medium text-blue hover:underline">{c.enquiry.enquiryNo}</Link>
+                  ) : "General"} · filed {c.filedById === session.user.id ? "by you" : "by the supplier"} {c.createdAt.toLocaleDateString()}
                 </div>
                 <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-body">{c.details}</p>
                 {c.resolution && (

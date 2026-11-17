@@ -69,6 +69,11 @@ export async function createOrgProfile(input: {
       note: `${PLANS[planKey].label} plan — first billing cycle`,
       items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
+    await notifyAllAdmins(
+      "New laboratory registration — approval needed",
+      `${input.orgName} signed up for the ${PLANS[planKey].label} plan and is waiting in the verification queue.`,
+      "/admin/verification"
+    );
   } else if (input.role === "SUPPLIER") {
     await prisma.supplierProfile.create({
       data: {
@@ -95,6 +100,11 @@ export async function createOrgProfile(input: {
       note: `${PLANS[planKey].label} plan — first billing cycle`,
       items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
+    await notifyAllAdmins(
+      "New supplier registration — approval needed",
+      `${input.orgName} signed up for the ${PLANS[planKey].label} plan and is waiting in the verification queue.`,
+      "/admin/verification"
+    );
   } else if (input.role === "CUSTOMER") {
     await prisma.customerProfile.create({
       data: {

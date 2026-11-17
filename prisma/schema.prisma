@@ -40,6 +40,7 @@ model User {
   customerProfile  CustomerProfile?
   enquiryMessages  EnquiryMessage[]
   subscription     Subscription?
+  addOns           AddOn[]
   rfqs             Rfq[]
   customerProjects Project[]        @relation("CustomerProjects")
   providerProjects Project[]        @relation("ProviderProjects")
@@ -241,6 +242,7 @@ enum EnquiryStatus {
   INVOICED // buyer accepted the supplier's quote — invoice issued
   PAID     // Syntax confirmed receipt (escrow)
   FULFILLED
+  DELIVERED // buyer confirmed receipt of the goods
   ANSWERED
   CLOSED
 }
@@ -270,19 +272,23 @@ model Enquiry {
   invoice     Invoice?
   transaction Transaction?
   messages    EnquiryMessage[]
+  complaints  Complaint[]
 
   @@index([supplierId, status])
   @@index([buyerId])
 }
 
 model EnquiryMessage {
-  id        String   @id @default(cuid())
-  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
-  enquiryId String
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  body      String
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  enquiry        Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  enquiryId      String
+  author         User     @relation(fields: [authorId], references: [id])
+  authorId       String
+  kind           String   @default("CHAT") // CHAT | EVENT — events render on the order timeline
+  body           String
+  attachmentName String?
+  attachmentKey  String?
+  createdAt      DateTime @default(now())
 
   @@index([enquiryId, createdAt])
 }
@@ -608,6 +614,8 @@ model Complaint {
   ticketNo   String          @unique // CMP-2026-0001 — support ticket number
   project    Project?        @relation(fields: [projectId], references: [id])
   projectId  String?
+  enquiry    Enquiry?        @relation(fields: [enquiryId], references: [id])
+  enquiryId  String?
   filedBy    User            @relation(fields: [filedById], references: [id])
   filedById  String
   subject    String
@@ -720,6 +728,27 @@ model Subscription {
   invoices Invoice[] @relation("SubscriptionInvoices")
 }
 
+// ---------- feature add-ons ----------
+// Optional paid extras any user can buy outside the plan — e.g. the Analytics
+// dashboard for customers and Basic-tier partners. Activated when the linked
+// PLATFORM invoice is confirmed PAID; lapses at expiresAt.
+model AddOn {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  kind      String    // "ANALYTICS" — future kinds reuse this table
+  label     String
+  pricePkr  Float
+  status    String    @default("PENDING_PAYMENT") // PENDING_PAYMENT | ACTIVE | EXPIRED
+  startedAt DateTime?
+  expiresAt DateTime?
+  invoice   Invoice?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId, kind])
+}
+
 // ---------- billing & ledger ----------
 // Every rupee/dollar that changes hands gets an Invoice + Payment records.
 // Statements are computed from these — no separate ledger table to drift.
@@ -770,6 +799,7 @@ model Invoice {
   milestoneId    String?       @unique
   transactionId  String?       @unique // platform-fee invoice
   enquiryId      String?       @unique // supplier product sale
+  addOnId        String?       @unique // feature add-on purchase (e.g. analytics)
   // money
   subtotal       Float
   taxAmount      Float         @default(0)
@@ -789,6 +819,7 @@ model Invoice {
   transactions  Transaction[]
   enquiry       Enquiry?       @relation(fields: [enquiryId], references: [id])
   subscription  Subscription? @relation("SubscriptionInvoices", fields: [subscriptionId], references: [id])
+  addOn         AddOn?        @relation(fields: [addOnId], references: [id])
 
   @@index([billedUserId, status])
   @@index([issuerType, issuerId])

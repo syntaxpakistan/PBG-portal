@@ -34,9 +34,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
   const isAdmin = session?.user.role === "ADMIN";
 
   // check which entity owns this key
-  const [resultFile, message, rfq, payment, product, enquiry] = await Promise.all([
+  const [resultFile, message, enquiryMsg, rfq, payment, product, enquiry] = await Promise.all([
     prisma.resultFile.findFirst({ where: { storageKey: key }, include: { project: true } }),
     prisma.message.findFirst({ where: { attachmentKey: key }, include: { project: true } }),
+    prisma.enquiryMessage.findFirst({ where: { attachmentKey: key }, include: { enquiry: { include: { supplier: { select: { userId: true } } } } } }),
     prisma.rfq.findFirst({ where: { attachmentKey: key } }),
     prisma.payment.findFirst({ where: { receiptKey: key }, include: { invoice: { include: { billedUser: { select: { role: true } } } } } }),
     prisma.product.findFirst({ where: { OR: [{ imageKey: key }, { datasheetKey: key }] }, include: { supplier: { select: { userId: true } } } }),
@@ -70,6 +71,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
     if (!isAdmin && uid !== p.customerId && uid !== p.providerUserId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     filename = message.attachmentName;
+  } else if (enquiryMsg) {
+    // order-thread attachment — buyer, supplier and admin only
+    if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const e = enquiryMsg.enquiry;
+    if (!isAdmin && uid !== e.buyerId && uid !== e.supplier.userId)
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    filename = enquiryMsg.attachmentName;
   } else if (rfq) {
     const isProvider = session?.user.role === "PROVIDER";
     if (!isAdmin && !isProvider && uid !== rfq.customerId)

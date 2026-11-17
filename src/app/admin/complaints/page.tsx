@@ -17,6 +17,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
       include: {
         filedBy: { select: { name: true, email: true } },
         project: { select: { id: true, refNo: true } },
+        enquiry: { select: { enquiryNo: true, product: { select: { name: true } } } },
       },
     }),
     prisma.complaint.count(),
@@ -24,7 +25,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
 
   return (
     <>
-      <PageHead title="Complaints" sub="Disputes filed on projects — triage and resolve." />
+      <PageHead title="Complaints" sub="Disputes filed on projects and supply orders — triage and resolve." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints filed.</p>}
         {complaints.map((c) => (
@@ -37,7 +38,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                   <StatusBadge status={c.status} />
                 </div>
                 <div className="mt-1 text-[12px] text-muted">
-                  {c.project ? <Link href={`/admin/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link> : "—"} · filed by {c.filedBy.name} ({c.filedBy.email}) · {c.createdAt.toLocaleDateString()}
+                  {c.project ? <Link href={`/admin/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link> : c.enquiry ? <span className="font-medium text-ink">{c.enquiry.enquiryNo} · {c.enquiry.product.name}</span> : "—"} · filed by {c.filedBy.name} ({c.filedBy.email}) · {c.createdAt.toLocaleDateString()}
                 </div>
                 <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-body">{c.details}</p>
                 {c.resolution && (

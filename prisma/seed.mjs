@@ -36,7 +36,7 @@ async function main() {
   await user("Syntax Admin", "admin@syntaxlife.pk", "ADMIN", "Admin@12345");
 
   // ---- providers ----
-  const labA = await user("Dr. Ayesha Khan", "genomelab@pbg.pk", "PROVIDER", "Lab@12345");
+  const labA = await user("Dr. Waqar Asghar", "genomelab@pbg.pk", "PROVIDER", "Lab@12345");
   const labB = await user("Dr. Bilal Ahmed", "ncgseq@pbg.pk", "PROVIDER", "Lab@12345");
   const labC = await user("Dr. Sara Tariq", "pendinglab@pbg.pk", "PROVIDER", "Lab@12345");
 
@@ -352,7 +352,7 @@ async function main2() {
           key,
           sort: i,
           status: done.includes(key) ? "DONE" : key === "LIBRARY_QC" ? "ACTIVE" : "PENDING",
-          operator: key === "SAMPLE_QC" ? "Ayesha K." : key === "LIBRARY_PREP" ? "Hamza R." : null,
+          operator: key === "SAMPLE_QC" ? "Waqar A." : key === "LIBRARY_PREP" ? "Hamza R." : null,
           note: key === "ACCESSIONING" ? "24 FFPE blocks accessioned" : key === "LIBRARY_PREP" ? "KAPA HyperPrep, dual-indexed" : null,
           startedAt: new Date(Date.now() - (6 - i) * 864e5),
           doneAt: done.includes(key) ? new Date(Date.now() - (5 - i) * 864e5) : null,

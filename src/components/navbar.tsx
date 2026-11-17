@@ -104,7 +104,7 @@ export function Navbar() {
           )}
         >
           <Link href="/" className="flex items-center" aria-label="Pakistan Biotechnology Gateway home">
-            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-14 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-14 w-auto" />
           </Link>
 
           <ul className="hidden items-center gap-0.5 xl:flex">

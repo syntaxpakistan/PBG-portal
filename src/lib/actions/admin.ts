@@ -423,3 +423,72 @@ export async function extendSubscription(id: string) {
   });
   revalidatePath("/admin/subscriptions");
 }
+
+// ---------- feature add-ons (admin) ----------
+
+/**
+ * Give a user the Analytics add-on at a custom price — PKR 0 grants it free
+ * for a year; any positive price issues a PLATFORM invoice at that amount.
+ * Used for negotiated deals that differ from the public add-on price.
+ */
+export async function adminSetAnalyticsAddOn(userId: string, formData: FormData) {
+  const session = await requireAdmin();
+  const price = Number(formData.get("price") ?? "");
+  if (!Number.isFinite(price) || price < 0) throw new Error("Enter a valid price (0 = grant free)");
+  const target = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { id: true, email: true, role: true, name: true } });
+  const existing = await prisma.addOn.findFirst({
+    where: { userId, kind: "ANALYTICS", status: { in: ["PENDING_PAYMENT", "ACTIVE"] } },
+    include: { invoice: { select: { id: true, status: true } } },
+  });
+  if (existing?.status === "ACTIVE") throw new Error("User already has an active Analytics add-on — revoke it first");
+  // re-issuing a pending purchase: void its invoice and drop the stale record
+  if (existing) {
+    if (existing.invoice && existing.invoice.status === "ISSUED") {
+      await prisma.invoice.update({ where: { id: existing.invoice.id }, data: { status: "VOID", note: "Superseded by a new add-on invoice" } });
+    }
+    await prisma.addOn.delete({ where: { id: existing.id } });
+  }
+
+  const addOn = await prisma.addOn.create({
+    data: { userId, kind: "ANALYTICS", label: "Analytics add-on", pricePkr: price },
+  });
+  if (price > 0) {
+    await issueInvoice({
+      billedUserId: userId,
+      issuerType: "PLATFORM",
+      addOnId: addOn.id,
+      currency: "PKR",
+      dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
+      note: "Analytics add-on — custom pricing",
+      items: [{ description: "Gateway Analytics add-on — sample & report analysis dashboard (1 year, custom rate)", unitPrice: price }],
+    });
+  } else {
+    await prisma.addOn.update({
+      where: { id: addOn.id },
+      data: { status: "ACTIVE", startedAt: new Date(), expiresAt: new Date(Date.now() + 365 * 864e5) },
+    });
+    await notify({
+      toUserId: userId,
+      subject: "Analytics add-on activated",
+      body: "The Gateway team activated Analytics on your account — your dashboard is unlocked for one year.",
+      href: target.role === "CUSTOMER" ? "/dashboard/analytics" : "/lab/analytics",
+    });
+  }
+  await audit(session.user.id, price > 0 ? "ADDON_INVOICED_CUSTOM" : "ADDON_GRANTED_FREE", "AddOn", addOn.id, `${target.email} · PKR ${price}`);
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/admin/finance");
+}
+
+/** Revoke a user's Analytics add-on (pending or active) — e.g. refund/negotiation cleanup. */
+export async function adminRevokeAnalyticsAddOn(addOnId: string, formData: FormData) {
+  const session = await requireAdmin();
+  const addOn = await prisma.addOn.update({ where: { id: addOnId }, data: { status: "EXPIRED", expiresAt: new Date() } });
+  // void the linked invoice if it's still open so it can't be paid by mistake
+  const inv = await prisma.invoice.findUnique({ where: { addOnId } });
+  if (inv && inv.status === "ISSUED") {
+    await prisma.invoice.update({ where: { id: inv.id }, data: { status: "VOID", note: "Add-on revoked by admin" } });
+  }
+  await audit(session.user.id, "ADDON_REVOKED", "AddOn", addOnId, `${addOn.kind} · user ${addOn.userId}`);
+  revalidatePath(`/admin/users/${addOn.userId}`);
+  revalidatePath("/admin/finance");
+}

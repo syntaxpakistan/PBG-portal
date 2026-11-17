@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
-import { acceptEnquiryQuote, sendEnquiryMessage } from "@/lib/actions/marketplace";
+import { acceptEnquiryQuote, sendEnquiryMessage, confirmEnquiryReceived } from "@/lib/actions/marketplace";
 import { SubmitButton } from "@/components/portal/submit-button";
 import { EnquiryForm } from "./enquiry-form";
 import { ProductImage } from "./product-image";
@@ -41,7 +41,10 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
               <div key={e.id} className="px-5 py-3.5">
                 <div className="flex items-center justify-between">
                   <div className="text-[13px] font-medium text-ink">{e.product.name} × {e.qty} <span className="font-normal text-muted">· {e.supplier.orgName} · sent {e.createdAt.toLocaleDateString()}</span></div>
-                  <StatusBadge status={e.status} />
+                  <div className="flex shrink-0 items-center gap-3">
+                    <StatusBadge status={e.status} />
+                    <Link href={`${basePath.startsWith("/lab") ? "/lab" : "/dashboard"}/enquiries/${e.id}`} className="text-[12px] font-medium text-blue hover:underline">Open order →</Link>
+                  </div>
                 </div>
                 {e.message && e.message !== "—" && <p className="mt-1 text-[12px] text-muted">You: &ldquo;{e.message}&rdquo;</p>}
                 {e.status === "QUOTED" && (
@@ -73,9 +76,19 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                   </div>
                 )}
                 {e.status === "FULFILLED" && (
+                  <div className="mt-2 flex flex-wrap items-center gap-3 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
+                    <span>
+                      Shipped{e.quotedPrice != null ? ` — ${pkr(e.quotedPrice)}` : ""}
+                      {(e.courier || e.trackingNo) && <span className="block mt-0.5">Via {[e.courier, e.trackingNo].filter(Boolean).join(" · ")}</span>}
+                    </span>
+                    <form action={confirmEnquiryReceived.bind(null, e.id)} className="ml-auto">
+                      <SubmitButton className="rounded-md bg-(--st-green-fg) px-3 py-1.5 text-[11.5px] font-semibold text-white hover:opacity-90">Confirm received</SubmitButton>
+                    </form>
+                  </div>
+                )}
+                {e.status === "DELIVERED" && (
                   <div className="mt-2 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                    Delivered{e.quotedPrice != null ? ` — ${pkr(e.quotedPrice)}` : ""}
-                    {(e.courier || e.trackingNo) && <span className="block mt-0.5">Shipped via {[e.courier, e.trackingNo].filter(Boolean).join(" · ")}</span>}
+                    Delivered — you confirmed receipt. Order complete.
                   </div>
                 )}
                 {e.status === "CLOSED" && (
@@ -85,16 +98,23 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                 )}
                 {e.messages.length > 0 && (
                   <div className="mt-2.5 space-y-1.5 border-t border-line pt-2.5">
-                    {e.messages.map((m) => (
-                      <p key={m.id} className="text-[12px] leading-snug">
-                        <span className="font-semibold text-ink">{m.author.role === "SUPPLIER" ? e.supplier.orgName : "You"}:</span>{" "}
-                        <span className="text-body">{m.body}</span>
-                        <span className="ml-1.5 text-[10.5px] text-muted">{m.createdAt.toLocaleDateString()}</span>
-                      </p>
-                    ))}
+                    {e.messages.slice(-4).map((m) =>
+                      m.kind === "EVENT" ? (
+                        <p key={m.id} className="text-[11px] italic text-muted">— {m.body}</p>
+                      ) : (
+                        <p key={m.id} className="text-[12px] leading-snug">
+                          <span className="font-semibold text-ink">{m.author.role === "SUPPLIER" ? e.supplier.orgName : "You"}:</span>{" "}
+                          <span className="text-body">{m.body}</span>
+                          <span className="ml-1.5 text-[10.5px] text-muted">{m.createdAt.toLocaleDateString()}</span>
+                        </p>
+                      )
+                    )}
+                    {e.messages.length > 4 && (
+                      <Link href={`${basePath.startsWith("/lab") ? "/lab" : "/dashboard"}/enquiries/${e.id}`} className="block text-[11.5px] font-medium text-blue hover:underline">View full thread →</Link>
+                    )}
                   </div>
                 )}
-                {!["CLOSED", "FULFILLED"].includes(e.status) && (
+                {e.status !== "CLOSED" && (
                   <form action={sendEnquiryMessage.bind(null, e.id)} className="mt-2 flex gap-2">
                     <input name="body" placeholder="Ask the supplier a question…" className="flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                     <SubmitButton className="btn-outline !py-2 text-[12px]">Send</SubmitButton>

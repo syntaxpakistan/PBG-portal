@@ -9,10 +9,10 @@ export default async function LabComplaintsPage() {
   const session = await requireRole("PROVIDER");
   const complaints = await prisma.complaint.findMany({
     where: {
-      OR: [{ filedById: session.user.id }, { project: { providerUserId: session.user.id } }],
+      OR: [{ filedById: session.user.id }, { project: { providerUserId: session.user.id } }, { enquiry: { buyerId: session.user.id } }],
     },
     orderBy: { createdAt: "desc" },
-    include: { project: { select: { refNo: true, id: true } }, filedBy: { select: { name: true, role: true } } },
+    include: { project: { select: { refNo: true, id: true } }, enquiry: { select: { id: true, enquiryNo: true } }, filedBy: { select: { name: true, role: true } } },
   });
 
   return (
@@ -33,7 +33,11 @@ export default async function LabComplaintsPage() {
                 {aboutYou && <span className="rounded-full bg-(--st-amber-bg) px-2 py-0.5 text-[10px] font-semibold text-(--st-amber-fg)">about your work</span>}
               </div>
               <div className="mt-1 text-[12px] text-muted">
-                {c.project ? <Link href={`/lab/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link> : "General"} · filed by {aboutYou ? `${c.filedBy.name} (${c.filedBy.role === "CUSTOMER" ? "client" : "you"})` : "you"} · {c.createdAt.toLocaleDateString()}
+                {c.project ? (
+                  <Link href={`/lab/projects/${c.project.id}`} className="font-medium text-blue hover:underline">{c.project.refNo}</Link>
+                ) : c.enquiry ? (
+                  <Link href={`/lab/enquiries/${c.enquiry.id}`} className="font-medium text-blue hover:underline">{c.enquiry.enquiryNo}</Link>
+                ) : "General"} · filed by {aboutYou ? c.filedBy.name : "you"} · {c.createdAt.toLocaleDateString()}
               </div>
               <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-body">{c.details}</p>
               {c.resolution && (

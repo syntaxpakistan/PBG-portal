@@ -1,31 +1,25 @@
 export const instant = false
 
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
-import { getPartnerAccess } from "@/lib/entitlements";
+import { hasAnalyticsAccess } from "@/lib/entitlements";
+import { getAnalyticsAddonPrice } from "@/lib/settings";
 import { PageHead, StatCard, FunnelBar } from "@/components/portal/ui";
+import { AnalyticsGate } from "@/components/portal/analytics-gate";
 import { pkr } from "@/lib/constants";
-import { Lock } from "lucide-react";
 
 export default async function LabAnalyticsPage() {
   const session = await requireRole("PROVIDER");
   const profile = await prisma.providerProfile.findUnique({ where: { userId: session.user.id } });
   if (!profile) notFound();
-  const access = await getPartnerAccess(session.user.id);
 
-  if (!access.flags?.analytics || !access.active) {
-    return (
-      <div className="card mx-auto max-w-lg p-10 text-center">
-        <Lock className="mx-auto size-8 text-muted" />
-        <h2 className="mt-4 font-display text-[20px] font-medium text-ink">Analytics is a Pro feature</h2>
-        <p className="mt-2 text-[13px] text-body">
-          Quote win-rates, turnaround performance and revenue reporting unlock on the Pro and Elite plans.
-        </p>
-        <Link href="/lab/billing" className="btn-primary mt-5 inline-flex !py-2.5 text-[13px]">View plans</Link>
-      </div>
-    );
+  if (!(await hasAnalyticsAccess(session.user.id))) {
+    const pending = await prisma.addOn.findFirst({
+      where: { userId: session.user.id, kind: "ANALYTICS", status: "PENDING_PAYMENT" },
+      include: { invoice: { select: { number: true } } },
+    });
+    return <AnalyticsGate price={await getAnalyticsAddonPrice()} pendingInvoiceNo={pending?.invoice?.number} />;
   }
 
   const [quotes, wonQuotes, projects, completed, milestones, history] = await Promise.all([

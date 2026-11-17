@@ -7,6 +7,10 @@ import { prisma } from "@/lib/prisma";
 import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 import { PLANS, planTermLabel } from "@/lib/plans";
+import { getAnalyticsAddOnState } from "@/lib/entitlements";
+import { getAnalyticsAddonPrice } from "@/lib/settings";
+import { adminSetAnalyticsAddOn, adminRevokeAnalyticsAddOn } from "@/lib/actions/admin";
+import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function AdminUserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,11 +21,16 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
       providerProfile: { include: { _count: { select: { quotes: true, projects: true } } } },
       supplierProfile: { include: { products: true, _count: { select: { enquiries: true } } } },
       subscription: true,
+      addOns: { where: { kind: "ANALYTICS" }, include: { invoice: { select: { number: true } } }, orderBy: { createdAt: "desc" }, take: 1 },
       rfqs: { select: { id: true, refNo: true, title: true, status: true }, orderBy: { createdAt: "desc" }, take: 8 },
       customerProjects: { select: { id: true, refNo: true, status: true }, orderBy: { createdAt: "desc" }, take: 8 },
     },
   });
   if (!user) notFound();
+
+  const addOn = user.addOns[0];
+  const addOnState = await getAnalyticsAddOnState(user.id);
+  const addOnPrice = await getAnalyticsAddonPrice();
 
   const cp = user.customerProfile;
   const pp = user.providerProfile;
@@ -106,6 +115,40 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
                 <Row k="Since" v={sub.startedAt?.toLocaleDateString()} />
                 <Row k="Renews until" v={sub.expiresAt?.toLocaleDateString()} />
               </dl>
+            </div>
+          )}
+          {/* analytics add-on — custom pricing / free grant */}
+          {(user.role === "CUSTOMER" || user.role === "PROVIDER") && (
+            <div className="card p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-[14px] font-semibold text-ink">Analytics add-on</h3>
+                <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${addOnState.state === "ACTIVE" || addOnState.state === "INCLUDED" ? "bg-(--st-green-bg) text-(--st-green-fg)" : addOnState.state === "PENDING" ? "bg-(--st-amber-bg) text-(--st-amber-fg)" : "bg-paper-2 text-muted"}`}>
+                  {addOnState.state === "INCLUDED" ? "Plan feature" : addOnState.state === "ACTIVE" ? "Active" : addOnState.state === "PENDING" ? "Awaiting payment" : "Not purchased"}
+                </span>
+              </div>
+              {addOnState.state === "ACTIVE" && addOn && (
+                <dl className="mb-3 space-y-2 text-[13px]">
+                  <Row k="Paid" v={addOn.invoice ? pkr(addOn.pricePkr) : "Free grant"} />
+                  <Row k="Expires" v={addOn.expiresAt?.toLocaleDateString()} />
+                </dl>
+              )}
+              {addOnState.state === "PENDING" && addOn && (
+                <p className="mb-3 text-[12px] text-muted">Invoice {addOn.invoice?.number} issued at {pkr(addOn.pricePkr)} — activates on payment.</p>
+              )}
+              {(addOnState.state === "NONE" || addOnState.state === "PENDING") && (
+                <form action={adminSetAnalyticsAddOn.bind(null, user.id)} className="flex items-end gap-2">
+                  <label className="flex-1">
+                    <span className="mb-1 block text-[11px] font-medium text-muted">Custom price PKR (0 = grant free)</span>
+                    <input name="price" type="number" min={0} defaultValue={addOnState.state === "NONE" ? addOnPrice : addOn?.pricePkr ?? addOnPrice} className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3" />
+                  </label>
+                  <SubmitButton className="btn-primary !py-2 text-[12px]">{addOnState.state === "PENDING" ? "Re-issue" : "Issue / Grant"}</SubmitButton>
+                </form>
+              )}
+              {addOn && (addOn.status === "ACTIVE" || addOn.status === "PENDING_PAYMENT") && (
+                <form action={adminRevokeAnalyticsAddOn.bind(null, addOn.id)} className="mt-2">
+                  <SubmitButton className="text-[11.5px] font-medium text-(--st-red-fg) hover:underline">Revoke add-on</SubmitButton>
+                </form>
+              )}
             </div>
           )}
           {pp && (

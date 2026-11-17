@@ -69,7 +69,7 @@ export function Footer() {
       <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/20" />
       <div className="container-x relative py-14 sm:py-16">
         <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
-          <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-32 w-auto sm:h-36" />
+          <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-32 w-auto sm:h-36" />
         </Link>
         <div className="mt-10 grid gap-10 sm:mt-12 lg:grid-cols-[1fr_repeat(3,auto)] lg:gap-14">
           <div>

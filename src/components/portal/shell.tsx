@@ -33,7 +33,7 @@ export async function PortalShell({
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-line bg-navy lg:flex">
         <div className="px-5 pt-5">
           <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">
-            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
+            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-16 w-auto" />
           </Link>
         </div>
         <div className="flex items-center justify-between px-5 pb-3 pt-5">

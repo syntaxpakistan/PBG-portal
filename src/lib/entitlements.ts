@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PLAN_FLAGS, type PlanKey } from "@/lib/plans";
-import { getGraceDays } from "@/lib/settings";
+import { getAnalyticsAddonPrice, getGraceDays } from "@/lib/settings";
 import type { SubscriptionStatus } from "@prisma/client";
 
 export type PartnerAccess = {
@@ -46,6 +46,46 @@ export async function getPartnerAccess(userId: string): Promise<PartnerAccess> {
     renewRequested: !!sub.renewRequestedAt,
     flags: PLAN_FLAGS[plan] ?? PLAN_FLAGS.BASIC,
   };
+}
+
+export type AnalyticsAddOnState =
+  | { state: "INCLUDED" }
+  | { state: "ACTIVE"; expiresAt: Date | null }
+  | { state: "PENDING"; invoiceNo: string | null }
+  | { state: "NONE"; price: number };
+
+/** full add-on status for billing/analytics UIs — plan flag wins over a purchase */
+export async function getAnalyticsAddOnState(userId: string): Promise<AnalyticsAddOnState> {
+  const access = await getPartnerAccess(userId);
+  if (access.active && access.flags?.analytics) return { state: "INCLUDED" };
+  const addOn = await prisma.addOn.findFirst({
+    where: { userId, kind: "ANALYTICS" },
+    include: { invoice: { select: { number: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+  if (addOn?.status === "ACTIVE" && (!addOn.expiresAt || addOn.expiresAt > new Date()))
+    return { state: "ACTIVE", expiresAt: addOn.expiresAt };
+  if (addOn?.status === "PENDING_PAYMENT")
+    return { state: "PENDING", invoiceNo: addOn.invoice?.number ?? null };
+  return { state: "NONE", price: await getAnalyticsAddonPrice() };
+}
+
+/**
+ * Analytics dashboard unlock — plan flag (Pro/Elite partners) OR a paid
+ * Analytics add-on with time left on its term.
+ */
+export async function hasAnalyticsAccess(userId: string): Promise<boolean> {
+  const access = await getPartnerAccess(userId);
+  if (access.active && access.flags?.analytics) return true;
+  const addOn = await prisma.addOn.findFirst({
+    where: {
+      userId,
+      kind: "ANALYTICS",
+      status: "ACTIVE",
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
+  });
+  return !!addOn;
 }
 
 /** throws unless the partner's subscription is currently active (incl. grace) */

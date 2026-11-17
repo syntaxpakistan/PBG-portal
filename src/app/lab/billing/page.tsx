@@ -3,7 +3,7 @@ export const instant = false
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/session";
-import { getPartnerAccess } from "@/lib/entitlements";
+import { getPartnerAccess, getAnalyticsAddOnState } from "@/lib/entitlements";
 import { BillingView } from "@/components/portal/billing-view";
 
 export default async function LabBillingPage() {
@@ -37,6 +37,7 @@ export default async function LabBillingPage() {
       receivables={receivables}
       payouts={payouts}
       pendingForMe={pendingPayments.map((p) => ({ payment: p, canConfirm: true }))}
+      analyticsAddOn={await getAnalyticsAddOnState(session.user.id)}
     />
   );
 }

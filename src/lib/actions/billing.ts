@@ -7,7 +7,8 @@ import { getSession } from "@/lib/session";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { saveUpload } from "@/lib/files";
 import { PLANS, planTermLabel, type PlanKey } from "@/lib/plans";
-import { getFeePercent, getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
+import { getFeePercent, getInvoiceDueDays, getPlanPrice, getAnalyticsAddonPrice } from "@/lib/settings";
+import { hasAnalyticsAccess } from "@/lib/entitlements";
 import type { Invoice, Payment, Plan } from "@prisma/client";
 import { nextRef } from "@/lib/refs";
 
@@ -62,6 +63,7 @@ export type InvoiceInput = {
   milestoneId?: string;
   transactionId?: string;
   enquiryId?: string;
+  addOnId?: string;
   dueAt?: Date;
   note?: string;
 };
@@ -86,6 +88,7 @@ export async function issueInvoice(input: InvoiceInput): Promise<Invoice> {
       milestoneId: input.milestoneId,
       transactionId: input.transactionId,
       enquiryId: input.enquiryId,
+      addOnId: input.addOnId,
       subtotal,
       taxAmount: 0,
       total: subtotal,
@@ -172,15 +175,41 @@ async function applyConfirmedPayment(paymentId: string) {
       });
       await createFeeInvoice(feeTxn.id);
     }
+    await prisma.enquiryMessage.create({
+      data: {
+        enquiryId: enquiry.id,
+        authorId: payment.confirmedById ?? payment.recordedById,
+        kind: "EVENT",
+        body: `Payment verified by Syntax — ${invoice.number} · held in escrow`,
+      },
+    });
     await notify({
       toUserId: enquiry.supplier.userId,
       subject: `Payment received — ${enquiry.product.name}`,
       body: `Syntax confirmed the buyer's payment (${invoice.currency} ${payment.amount.toLocaleString()} · ${invoice.number}). Ship the order, then mark the enquiry fulfilled.`,
-      href: "/supplier",
+      href: `/supplier/enquiries/${enquiry.id}`,
     });
   }
   if (invoice.transactionId) {
     await prisma.transaction.updateMany({ where: { id: invoice.transactionId, status: { not: "PAID" } }, data: { status: "PAID" } });
+  }
+  if (invoice.addOnId) {
+    // feature add-on paid — activate it for a one-year term from today
+    const addOn = await prisma.addOn.update({
+      where: { id: invoice.addOnId },
+      data: {
+        status: "ACTIVE",
+        startedAt: new Date(),
+        expiresAt: new Date(Date.now() + 365 * 864e5),
+      },
+    });
+    await notify({
+      toUserId: invoice.billedUserId,
+      subject: `${addOn.label} activated`,
+      body: `Payment confirmed — ${addOn.label} is now unlocked for one year (until ${addOn.expiresAt!.toLocaleDateString()}).`,
+      href: payment.invoice.billedUser.role === "CUSTOMER" ? "/dashboard/analytics" : payment.invoice.billedUser.role === "PROVIDER" ? "/lab/analytics" : "/supplier/analytics",
+    });
+    await audit(payment.confirmedById ?? payment.recordedById, "ADDON_ACTIVATED", "AddOn", addOn.id, `${addOn.kind} · ${invoice.number}`);
   }
   if (invoice.subscriptionId) {
     await notify({
@@ -557,6 +586,45 @@ export async function setPayoutStatus(id: string, status: "PROCESSING" | "PAID" 
   }
   await audit(session.user.id, `PAYOUT_${status}`, "Payout", id, payout.payeeOrg);
   revalidatePath("/admin/finance");
+  revalidatePath("/lab/billing");
+  revalidatePath("/supplier/billing");
+}
+
+// ---------- feature add-ons (customers + Basic-tier partners) ----------
+
+/** Purchase the Analytics add-on — issues a PLATFORM invoice; unlocks after payment is confirmed. */
+export async function requestAnalyticsAddOn() {
+  const session = await getSession();
+  // customers and Basic-tier labs — supplier analytics is included for all suppliers
+  if (!session || !["CUSTOMER", "PROVIDER"].includes(session.user.role ?? "")) redirect("/login");
+  if (await hasAnalyticsAccess(session.user.id)) throw new Error("Analytics is already unlocked on your account");
+  const pending = await prisma.addOn.findFirst({
+    where: { userId: session.user.id, kind: "ANALYTICS", status: "PENDING_PAYMENT" },
+  });
+  if (pending) throw new Error("You already have an unpaid add-on invoice — settle it from Billing to activate.");
+  const price = await getAnalyticsAddonPrice();
+  const addOn = await prisma.addOn.create({
+    data: { userId: session.user.id, kind: "ANALYTICS", label: "Analytics add-on", pricePkr: price },
+  });
+  await issueInvoice({
+    billedUserId: session.user.id,
+    issuerType: "PLATFORM",
+    addOnId: addOn.id,
+    currency: "PKR",
+    dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
+    note: "Analytics add-on — 1-year unlock",
+    items: [{ description: "Gateway Analytics add-on — sample & report analysis dashboard (1 year)", unitPrice: price }],
+  });
+  await notifyAllAdmins(
+    `Add-on requested: Analytics`,
+    `${session.user.name} (${session.user.email}) requested the Analytics add-on — invoice issued, confirm payment to activate.`,
+    "/admin/finance"
+  );
+  await audit(session.user.id, "ADDON_REQUESTED", "AddOn", addOn.id, "ANALYTICS");
+  revalidatePath("/dashboard/analytics");
+  revalidatePath("/lab/analytics");
+  revalidatePath("/supplier/analytics");
+  revalidatePath("/dashboard/billing");
   revalidatePath("/lab/billing");
   revalidatePath("/supplier/billing");
 }

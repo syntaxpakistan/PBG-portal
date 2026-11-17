@@ -22,11 +22,11 @@ export function LeadForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">First name *</label>
-          <input name="firstName" required className={input} placeholder="Ayesha" />
+          <input name="firstName" required className={input} placeholder="Waqar" />
         </div>
         <div>
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Last name</label>
-          <input name="lastName" className={input} placeholder="Khan" />
+          <input name="lastName" className={input} placeholder="Asghar" />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
