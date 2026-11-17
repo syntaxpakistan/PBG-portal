@@ -136,7 +136,7 @@ export function EnquiryThread({
                 ref={fileRef}
                 type="file"
                 className="hidden"
-                accept="application/pdf,image/png,image/jpeg,image/webp,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.csv,.txt,.html,.png,.jpg,.jpeg,.webp"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
               <button

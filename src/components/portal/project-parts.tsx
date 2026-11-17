@@ -79,7 +79,7 @@ export function MessageThread({
         />
         <label className="grid size-10 cursor-pointer place-items-center rounded-full border border-line bg-surface text-muted transition-colors hover:border-navy-3" title="Attach document (≤25MB)">
           <FileDown className="size-4" />
-          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.csv,.png,.jpg,.html" className="hidden" />
+          <input name="attachment" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.html,.zip,.png,.jpg,.jpeg,.webp" className="hidden" />
         </label>
         <SubmitButton className="grid size-10 place-items-center rounded-full bg-navy text-yellow transition-colors hover:bg-navy-2">
           <Send className="size-4" />

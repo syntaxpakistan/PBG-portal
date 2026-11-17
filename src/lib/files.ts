@@ -45,7 +45,7 @@ function checkName(name: string) {
 
 export async function saveUpload(file: File): Promise<{ key: string; size: number }> {
   if (file.size > MAX_BYTES) throw new Error("Max 25MB — documents only");
-  if (!ALLOWED.includes(file.type)) throw new Error("PDF, DOCX, XLSX, ZIP, CSV or images only — no raw genomic data");
+  if (!ALLOWED.includes(file.type)) throw new Error("PDF, Word, Excel, CSV, TXT, HTML, ZIP or images only — no raw genomic data");
   const ext = checkName(file.name);
   return saveBuffer(`${Date.now()}-${randomBytes(8).toString("hex")}${ext}`, Buffer.from(await file.arrayBuffer()), file.type);
 }
