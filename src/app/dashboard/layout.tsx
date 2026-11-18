@@ -4,8 +4,6 @@ import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound,
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 const items = [
   { href: "/dashboard", label: "Overview", icon: <LayoutDashboard className="size-4" /> },
@@ -29,12 +27,6 @@ const items = [
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("CUSTOMER");
   const profile = await prisma.customerProfile.findUnique({ where: { userId: session.user.id }, select: { status: true, statusNote: true } });
-
-  if (process.env.MFA_REQUIRED === "true" && profile?.status === "APPROVED") {
-    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
-    const path = (await headers()).get("x-pathname") ?? "";
-    if (!mfa && !path.includes("/dashboard/security")) redirect("/dashboard/security");
-  }
 
   if (profile?.status !== "APPROVED") {
     return (
