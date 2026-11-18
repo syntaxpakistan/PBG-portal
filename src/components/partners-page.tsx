@@ -219,8 +219,12 @@ export function PartnersPage() {
             {PARTNERS.map((p) => (
               <a key={p.id} href={`#${p.id}`} className="card group flex flex-col p-6 transition-shadow hover:shadow-lg">
                 <div className="flex items-start justify-between gap-4">
-                  <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-navy px-1 text-center">
-                    <span className="font-display text-[12px] font-bold leading-tight text-white">{p.mark}</span>
+                  <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl border border-line bg-white p-1.5">
+                    {p.id === "cas-ngs" ? (
+                      <Image src="/brand/cas-ngs-logo.webp" alt={`${p.mark} logo`} width={52} height={46} className="h-auto w-full object-contain" />
+                    ) : (
+                      <span className="grid size-full place-items-center rounded-xl bg-navy px-1 text-center font-display text-[12px] font-bold leading-tight text-white">{p.mark}</span>
+                    )}
                   </span>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Partner {p.num}</span>
                 </div>
@@ -249,8 +253,8 @@ export function PartnersPage() {
         <div className="container-x">
           <Reveal>
             <div className="flex flex-wrap items-start gap-6">
-              <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-navy px-2 text-center sm:size-24">
-                <span className="font-display text-[15px] font-bold leading-tight text-white sm:text-[17px]">CAS-NGS</span>
+              <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-line bg-white p-2 sm:size-24">
+                <Image src="/brand/cas-ngs-logo.webp" alt="CAS-NGS logo" width={92} height={82} className="h-auto w-full object-contain" />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
@@ -279,7 +283,8 @@ export function PartnersPage() {
                 <div className="grid-lines on-dark absolute inset-0" />
                 <div className="glow-orb -right-16 -top-16 size-64 bg-blue-bright/20" />
                 <div className="relative">
-                  <p className="font-display text-[26px] font-bold leading-tight text-white">CAS-NGS</p>
+                  <Image src="/brand/cas-ngs-logo-white.webp" alt="CAS-NGS logo" width={110} height={98} className="h-20 w-auto" />
+                  <p className="mt-3 font-display text-[26px] font-bold leading-tight text-white">CAS-NGS</p>
                   <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-[#a2c1d7]">
                     Center for Advanced Studies in Agriculture &amp; Food Security
                   </p>
