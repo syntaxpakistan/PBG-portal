@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import {
-  ArrowRight, BadgeCheck, Boxes, CircleCheck, Dna, Eye, FileText,
+  ArrowRight, BadgeCheck, Boxes, Building2, CircleCheck, Cpu, Dna, Eye, FileText,
   FlaskConical, GraduationCap, Handshake, Landmark, Lock, MessagesSquare, Microscope,
   PackageCheck, Search, ShieldCheck, Stethoscope, TestTubes, Timer, Users, Workflow,
 } from "lucide-react";
@@ -94,15 +94,15 @@ type ExchangeCard = {
 };
 
 const EXCHANGE: ExchangeCard[] = [
-  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity.", img: "/media/seq-platform.webp" },
-  { icon: Microscope, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", img: "/media/bioinfo-structure.webp" },
-  { icon: Boxes, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", img: "/media/consumables.webp" },
-  { icon: Search, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", img: "/media/lab-interior.webp" },
+  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity.", img: "/media/seq-real.webp", href: "/services/sequencing", cta: "Explore sequencing" },
+  { icon: Cpu, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", img: "/media/bioinfo-real.webp", href: "/services/bioinformatics", cta: "Explore bioinformatics" },
+  { icon: FlaskConical, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", img: "/media/supplies-real.webp", href: "/marketplace", cta: "Browse supplies" },
+  { icon: Building2, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", img: "/media/registry-real.webp", href: "/registry", cta: "Open the registry" },
 ];
 
 const EXCHANGE_EXTRA: ExchangeCard[] = [
-  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories.", img: "/media/molbio-pipette.webp" },
-  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", img: "/media/expert-scientist.webp", cta: "Request a consultation", href: "/biogateway" },
+  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories.", img: "/media/molbio-real.webp", href: "/services/molecular-biology", cta: "Explore molecular biology" },
+  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", img: "/media/consult-real.webp", cta: "Request a consultation", href: "/#contact" },
 ];
 
 export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
@@ -315,21 +315,23 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...EXCHANGE, ...EXCHANGE_EXTRA].map((c) => (
-              <motion.div key={c.title} variants={fadeUp} className="card-dark flex flex-col overflow-hidden p-0">
-                <div className="relative h-36 w-full">
-                  <Image src={c.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-2/90 via-navy/20 to-transparent" />
-                  <c.icon className="absolute bottom-3 left-5 size-6 text-mint" />
-                </div>
-                <div className="flex flex-1 flex-col p-6 pt-4">
-                  <h3 className="text-[15px] font-semibold text-white">{c.title}</h3>
-                  <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
-                  {c.cta && (
-                    <Link href={c.href ?? "/biogateway"} className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-navy transition-colors hover:bg-paper-2">
-                      {c.cta} <ArrowRight className="size-3.5" />
-                    </Link>
-                  )}
-                </div>
+              <motion.div key={c.title} variants={fadeUp} className="card-dark group flex flex-col overflow-hidden p-0 transition-colors hover:border-white/25">
+                <Link href={c.href ?? "/marketplace"} className="flex flex-1 flex-col">
+                  <div className="relative h-36 w-full">
+                    <Image src={c.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy-2/90 via-navy/20 to-transparent" />
+                    <c.icon className="absolute bottom-3 left-5 size-6 text-mint" />
+                  </div>
+                  <div className="flex flex-1 flex-col p-6 pt-4">
+                    <h3 className="text-[15px] font-semibold text-white">{c.title}</h3>
+                    <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
+                    {c.cta && (
+                      <span className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-navy transition-colors group-hover:bg-yellow">
+                        {c.cta} <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    )}
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </Stagger>

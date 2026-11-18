@@ -7,6 +7,14 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, ChevronDown, Cpu, Dna, Menu, TestTubes, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useSession } from "@/lib/auth-client";
+
+const PORTAL_HREF: Record<string, string> = {
+  ADMIN: "/admin",
+  PROVIDER: "/lab",
+  SUPPLIER: "/supplier",
+  CUSTOMER: "/dashboard",
+};
 
 const LINKS = [
   { label: "Services", href: "/services" },
@@ -72,6 +80,8 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   // mounted-gated so the bar can't flash for users who dismissed it
   const [promo, setPromo] = useState(false);
+  const { data: session } = useSession();
+  const portal = session ? PORTAL_HREF[(session.user as { role?: string }).role ?? "CUSTOMER"] ?? "/dashboard" : null;
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
@@ -160,12 +170,20 @@ export function Navbar() {
 
           <div className="flex items-center gap-2.5">
             <ThemeToggle onDark />
-            <Link href="/login" className="btn-ghost on-dark hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
-              Sign in
-            </Link>
-            <Link href="/biogateway" className="btn-secondary hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
-              Join the Gateway
-            </Link>
+            {portal ? (
+              <Link href={portal} className="btn-secondary hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
+                Open portal
+              </Link>
+            ) : (
+              <>
+                <Link href="/login" className="btn-ghost on-dark hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
+                  Sign in
+                </Link>
+                <Link href="/biogateway" className="btn-secondary hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
+                  Join the Gateway
+                </Link>
+              </>
+            )}
             <button
               onClick={() => setMobileOpen((o) => !o)}
               aria-label="Toggle menu"
@@ -211,12 +229,20 @@ export function Navbar() {
                   </div>
                 ))}
                 <div className="mt-2 flex gap-2.5 border-t border-line pt-3">
-                  <Link href="/login" onClick={() => setMobileOpen(false)} className="btn-ghost flex-1 justify-center !py-2.5">
-                    Sign in
-                  </Link>
-                  <Link href="/biogateway" onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
-                    Join the Gateway
-                  </Link>
+                  {portal ? (
+                    <Link href={portal} onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
+                      Open portal
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setMobileOpen(false)} className="btn-ghost flex-1 justify-center !py-2.5">
+                        Sign in
+                      </Link>
+                      <Link href="/biogateway" onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
+                        Join the Gateway
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

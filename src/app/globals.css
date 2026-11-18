@@ -121,7 +121,10 @@ body {
   width: 22px;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--color-blue-bright), var(--color-mint), var(--color-green), var(--color-yellow-soft), var(--color-orange));
+  background: var(--color-blue);
+}
+.eyebrow.on-dark::before {
+  background: var(--color-yellow);
 }
 .eyebrow.on-dark {
   color: #a2c1d7;
@@ -148,29 +151,20 @@ body {
 .h-section.on-dark { color: #fff; }
 .h-section strong, .h-display strong { font-weight: 500; }
 
-/* Prezent signature: rainbow gradient text for accent phrases */
+/* Brand accent for emphasised phrases — navy blue on light, Gateway yellow on dark */
 .grad-text {
   font-style: normal;
-  font-weight: 500;
-  background-image: linear-gradient(
-    135deg,
-    var(--color-blue-bright),
-    var(--color-mint) 26%,
-    var(--color-green) 40%,
-    var(--color-yellow-soft) 57%,
-    var(--color-orange) 70%,
-    var(--color-orange-2) 89%
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  color: var(--color-blue);
+}
+.on-dark .grad-text {
+  color: var(--color-yellow);
 }
 
 .rainbow-line {
   height: 3px;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--color-blue-bright), var(--color-mint) 26%, var(--color-green) 40%, var(--color-yellow-soft) 60%, var(--color-orange) 80%, var(--color-orange-2));
+  background: linear-gradient(90deg, var(--color-navy-2), var(--color-blue), var(--color-blue-bright));
 }
 
 /* ---------- cards ---------- */
@@ -214,7 +208,7 @@ body {
   inset: -2px;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(90deg, var(--color-blue-bright), var(--color-mint) 26%, var(--color-green) 40%, var(--color-yellow-soft) 60%, var(--color-orange) 80%, var(--color-orange-2) 100%);
+  background: linear-gradient(90deg, var(--color-blue), var(--color-blue-bright));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
