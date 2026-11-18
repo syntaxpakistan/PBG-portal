@@ -344,7 +344,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <p className="eyebrow justify-center">Pricing</p>
-              <h2 className="h-section mt-4">Simple plans, <em className="grad-text">free to buy, fair to sell.</em></h2>
+              <h2 className="h-section mt-4">Simple plans <em className="grad-text">free to buy, fair to sell.</em></h2>
               <p className="mt-5 text-[15px] leading-relaxed text-body">
                 Customers always join free. Laboratories and suppliers choose a 1, 3 or 5 year term —
                 billed once per term in PKR after the Gateway team verifies your organization. No card needed to sign up.
