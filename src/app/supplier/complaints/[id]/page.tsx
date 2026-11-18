@@ -28,7 +28,7 @@ export default async function SupplierComplaintPage({ params }: { params: Promis
 
   return (
     <>
-      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Gateway support — the buyer cannot see this thread." />
+      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Gateway support, the buyer cannot see this thread." />
 
       <div className="card mb-6 p-5">
         <div className="flex flex-wrap items-center gap-2">

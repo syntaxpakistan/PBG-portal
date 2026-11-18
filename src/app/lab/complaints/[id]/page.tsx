@@ -31,7 +31,7 @@ export default async function LabComplaintPage({ params }: { params: Promise<{ i
 
   return (
     <>
-      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Gateway support — the client cannot see this thread." />
+      <PageHead title={`${complaint.ticketNo}: ${complaint.subject}`} sub="Private conversation with Gateway support, the client cannot see this thread." />
 
       <div className="card mb-6 p-5">
         <div className="flex flex-wrap items-center gap-2">

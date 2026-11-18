@@ -42,7 +42,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   return (
     <>
       <PageHead
-        title={`${project.refNo} — ${project.rfq.title}`}
+        title={`${project.refNo}, ${project.rfq.title}`}
         sub={`${project.provider.orgName} (${project.provider.city}) · awarded ${pkr(project.quote.price + project.quote.taxAmount)} · ${project.quote.turnaroundDays}-day turnaround${project.poNumber ? ` · PO ${project.poNumber}` : ""}`}
         action={<StatusBadge status={project.status} />}
       />
@@ -51,27 +51,27 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
       {project.status === "OFFER_SELECTED" && !project.acceptedAt && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
-          Waiting for the lab to confirm the award — they review and accept before work begins. If they decline, your other quotes reopen.
+          Waiting for the lab to confirm the award, they review and accept before work begins. If they decline, your other quotes reopen.
         </div>
       )}
       {sla && (
         <div className={`mb-6 flex items-center gap-2.5 rounded-xl border px-4 py-3 text-[13px] font-medium ${sla.overdue ? "border-(--st-red-bd) bg-(--st-red-bg) text-(--st-red-fg)" : sla.paused ? "border-(--st-orange-bd) bg-(--st-orange-bg) text-(--st-orange-fg)" : "border-line bg-surface text-body"}`}>
           {sla.paused
-            ? <>Turnaround clock is paused — {sla.days} day{sla.days === 1 ? "" : "s"} remaining when work resumes.{project.pausedFor === "CUSTOMER" && " The lab is waiting on you."}</>
+            ? <>Turnaround clock is paused, {sla.days} day{sla.days === 1 ? "" : "s"} remaining when work resumes.{project.pausedFor === "CUSTOMER" && " The lab is waiting on you."}</>
             : sla.overdue
-            ? `This project is ${Math.abs(sla.days)} day${Math.abs(sla.days) === 1 ? "" : "s"} past the quoted turnaround — you can message the lab or raise a complaint below.`
+            ? `This project is ${Math.abs(sla.days)} day${Math.abs(sla.days) === 1 ? "" : "s"} past the quoted turnaround, you can message the lab or raise a complaint below.`
             : `Quoted turnaround: due ${sla.dueAt.toLocaleDateString()} · ${sla.days} day${sla.days === 1 ? "" : "s"} remaining${project.quote.estTurnaround ? ` · lab estimate ${project.quote.estTurnaround}d` : ""}`}
         </div>
       )}
       {project.pausedAt && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-orange-bd) bg-(--st-orange-bg) px-4 py-3 text-[13px] font-medium text-(--st-orange-fg)">
           <PauseCircle className="size-4" />
-          Work paused {project.pausedAt.toLocaleDateString()} — waiting on {project.pausedFor === "CUSTOMER" ? "you" : "the lab"}
+          Work paused {project.pausedAt.toLocaleDateString()}, waiting on {project.pausedFor === "CUSTOMER" ? "you" : "the lab"}
           {project.pauseReason && <span className="font-normal">· {project.pauseReason}</span>}
         </div>
       )}
 
-      {/* QC decision gate — flagged metrics need the customer's call */}
+      {/* QC decision gate, flagged metrics need the customer's call */}
       {pendingQc.length > 0 && (
         <div className="card mb-6 border-(--st-red-bd) p-5">
           <h3 className="text-[14px] font-semibold text-ink">QC decision needed</h3>
@@ -92,7 +92,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <form action={resolveQc.bind(null, q.id, "PROCEED")}>
-                    <SubmitButton className="btn-primary !py-2 text-[12px]">Proceed anyway — sign disclaimer</SubmitButton>
+                    <SubmitButton className="btn-primary !py-2 text-[12px]">Proceed anyway, sign disclaimer</SubmitButton>
                   </form>
                   {q.stage === "SAMPLE_QC" && (
                     <form action={resolveQc.bind(null, q.id, "RESEND")}>
@@ -109,7 +109,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* sample shipping — chain of custody */}
+      {/* sample shipping, chain of custody */}
       {project.status === "SAMPLE_AWAITED" && (
         <div className="card mb-6 p-5">
           <h3 className="text-[14px] font-semibold text-ink">Ship your samples</h3>
@@ -136,7 +136,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       )}
       {project.sampleQc && (
         <div className={`mb-6 flex items-center gap-2.5 rounded-xl border px-4 py-3 text-[13px] font-medium ${project.sampleQc === "PASS" ? "border-(--st-green-bd) bg-(--st-green-bg) text-(--st-green-fg)" : project.sampleQc === "PARTIAL" ? "border-(--st-amber-bd) bg-(--st-amber-bg) text-(--st-amber-fg)" : "border-(--st-red-bd) bg-(--st-red-bg) text-(--st-red-fg)"}`}>
-          Sample QC: {project.sampleQc === "PASS" ? "all samples passed" : project.sampleQc === "PARTIAL" ? "partial pass — some flagged" : "failed — unusable"}
+          Sample QC: {project.sampleQc === "PASS" ? "all samples passed" : project.sampleQc === "PARTIAL" ? "partial pass, some flagged" : "failed, unusable"}
           {project.sampleQcNote && <span className="font-normal">· {project.sampleQcNote}</span>}
         </div>
       )}
@@ -216,7 +216,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
               {project.review ? (
                 <p className="mt-2 text-[13px] text-body">
                   You rated <span className="font-semibold text-ink">{project.review.rating}/5</span>
-                  {project.review.comment ? ` — “${project.review.comment}”` : ""}
+                  {project.review.comment ? `, “${project.review.comment}”` : ""}
                 </p>
               ) : (
                 <form action={review} className="mt-3 space-y-3">

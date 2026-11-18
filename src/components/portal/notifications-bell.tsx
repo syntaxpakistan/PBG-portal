@@ -36,7 +36,7 @@ export function NotificationsBell({ unread }: { unread: number }) {
     setOpen((o) => !o);
   };
 
-  // close on Escape only — backdrop click also closes (below)
+  // close on Escape only, backdrop click also closes (below)
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -121,7 +121,7 @@ export function NotificationsBell({ unread }: { unread: number }) {
               {items?.length === 0 && (
                 <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
                   <Bell className="size-7 text-line-strong" />
-                  <p className="text-[12.5px] text-muted">Nothing yet — quotes, awards and updates land here.</p>
+                  <p className="text-[12.5px] text-muted">Nothing yet, quotes, awards and updates land here.</p>
                 </div>
               )}
               {items?.map((n) => (

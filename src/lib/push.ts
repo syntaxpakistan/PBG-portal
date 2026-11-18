@@ -1,7 +1,7 @@
 import { setVapidDetails, sendNotification } from "web-push";
 import { prisma } from "@/lib/prisma";
 
-// Web Push (VAPID) — configured from env; silently no-ops when keys aren't set
+// Web Push (VAPID), configured from env; silently no-ops when keys aren't set
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
 
@@ -35,7 +35,7 @@ export async function sendPushToUser(
       } catch (err) {
         const status = (err as { statusCode?: number })?.statusCode;
         if (status === 404 || status === 410) {
-          // subscription revoked or expired — drop it
+          // subscription revoked or expired, drop it
           await prisma.pushSubscription.delete({ where: { id: s.id } }).catch(() => {});
         } else {
           console.error(`[push] send failed (${status}):`, (err as Error)?.message);

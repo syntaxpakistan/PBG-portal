@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const panel = panelBySlug(slug);
   if (!panel) return {};
   return {
-    title: `${panel.title} — Pakistan Biotechnology Gateway`,
+    title: `${panel.title}, Pakistan Biotechnology Gateway`,
     description: panel.intro,
   };
 }
@@ -65,7 +65,7 @@ export default async function ServiceCategoryPage({ params }: { params: Promise<
         </div>
       </section>
 
-      {/* sub-services — full detail */}
+      {/* sub-services, full detail */}
       <section className="bg-paper py-16 sm:py-20">
         <div className="container-x max-w-5xl space-y-6">
           {panel.items.map((s, i) => (
@@ -120,7 +120,7 @@ export default async function ServiceCategoryPage({ params }: { params: Promise<
           <div className="card-dark flex flex-col items-start justify-between gap-5 p-8 sm:flex-row sm:items-center">
             <div>
               <h2 className="font-display text-[20px] font-semibold text-white">Ready to post your request?</h2>
-              <p className="mt-1.5 text-[13px] text-[#a2c1d7]">Verified labs quote independently — compare price, turnaround and scope side by side.</p>
+              <p className="mt-1.5 text-[13px] text-[#a2c1d7]">Verified labs quote independently, compare price, turnaround and scope side by side.</p>
             </div>
             <Link href="/biogateway" className="btn-white shrink-0">Request a quote</Link>
           </div>

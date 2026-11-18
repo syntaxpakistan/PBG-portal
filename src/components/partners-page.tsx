@@ -17,10 +17,10 @@ const PARTNERS = [
     id: "cas-ngs",
     num: "01",
     mark: "CAS-NGS",
-    name: "CAS-NGS — Center for Advanced Studies in Agriculture and Food Security",
+    name: "CAS-NGS, Center for Advanced Studies in Agriculture and Food Security",
     category: "Sequencing · Genomics · Training",
     blurb:
-      "In-house genomics platform at the University of Agriculture Faisalabad — subsidized WGS, RNA-seq, metagenomics and targeted sequencing.",
+      "In-house genomics platform at the University of Agriculture Faisalabad, subsidized WGS, RNA-seq, metagenomics and targeted sequencing.",
   },
   {
     id: "genexa",
@@ -29,7 +29,7 @@ const PARTNERS = [
     name: "Genexa Analytics",
     category: "Bioinformatics · Analysis services",
     blurb:
-      "Specialist bioinformatics provider — genome assembly, RNA-seq, variant calling, metagenomics, GWAS and phylogenetics on demand.",
+      "Specialist bioinformatics provider, genome assembly, RNA-seq, variant calling, metagenomics, GWAS and phylogenetics on demand.",
   },
 ];
 
@@ -72,15 +72,15 @@ const MILESTONES = [
 ];
 
 const WGS_ROWS = [
-  { cat: "Microbial genomes", size: "≤ 10 Mb · 30–50× coverage", rate: "PKR 25,000", inc: "Genome assembly, annotation, QC report and phylogeny — free of cost" },
+  { cat: "Microbial genomes", size: "≤ 10 Mb · 30–50× coverage", rate: "PKR 25,000", inc: "Genome assembly, annotation, QC report and phylogeny, free of cost" },
   { cat: "Small genomes", size: "≤ 1.0 Gb", rate: "PKR 50,000 – 100,000", inc: "Sequencing only · advanced bioinformatics optional (+PKR 20,000–50,000)" },
   { cat: "Medium genomes", size: "≤ 2.0 Gb", rate: "PKR 100,000 – 200,000", inc: "Sequencing only · advanced bioinformatics optional (+PKR 50,000–100,000)" },
   { cat: "Large genomes", size: "> 2.0 Gb", rate: "Quote-based", inc: "Priced by genome size, coverage and project scope" },
 ];
 
 const META_ROWS = [
-  { pkg: "Whole-genome shotgun", out: "3 Gb / sample", rate: "PKR 75,000 / sample", inc: "Sequencing output + taxonomic profiling & abundance (optional downstream analysis — functional annotation, resistome profiling: +PKR 10,000–30,000)" },
-  { pkg: "Amplicon metagenomics", out: "> 25 samples", rate: "PKR 25,000 / sample", inc: "16S rRNA / ITS / 18S / COI (optional diversity & taxonomic analysis — ordination, differential abundance: +PKR 5,000–15,000)" },
+  { pkg: "Whole-genome shotgun", out: "3 Gb / sample", rate: "PKR 75,000 / sample", inc: "Sequencing output + taxonomic profiling & abundance (optional downstream analysis, functional annotation, resistome profiling: +PKR 10,000–30,000)" },
+  { pkg: "Amplicon metagenomics", out: "> 25 samples", rate: "PKR 25,000 / sample", inc: "16S rRNA / ITS / 18S / COI (optional diversity & taxonomic analysis, ordination, differential abundance: +PKR 5,000–15,000)" },
 ];
 
 const TARGETED_TYPES = [
@@ -187,7 +187,7 @@ export function PartnersPage() {
             </p>
             <h1 className="h-display on-dark mt-5 max-w-3xl">Meet our partners</h1>
             <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-[#c5d2e1]">
-              The Gateway is operated by Syntax of Life — and powered by a growing network of
+              The Gateway is operated by Syntax of Life, and powered by a growing network of
               independent partners: university genomics centers, bioinformatics teams and biotech
               suppliers who deliver services through the platform on their own terms.
             </p>
@@ -201,7 +201,7 @@ export function PartnersPage() {
         </div>
       </section>
 
-      {/* partners index — directory of all partners */}
+      {/* partners index, directory of all partners */}
       <section className="border-b border-line bg-surface py-14">
         <div className="container-x">
           <Reveal>
@@ -209,7 +209,7 @@ export function PartnersPage() {
               <div>
                 <p className="eyebrow">Partner directory</p>
                 <h2 className="mt-2 font-display text-[24px] font-semibold tracking-tight text-ink">
-                  {PARTNERS.length} verified partners — and growing
+                  {PARTNERS.length} verified partners, and growing
                 </h2>
               </div>
               <Link href="/biogateway" className="btn-outline !py-2 text-[13px]">Join the directory</Link>
@@ -269,7 +269,7 @@ export function PartnersPage() {
                 <p className="text-[14px] text-muted">University of Agriculture Faisalabad</p>
                 <p className="mt-4 max-w-3xl text-[14.5px] leading-relaxed text-body">
                   An in-house genomics platform built to provide accessible, reliable and locally available
-                  sequencing and bioinformatics for Pakistani scientists — bridging the national gap in
+                  sequencing and bioinformatics for Pakistani scientists, bridging the national gap in
                   end-to-end genomics from sample preparation to interpretation, training and capacity building.
                 </p>
               </div>
@@ -293,10 +293,10 @@ export function PartnersPage() {
                 <div className="relative mt-10">
                   <p className="text-[20px] font-semibold leading-snug text-yellow">Subsidized Sequencing Services</p>
                   <p className="mt-2 max-w-sm text-[13.5px] leading-relaxed text-[#c5d2e1]">
-                    High-impact genomics at affordable research rates — in-house at UAF.
+                    High-impact genomics at affordable research rates, in-house at UAF.
                   </p>
                   <p className="mt-4 inline-block rounded-full border border-white/25 px-3.5 py-1 text-[11px] font-medium text-white">
-                    Limited-time subsidized rates — till 30 Dec 2026
+                    Limited-time subsidized rates, till 30 Dec 2026
                   </p>
                 </div>
               </div>
@@ -429,7 +429,7 @@ export function PartnersPage() {
                     <p className="mt-4 text-[12px] leading-relaxed text-muted">
                       Includes bioinformatics analysis, rRNA masking/subtraction, adapter removal, De novo
                       transcriptome assembly, gene prediction, functional analysis (GO &amp; KEGG) and
-                      expression analysis. RNA-stabilized tissue or fresh samples accepted — final quote
+                      expression analysis. RNA-stabilized tissue or fresh samples accepted, final quote
                       depends on submission option and project scope.
                     </p>
                   </div>
@@ -459,7 +459,7 @@ export function PartnersPage() {
                 <div className="card p-6">
                   <div className="flex items-center gap-3">
                     <TestTubes className="size-5 text-blue" />
-                    <p className="text-[15px] font-semibold text-ink">Targeted sequencing — rapid &amp; cost-effective</p>
+                    <p className="text-[15px] font-semibold text-ink">Targeted sequencing, rapid &amp; cost-effective</p>
                   </div>
                   <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.3fr]">
                     <div className="space-y-3">
@@ -473,7 +473,7 @@ export function PartnersPage() {
                     <RateTable
                       head={["Package", "Samples", "Rate", "Includes"]}
                       rows={[
-                        ["Custom targeted sequencing", "> 50 samples", "PKR 25,000 / sample", "PCR amplicon / target genes included (optional customized bioinformatics — variant calling, haplotyping, report: +PKR 5,000–20,000)"],
+                        ["Custom targeted sequencing", "> 50 samples", "PKR 25,000 / sample", "PCR amplicon / target genes included (optional customized bioinformatics, variant calling, haplotyping, report: +PKR 5,000–20,000)"],
                       ]}
                     />
                   </div>
@@ -504,7 +504,7 @@ export function PartnersPage() {
                   ))}
                 </div>
                 <p className="mt-5 text-[13px] leading-relaxed text-muted">
-                  Integrated experimental and computational support under one platform — sample preparation,
+                  Integrated experimental and computational support under one platform, sample preparation,
                   sequencing, bioinformatics pipelines and publication-ready outputs, instead of fragmented outsourcing.
                 </p>
                 <div className="mt-6 border-t border-line pt-5">
@@ -534,7 +534,7 @@ export function PartnersPage() {
                 <div className="card flex-1 bg-navy p-6 !border-navy">
                   <div className="flex items-center gap-2.5">
                     <ShieldCheck className="size-5 text-yellow" />
-                    <p className="text-[14px] font-semibold text-white">Data Privacy — ownership &amp; confidentiality</p>
+                    <p className="text-[14px] font-semibold text-white">Data Privacy, ownership &amp; confidentiality</p>
                   </div>
                   <p className="mt-3 text-[13px] leading-relaxed text-[#a2c1d7]">
                     Project data, biological material information and analysis outputs remain the property
@@ -580,7 +580,7 @@ export function PartnersPage() {
                   Transforming complex biological data into useful insights.
                 </p>
                 <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-muted">
-                  Professional bioinformatics analysis services — advanced computational solutions for
+                  Professional bioinformatics analysis services, advanced computational solutions for
                   genomics, transcriptomics and metagenomics, from raw data to meaningful biological insight.
                 </p>
               </div>
@@ -658,7 +658,7 @@ export function PartnersPage() {
                     Run a sequencing lab, bioinformatics team or biotech supply company?
                   </h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-[#a2c1d7]">
-                    Verified partners keep their own pricing, workflow and project decisions — the Gateway
+                    Verified partners keep their own pricing, workflow and project decisions, the Gateway
                     routes demand, handles blind quoting and governs quality.
                   </p>
                 </div>

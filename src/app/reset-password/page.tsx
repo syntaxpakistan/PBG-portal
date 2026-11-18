@@ -30,7 +30,7 @@ function ResetForm() {
     const { error } = await authClient.resetPassword({ newPassword: password, token });
     setLoading(false);
     if (error) {
-      toast.error(error.message ?? "Reset failed — the link may have expired");
+      toast.error(error.message ?? "Reset failed, the link may have expired");
       return;
     }
     setDone(true);

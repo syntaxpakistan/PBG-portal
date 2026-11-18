@@ -39,7 +39,7 @@ export default async function CustomerAnalyticsPage() {
 
   return (
     <>
-      <PageHead title="Client analytics" sub="Your RFQ activity, quote response and spend — Pro-plan reporting." />
+      <PageHead title="Client analytics" sub="Your RFQ activity, quote response and spend, Pro-plan reporting." />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="RFQs posted" value={rfqs} sub={`${openRfqs} still open`} />
         <StatCard label="Quotes received" value={quotes} sub={`avg ${avgQuotes} per RFQ`} />

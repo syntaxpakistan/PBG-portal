@@ -94,7 +94,7 @@ function usePushState() {
   return { state, busy, enable, disable, sendTest };
 }
 
-// Compact row for the bell popover — only prompts when push is available and off
+// Compact row for the bell popover, only prompts when push is available and off
 export function PushMiniOptIn() {
   const { state, busy, enable } = usePushState();
   if (state !== "off") return null;
@@ -126,7 +126,7 @@ export function PushOptIn() {
         )}
         <div>
           <div className="font-medium text-ink">
-            {state === "on" ? "Push alerts on — this device gets them even when the tab is closed" :
+            {state === "on" ? "Push alerts on, this device gets them even when the tab is closed" :
              state === "denied" ? "Push alerts blocked by the browser" :
              "Get push alerts on this device"}
           </div>
@@ -135,7 +135,7 @@ export function PushOptIn() {
               ? "Re-enable notifications for this site in your browser's address-bar/site settings."
               : state === "on"
                 ? "Quotes, awards, status changes, payments and complaint replies pop up here."
-                : "Quotes, awards, status changes, payments and complaint replies — even with the tab closed."}
+                : "Quotes, awards, status changes, payments and complaint replies, even with the tab closed."}
           </div>
         </div>
       </div>

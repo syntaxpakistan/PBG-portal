@@ -12,7 +12,7 @@ import { BadgeCheck, FlaskConical, Boxes, Search } from "lucide-react";
 import { pkr } from "@/lib/constants";
 
 export const metadata = {
-  title: "Marketplace — Pakistan Biotechnology Gateway",
+  title: "Marketplace, Pakistan Biotechnology Gateway",
   description: "Browse sequencing & bioinformatics services and indigenous lab supplies from Gateway-verified providers.",
 };
 
@@ -105,7 +105,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           <h1 className="h-display on-dark !text-[2.4rem]">Marketplace</h1>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[#9fb9cd]">
             Browse services from Gateway-verified laboratories and supplies from indigenous vendors.
-            Request quotes from one facility — or compare several at once; every quote arrives sealed.
+            Request quotes from one facility, or compare several at once; every quote arrives sealed.
           </p>
           {/* tab switch */}
           <div className="mt-7 inline-flex rounded-full border border-white/15 bg-white/5 p-1">
@@ -140,7 +140,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           <>
             <ServiceGrid services={cards} mode={isCustomer ? "customer" : "public"} />
             <p className="mt-8 text-[11.5px] text-muted">
-              Prices are starting rates set by each facility — final pricing is quoted per-RFQ and arrives sealed.
+              Prices are starting rates set by each facility, final pricing is quoted per-RFQ and arrives sealed.
               Sign in to compare services side-by-side and send one request to multiple labs.
             </p>
           </>
@@ -167,7 +167,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
               ))}
               {products.length === 0 && <p className="col-span-full py-12 text-center text-[13px] text-muted">No supplies match your filters.</p>}
             </div>
-            <p className="mt-8 text-[11.5px] text-muted">Ordering is enquiry-based — sign in to contact suppliers directly.</p>
+            <p className="mt-8 text-[11.5px] text-muted">Ordering is enquiry-based, sign in to contact suppliers directly.</p>
           </>
         )}
       </section>

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   ]);
   const quotesToReview = rfqs.reduce((n, r) => n + (r.status === "OPEN" ? r._count.quotes : 0), 0);
 
-  // needs-attention feed — what the customer should do right now
+  // needs-attention feed, what the customer should do right now
   type Action = { label: string; detail: string; href: string; tone: "blue" | "yellow" | "green" };
   const actions: Action[] = [
     ...rfqs.filter((r) => r.status === "OPEN" && r._count.quotes > 0).map((r) => ({
@@ -49,10 +49,10 @@ export default async function DashboardPage() {
       label: "Review results", detail: `${p.refNo} · ${p.resultFiles.length} deliverable${p.resultFiles.length === 1 ? "" : "s"} ready`, href: `/dashboard/projects/${p.id}`, tone: "green" as const,
     })),
     ...projects.flatMap((p) => p.milestones.filter((m) => m.status === "INVOICED").map((m) => ({
-      label: "Pay milestone", detail: `${p.refNo} · ${m.title} — ${pkr(m.amount)}`, href: `/dashboard/projects/${p.id}`, tone: "yellow" as const,
+      label: "Pay milestone", detail: `${p.refNo} · ${m.title}, ${pkr(m.amount)}`, href: `/dashboard/projects/${p.id}`, tone: "yellow" as const,
     }))),
     ...projects.filter((p) => { const s = slaInfo(p.dueAt, p.status, p.pausedAt); return s?.overdue; }).map((p) => ({
-      label: "Follow up — overdue", detail: `${p.refNo} is past the quoted turnaround`, href: `/dashboard/projects/${p.id}`, tone: "yellow" as const,
+      label: "Follow up, overdue", detail: `${p.refNo} is past the quoted turnaround`, href: `/dashboard/projects/${p.id}`, tone: "yellow" as const,
     })),
   ];
   const spent = projects.filter((p) => p.status === "COMPLETED" && p.transaction).reduce((n, p) => n + p.transaction!.quotedValue, 0);
@@ -104,7 +104,7 @@ export default async function DashboardPage() {
             <Link href="/dashboard/rfqs" className="text-[12px] font-medium text-blue hover:underline">View all →</Link>
           </div>
           <div className="divide-y divide-line">
-            {rfqs.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No RFQs yet — submit your first request.</p>}
+            {rfqs.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No RFQs yet, submit your first request.</p>}
             {rfqs.map((r) => (
               <Link key={r.id} href={`/dashboard/rfqs/${r.id}`} className="flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-paper-2">
                 <div>
@@ -129,7 +129,7 @@ export default async function DashboardPage() {
             <Link href="/dashboard/projects" className="text-[12px] font-medium text-blue hover:underline">View all →</Link>
           </div>
           <div className="divide-y divide-line">
-            {projects.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No projects yet — award a quote to begin.</p>}
+            {projects.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No projects yet, award a quote to begin.</p>}
             {projects.map((p) => {
               const sla = slaInfo(p.dueAt, p.status, p.pausedAt);
               return (

@@ -30,7 +30,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-6xl">
-      <PageHead title="Platform settings" sub="Commercial parameters — changes apply to new activity only and are audit-logged." />
+      <PageHead title="Platform settings" sub="Commercial parameters, changes apply to new activity only and are audit-logged." />
 
       <div className="grid items-start gap-5 md:grid-cols-2">
         <div className="card p-6">
@@ -99,7 +99,7 @@ export default async function SettingsPage() {
             </div>
             <div>
               <div className="text-[13px] font-semibold text-ink">Bank name</div>
-              <TextSettingForm settingKey="payment_bank_name" current={payTo.bankName} placeholder="e.g. Meezan Bank — DHA Lahore branch" />
+              <TextSettingForm settingKey="payment_bank_name" current={payTo.bankName} placeholder="e.g. Meezan Bank, DHA Lahore branch" />
             </div>
             <div>
               <div className="text-[13px] font-semibold text-ink">IBAN / account number</div>

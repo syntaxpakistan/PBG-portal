@@ -11,7 +11,7 @@ export default async function LabSuppliesPage({ searchParams }: { searchParams: 
     <>
       <PageHead
         title="Supplies marketplace"
-        sub="Verified indigenous suppliers — reagents, kits and consumables for your lab. Send an enquiry; the supplier replies with a price and lead time."
+        sub="Verified indigenous suppliers, reagents, kits and consumables for your lab. Send an enquiry; the supplier replies with a price and lead time."
       />
       <SuppliesBrowse q={q} cat={cat} buyerId={session.user.id} basePath="/lab/supplies" />
     </>

@@ -82,7 +82,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
   const downloadCsv = () => {
     const q = (s: string | number | null) => `"${String(s ?? "").replaceAll('"', '""')}"`;
     const L: string[] = [];
-    L.push("PBG Sequencing Coverage Estimator — results");
+    L.push("PBG Sequencing Coverage Estimator, results");
     L.push(`Generated,${new Date().toISOString()}`);
     L.push("");
     L.push(`Application type,${TYPE_BUTTONS.find((t) => t.id === inp.type)?.label}`);
@@ -119,17 +119,17 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
     const p = new URLSearchParams();
     const spec =
       rk.method === "coverage"
-        ? `${rk.label} — ${inp.coverage}x on ${fmt(inp.regionMb)} Mb region, ${inp.readCycles} cycles, ${inp.onTargetPct}% on-target; ~${fmtGb(res.totalOutputRequiredGb)}/sample.`
+        ? `${rk.label}, ${inp.coverage}x on ${fmt(inp.regionMb)} Mb region, ${inp.readCycles} cycles, ${inp.onTargetPct}% on-target; ~${fmtGb(res.totalOutputRequiredGb)}/sample.`
         : rk.method === "minreads"
-          ? `${rk.label} — ${inp.minClustersM}M recommended clusters/sample, ${rk.readCycles ?? inp.readCycles} cycles, ${inp.onTargetPct}% on-target.`
-          : `${rk.label} — multiplexing plan per instrument table.`;
+          ? `${rk.label}, ${inp.minClustersM}M recommended clusters/sample, ${rk.readCycles ?? inp.readCycles} cycles, ${inp.onTargetPct}% on-target.`
+          : `${rk.label}, multiplexing plan per instrument table.`;
     const cat =
       inp.type === "rna" ? "RNA-Seq"
       : /exome/i.test(rk.label) ? "WES"
       : /panel|trusight|ampliseq|cardio|myeloid|cancer|enrichment|probe/i.test(rk.label) ? "Panels"
       : "WGS";
     p.set("cat", cat);
-    p.set("title", `${rk.label} — sequencing run`);
+    p.set("title", `${rk.label}, sequencing run`);
     p.set("analysis", spec);
     return `/dashboard/rfqs/new?${p.toString()}`;
   };
@@ -141,7 +141,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
 
   return (
     <div className="mx-auto max-w-4xl">
-      {/* step 1 — application type */}
+      {/* step 1, application type */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {TYPE_BUTTONS.map((t) => (
           <button
@@ -161,7 +161,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
 
       {/* steps 2–4 */}
       <div className="card mt-6 overflow-hidden">
-        {/* step 2 — product */}
+        {/* step 2, product */}
         <div className="border-b border-line px-6 py-5">
           <label className="mb-1.5 block text-[12.5px] font-semibold text-ink">
             Application or product
@@ -182,7 +182,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
           {(rk.note ?? kit.note) && <p className="mt-1.5 text-[11.5px] leading-snug text-muted">{rk.note ?? kit.note}</p>}
         </div>
 
-        {/* step 3 — parameters */}
+        {/* step 3, parameters */}
         <table className="w-full text-left">
           <tbody>
             {visible.has("coverage") && (
@@ -214,10 +214,10 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
           </tbody>
         </table>
 
-        {/* step 4 — instruments */}
+        {/* step 4, instruments */}
         <div className="border-t border-line px-6 py-5">
           <p className="mb-3 text-[12.5px] font-semibold text-ink">
-            Instruments <span className="font-normal text-muted">— select for the estimate</span>
+            Instruments <span className="font-normal text-muted">(select for the estimate)</span>
           </p>
           <div className="grid gap-6 sm:grid-cols-2">
             {groups.map(({ g, items }) => (
@@ -257,7 +257,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
         </div>
       </div>
 
-      {/* step 5 — results */}
+      {/* step 5, results */}
       {submitted && (
         <div className="mt-8">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -266,10 +266,10 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
               <p className="mt-0.5 text-[12.5px] text-muted">
                 {rk.label}
                 {res.totalOutputRequiredGb != null && (
-                  <> — total output required per sample: <b className="text-ink">{fmtGb(res.totalOutputRequiredGb)}</b></>
+                  <>, total output required per sample: <b className="text-ink">{fmtGb(res.totalOutputRequiredGb)}</b></>
                 )}
                 {rk.method !== "coverage" && res.requiredClustersM != null && (
-                  <> — required clusters per sample: <b className="text-ink">{res.requiredClustersM.toFixed(2)}M</b></>
+                  <>, required clusters per sample: <b className="text-ink">{res.requiredClustersM.toFixed(2)}M</b></>
                 )}
               </p>
             </div>
@@ -334,7 +334,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
               </Link>
             )}
             <p className="flex items-center gap-1.5 text-[11.5px] text-muted">
-              <FileText className="size-3.5" /> {cta === "none" ? "Use these estimates when scoping incoming RFQs." : "Pre-fills an RFQ — verified labs quote against these exact numbers."}
+              <FileText className="size-3.5" /> {cta === "none" ? "Use these estimates when scoping incoming RFQs." : "Pre-fills an RFQ, verified labs quote against these exact numbers."}
             </p>
           </div>
         </div>

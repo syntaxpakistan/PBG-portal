@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 
-// atomic human-readable refs — RefSequence rows make concurrent creates collision-proof.
+// atomic human-readable refs, RefSequence rows make concurrent creates collision-proof.
 // yearly:false → "LAB-0007" (continuous) · yearly:true → "CMP-2026-0007" (resets each year)
 export async function nextRef(
   prefix: string,

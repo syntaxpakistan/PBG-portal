@@ -15,17 +15,17 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const session = await requireRole("PROVIDER");
   const profile = await prisma.providerProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
-  // BLIND ISOLATION: only safe buyer context (org type/city) — identity masked until award
+  // BLIND ISOLATION: only safe buyer context (org type/city), identity masked until award
   const rfq = await prisma.rfq.findUnique({
     where: { id },
     include: { customer: { select: { customerProfile: { select: { orgType: true, city: true } } } } },
   });
-  // BLIND ISOLATION: never fetch other providers' quotes here — only existence count
+  // BLIND ISOLATION: never fetch other providers' quotes here, only existence count
   if (!rfq || rfq.status !== "OPEN") notFound();
   const invited = await prisma.rfqInvite.findUnique({
     where: { rfqId_providerId: { rfqId: id, providerId: profile.id } },
   });
-  // board posts stay hidden until admin approval — except to labs the customer invited
+  // board posts stay hidden until admin approval, except to labs the customer invited
   if (rfq.visibility === "BOARD" && rfq.moderation !== "APPROVED" && !invited) notFound();
   const myQuote = await prisma.quote.findUnique({
     where: { rfqId_providerId: { rfqId: id, providerId: profile.id } },
@@ -67,7 +67,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="card p-6">
           <h2 className="mb-1 text-[15px] font-semibold text-ink">{myQuote ? <>Update your quote <span className="font-mono text-[12px] font-semibold text-muted">{myQuote.quoteNo}</span></> : "Submit a blind quote"}</h2>
-          <p className="mb-5 text-[12px] text-muted">Competing labs never see your price — and you never see theirs. The customer compares offers anonymously until award.</p>
+          <p className="mb-5 text-[12px] text-muted">Competing labs never see your price, and you never see theirs. The customer compares offers anonymously until award.</p>
           <form action={submit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
@@ -84,7 +84,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
               </div>
               <div>
                 <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Estimated TAT (days)</label>
-                <input name="estTurnaround" type="number" min={1} defaultValue={myQuote?.estTurnaround ?? ""} className={input} placeholder="10 — your best guess" />
+                <input name="estTurnaround" type="number" min={1} defaultValue={myQuote?.estTurnaround ?? ""} className={input} placeholder="10, your best guess" />
               </div>
             </div>
             <div>
@@ -127,7 +127,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
           <h3 className="text-[14px] font-semibold text-ink">Blind quoting rules</h3>
           <ul className="mt-3 space-y-2 text-[12.5px] leading-relaxed text-body">
             <li>· You see this RFQ because your capabilities match.</li>
-            <li>· Your quote is sealed — other labs only see a count.</li>
+            <li>· Your quote is sealed, other labs only see a count.</li>
             <li>· After the customer selects you, a private channel opens.</li>
             <li>· Platform fee of 3.5% applies on award.</li>
             <li>· Result reports are delivered back through this portal.</li>
@@ -138,7 +138,7 @@ export default async function LabRfqPage({ params }: { params: Promise<{ id: str
               <input name="reason" placeholder="Reason (optional)" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12px] text-ink outline-none focus:border-navy-3" />
               <SubmitButton className="btn-outline shrink-0 !px-3 !py-2 text-[11.5px]">Decline RFQ</SubmitButton>
             </div>
-            <p className="mt-1.5 text-[10.5px] text-muted">Declining hides this RFQ — the customer never sees that you passed.</p>
+            <p className="mt-1.5 text-[10.5px] text-muted">Declining hides this RFQ, the customer never sees that you passed.</p>
           </form>
         </div>
       </div>

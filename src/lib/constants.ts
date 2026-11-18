@@ -63,7 +63,7 @@ export function stageIndex(status: string) {
 export const pkr = (n: number) =>
   "PKR " + n.toLocaleString("en-PK", { maximumFractionDigits: 0 });
 
-// turnaround SLA — days remaining vs quoted due date (paused projects freeze the clock)
+// turnaround SLA, days remaining vs quoted due date (paused projects freeze the clock)
 export function slaInfo(dueAt: Date | null | undefined, status: string, pausedAt?: Date | null) {
   if (!dueAt || status === "COMPLETED" || status === "CANCELLED") return null;
   const ref = pausedAt ?? new Date();

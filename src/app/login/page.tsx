@@ -80,7 +80,7 @@ export default function LoginPage() {
             <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
           </Link>
           <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Sign in to your portal</h2>
-          <p className="mt-2 text-[13.5px] text-body">Customer, lab or supplier — one account.</p>
+          <p className="mt-2 text-[13.5px] text-body">Customer, lab or supplier, one account.</p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
             <div>

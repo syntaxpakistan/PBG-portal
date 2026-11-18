@@ -29,7 +29,7 @@ import { headers } from "next/headers";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("ADMIN");
-  // MFA enforcement — disabled during dev (no mail/authenticator testing yet).
+  // MFA enforcement, disabled during dev (no mail/authenticator testing yet).
   // Set ADMIN_MFA_REQUIRED=true to force TOTP enrollment before admin access.
   if (process.env.MFA_REQUIRED === "true" || process.env.ADMIN_MFA_REQUIRED === "true") {
     const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;

@@ -29,7 +29,7 @@ export default async function SupplierEnquiriesPage() {
 
   return (
     <>
-      <PageHead title="Enquiries" sub={`${profile.enquiries.length} total · ${open} awaiting your action — buyers from customers and labs.`} />
+      <PageHead title="Enquiries" sub={`${profile.enquiries.length} total · ${open} awaiting your action, buyers from customers and labs.`} />
 
       <div className="card divide-y divide-line">
         {profile.enquiries.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">Customer order requests appear here.</p>}
@@ -53,7 +53,7 @@ export default async function SupplierEnquiriesPage() {
             </div>
             {e.status === "DELIVERED" && (
               <div className="mt-2.5 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                Delivered — the buyer confirmed receipt. Order complete.
+                Delivered, the buyer confirmed receipt. Order complete.
               </div>
             )}
             {e.status === "QUOTED" && (
@@ -65,17 +65,17 @@ export default async function SupplierEnquiriesPage() {
             )}
             {e.status === "INVOICED" && (
               <div className="mt-2.5 rounded-lg bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
-                Order accepted — invoice raised. Payment clears through Syntax escrow; you&apos;ll be notified when verified.
+                Order accepted, invoice raised. Payment clears through Syntax escrow; you&apos;ll be notified when verified.
               </div>
             )}
             {e.status === "CLOSED" && (
               <div className="mt-2.5 rounded-lg bg-paper-2 px-3.5 py-2.5 text-[12.5px] text-muted">
-                Declined{e.declineReason ? ` — ${e.declineReason}` : ""}
+                Declined{e.declineReason ? `, ${e.declineReason}` : ""}
               </div>
             )}
             {e.status === "PAID" && (
               <form action={fulfilEnquiry.bind(null, e.id)} className="mt-2.5 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5">
-                <p className="text-[12.5px] font-medium text-(--st-green-fg)">Payment verified by Syntax — ship the order and record the delivery details.</p>
+                <p className="text-[12.5px] font-medium text-(--st-green-fg)">Payment verified by Syntax, ship the order and record the delivery details.</p>
                 <div className="mt-2 flex flex-wrap items-end gap-2">
                   <input name="courier" placeholder="Courier (TCS, Leopards…)" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                   <input name="trackingNo" placeholder="Tracking / consignment #" className="w-48 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />

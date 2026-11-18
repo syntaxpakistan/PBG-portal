@@ -28,7 +28,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <PageHead title="Audit log" sub={`Immutable record of every administrative and workflow action — ${total} entries.`}
+      <PageHead title="Audit log" sub={`Immutable record of every administrative and workflow action, ${total} entries.`}
         action={<Link href="/api/admin/export/audit" className="btn-outline !py-2 text-[12.5px]">Export CSV</Link>}
       />
       <form className="mb-4 flex flex-wrap items-center gap-2">

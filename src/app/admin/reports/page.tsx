@@ -116,7 +116,7 @@ export default async function ReportsPage() {
 
   return (
     <>
-      <PageHead title="Reports" sub="Revenue, marketplace liquidity and network growth — the business layer of the Gateway." />
+      <PageHead title="Reports" sub="Revenue, marketplace liquidity and network growth, the business layer of the Gateway." />
 
       {/* headline */}
       <div className="mb-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -138,7 +138,7 @@ export default async function ReportsPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         {/* monthly revenue */}
         <div className="card p-5">
-          <h3 className="text-[14px] font-semibold text-ink">Fees collected — last 6 months</h3>
+          <h3 className="text-[14px] font-semibold text-ink">Fees collected, last 6 months</h3>
           <div className="mt-4 space-y-3">
             {months.map((m) => (
               <div key={m.key} className="flex items-center gap-3">
@@ -155,7 +155,7 @@ export default async function ReportsPage() {
 
         {/* RFQ funnel */}
         <div className="card p-5">
-          <h3 className="text-[14px] font-semibold text-ink">Sequencing pipeline — RFQ → payment</h3>
+          <h3 className="text-[14px] font-semibold text-ink">Sequencing pipeline, RFQ → payment</h3>
           <div className="mt-4 space-y-3">
             {funnel.map((f, i) => (
               <div key={f.label} className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export default async function ReportsPage() {
             ))}
           </div>
           <p className="mt-4 border-t border-line pt-3 text-[11.5px] leading-relaxed text-muted">
-            Award rate {(funnelMax && Math.round((rfqAwarded / funnelMax) * 100)) || 0}% · quote coverage {funnelMax ? Math.round((rfqQuoted / funnelMax) * 100) : 0}% — quote coverage below ~70% means routing needs attention.
+            Award rate {(funnelMax && Math.round((rfqAwarded / funnelMax) * 100)) || 0}% · quote coverage {funnelMax ? Math.round((rfqQuoted / funnelMax) * 100) : 0}%, quote coverage below ~70% means routing needs attention.
           </p>
         </div>
 
@@ -204,7 +204,7 @@ export default async function ReportsPage() {
         {/* supply funnel + top partners */}
         <div className="space-y-6">
           <div className="card p-5">
-            <h3 className="text-[14px] font-semibold text-ink">Supply marketplace — enquiry → fulfilment</h3>
+            <h3 className="text-[14px] font-semibold text-ink">Supply marketplace, enquiry → fulfilment</h3>
             <div className="mt-4 space-y-3">
               {enqRows.map((f) => (
                 <div key={f.label} className="flex items-center gap-3">

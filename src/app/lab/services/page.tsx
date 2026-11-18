@@ -32,7 +32,7 @@ export default async function LabServicesPage() {
           </div>
           <div className="divide-y divide-line">
             {profile.services.length === 0 && (
-              <p className="px-5 py-10 text-center text-[13px] text-muted">No services listed — add your standard offerings so customers can find you in the registry.</p>
+              <p className="px-5 py-10 text-center text-[13px] text-muted">No services listed, add your standard offerings so customers can find you in the registry.</p>
             )}
             {profile.services.map((s) => (
               <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
@@ -80,7 +80,7 @@ export default async function LabServicesPage() {
 
         <div className="card h-fit p-5">
           <h3 className="text-[14px] font-semibold text-ink">Add a service</h3>
-          <p className="mb-4 mt-1 text-[12px] text-muted">Pick a category and service — the listing name is generated from your selections. Publish a separate listing for each variant you price separately.</p>
+          <p className="mb-4 mt-1 text-[12px] text-muted">Pick a category and service, the listing name is generated from your selections. Publish a separate listing for each variant you price separately.</p>
           <ServiceForm action={saveService} input={input} label={label} platforms={profile.platforms.split(",").map((p) => p.trim()).filter(Boolean)} />
         </div>
       </div>

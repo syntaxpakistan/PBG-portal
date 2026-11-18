@@ -14,7 +14,7 @@ export async function createEnquiry(productId: string, formData: FormData) {
   if (!session || !["CUSTOMER", "PROVIDER"].includes(session.user.role ?? "")) redirect("/login");
   if (session.user.role === "CUSTOMER") await assertCustomerApproved(session.user.id);
   if (!rateLimit(`enquiry:${session.user.id}`, await getEnquiryRateLimit(), 24 * 3600e3)) {
-    throw new Error("Too many enquiries — please try again tomorrow.");
+    throw new Error("Too many enquiries, please try again tomorrow.");
   }
   const product = await prisma.product.findUniqueOrThrow({
     where: { id: productId },
@@ -22,7 +22,7 @@ export async function createEnquiry(productId: string, formData: FormData) {
   });
   const qty = Number(formData.get("qty") || 1);
   const message = String(formData.get("message") || "") || "—";
-  // buyer org for context — supplier replies to a named counterparty
+  // buyer org for context, supplier replies to a named counterparty
   const org = session.user.role === "PROVIDER"
     ? (await prisma.providerProfile.findUnique({ where: { userId: session.user.id }, select: { orgName: true } }))?.orgName
     : (await prisma.customerProfile.findUnique({ where: { userId: session.user.id }, select: { orgName: true } }))?.orgName;

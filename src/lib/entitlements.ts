@@ -10,7 +10,7 @@ export type PartnerAccess = {
   pricePkr: number;
   /** may perform paid actions (quote, list, respond) right now */
   active: boolean;
-  /** ACTIVE but past expiresAt — inside the GRACE_DAYS window */
+  /** ACTIVE but past expiresAt, inside the GRACE_DAYS window */
   inGrace: boolean;
   expiresAt: Date | null;
   /** days until paid-through date; negative = overdue */
@@ -54,7 +54,7 @@ export type AnalyticsAddOnState =
   | { state: "PENDING"; invoiceNo: string | null }
   | { state: "NONE"; price: number };
 
-/** full add-on status for billing/analytics UIs — plan flag wins over a purchase */
+/** full add-on status for billing/analytics UIs, plan flag wins over a purchase */
 export async function getAnalyticsAddOnState(userId: string): Promise<AnalyticsAddOnState> {
   const access = await getPartnerAccess(userId);
   if (access.active && access.flags?.analytics) return { state: "INCLUDED" };
@@ -71,7 +71,7 @@ export async function getAnalyticsAddOnState(userId: string): Promise<AnalyticsA
 }
 
 /**
- * Analytics dashboard unlock — plan flag (Pro/Elite partners) OR a paid
+ * Analytics dashboard unlock, plan flag (Pro/Elite partners) OR a paid
  * Analytics add-on with time left on its term.
  */
 export async function hasAnalyticsAccess(userId: string): Promise<boolean> {
@@ -94,14 +94,14 @@ export async function assertPartnerActive(userId: string): Promise<PartnerAccess
   if (!access.active) {
     throw new Error(
       access.status === "PENDING_PAYMENT"
-        ? "Your subscription is awaiting payment — settle your plan invoice to activate your portal."
-        : "Subscription inactive — renew your plan to continue using paid features."
+        ? "Your subscription is awaiting payment, settle your plan invoice to activate your portal."
+        : "Subscription inactive, renew your plan to continue using paid features."
     );
   }
   return access;
 }
 
-/** plan tier for sorting/priority — higher plans rank first */
+/** plan tier for sorting/priority, higher plans rank first */
 export function planTier(plan: string | null | undefined): number {
   return plan === "CUSTOM" ? 2 : plan === "PRO" ? 1 : 0;
 }

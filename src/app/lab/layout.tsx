@@ -38,7 +38,7 @@ export default async function LabLayout({ children }: { children: React.ReactNod
       {!access.active && access.hasSubscription && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
           <span>
-            Subscription {access.status === "PENDING_PAYMENT" ? "awaiting payment" : access.inGrace ? `expired — ${graceDays} day${graceDays === 1 ? "" : "s"} of grace left` : "inactive"}.
+            Subscription {access.status === "PENDING_PAYMENT" ? "awaiting payment" : access.inGrace ? `expired, ${graceDays} day${graceDays === 1 ? "" : "s"} of grace left` : "inactive"}.
             {" "}Quoting, listings and supply responses are paused.
           </span>
           <Link href="/lab/billing" className="rounded-full bg-navy px-3.5 py-1.5 text-[12px] font-semibold text-yellow hover:bg-navy-2">Go to billing</Link>
@@ -46,7 +46,7 @@ export default async function LabLayout({ children }: { children: React.ReactNod
       )}
       {!access.hasSubscription && (
         <div className="mb-5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
-          No subscription on file — choose a plan to activate paid features.
+          No subscription on file, choose a plan to activate paid features.
         </div>
       )}
       {children}

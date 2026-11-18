@@ -39,7 +39,7 @@ export const PLANS = {
 
 export type PlanKey = keyof typeof PLANS;
 
-// same plan, supplier-relevant wording — the plan pickers show these instead
+// same plan, supplier-relevant wording, the plan pickers show these instead
 // of the lab-centric feature list when the registrant is a supplier
 export const SUPPLIER_FEATURES: Record<PlanKey, string[]> = {
   BASIC: [
@@ -67,12 +67,12 @@ export const planTermLabel = (key: PlanKey) =>
 
 export const planTermMs = (key: PlanKey) => PLANS[key].termYears * 365 * 864e5;
 
-// what each plan actually unlocks — enforced in lib/entitlements.ts + actions
+// what each plan actually unlocks, enforced in lib/entitlements.ts + actions
 export const PLAN_FLAGS: Record<PlanKey, {
   priorityRouting: boolean;   // PRO+ see every capability-matched RFQ, not just text matches
   featuredBadge: boolean;     // highlighted in the public registry
   analytics: boolean;         // /lab/analytics dashboard
-  dedicatedManager: boolean;  // ELITE — named Gateway contact
+  dedicatedManager: boolean;  // ELITE, named Gateway contact
 }> = {
   BASIC: { priorityRouting: false, featuredBadge: false, analytics: false, dedicatedManager: false },
   PRO: { priorityRouting: true, featuredBadge: true, analytics: true, dedicatedManager: false },

@@ -144,7 +144,7 @@ export default async function AdminPage() {
       items: staleRfqs.map((r): QItem => ({
         key: r.id,
         label: r.title,
-        meta: `open ${Math.floor((nowMs - r.createdAt.getTime()) / 86400e3)}d · zero quotes — consider routing invites`,
+        meta: `open ${Math.floor((nowMs - r.createdAt.getTime()) / 86400e3)}d · zero quotes, consider routing invites`,
         href: "/admin/rfqs",
       })),
     },
@@ -196,7 +196,7 @@ export default async function AdminPage() {
       {actionTotal === 0 && (
         <div className="card mb-4 flex items-center gap-3 px-5 py-4">
           <CircleCheck className="size-5 shrink-0 text-(--st-green-fg)" />
-          <p className="text-[13.5px] text-body">All clear — nothing is waiting on your approval right now.</p>
+          <p className="text-[13.5px] text-body">All clear, nothing is waiting on your approval right now.</p>
         </div>
       )}
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -213,7 +213,7 @@ export default async function AdminPage() {
                 )}
               </div>
               <div className="flex-1 divide-y divide-line">
-                {q.items.length === 0 && <p className="px-4.5 py-4 text-[12px] text-muted">Nothing pending — all clear.</p>}
+                {q.items.length === 0 && <p className="px-4.5 py-4 text-[12px] text-muted">Nothing pending, all clear.</p>}
                 {q.items.slice(0, 3).map((it) => (
                   <div key={it.key} className="flex items-center justify-between gap-3 px-4.5 py-2.5">
                     <div className="min-w-0">

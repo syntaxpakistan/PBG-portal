@@ -74,11 +74,11 @@ export function MfaSetup({ returnTo = "/" }: { returnTo?: string }) {
   return (
     <div className="mt-6 border-t border-line pt-5">
       <h3 className="text-[14px] font-semibold text-ink">Save your backup codes</h3>
-      <p className="mt-1 text-[12.5px] text-body">Each works once if you lose your device. Store them somewhere safe — they won&apos;t be shown again.</p>
+      <p className="mt-1 text-[12.5px] text-body">Each works once if you lose your device. Store them somewhere safe, they won&apos;t be shown again.</p>
       <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-paper-2 p-4 font-mono text-[12.5px]">
         {backupCodes.map((c) => <code key={c}>{c}</code>)}
       </div>
-      <button onClick={() => router.push(returnTo)} className="btn-primary mt-4 !py-2.5">Done — back to portal</button>
+      <button onClick={() => router.push(returnTo)} className="btn-primary mt-4 !py-2.5">Done, back to portal</button>
     </div>
   );
 }
@@ -99,7 +99,7 @@ export function MfaManage() {
       if (error) { toast.error(error.message ?? "Wrong password"); return; }
       setCodes(data?.backupCodes ?? []);
       setPassword("");
-      toast.success("New backup codes generated — old ones are invalid now.");
+      toast.success("New backup codes generated, old ones are invalid now.");
     } else {
       const { error } = await authClient.twoFactor.disable({ password });
       setLoading(false);
@@ -133,7 +133,7 @@ export function MfaManage() {
       </form>
       {codes.length > 0 && (
         <div className="mt-4">
-          <p className="text-[12.5px] text-body">New backup codes — each works once. Store them safely:</p>
+          <p className="text-[12.5px] text-body">New backup codes, each works once. Store them safely:</p>
           <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-paper-2 p-4 font-mono text-[12.5px]">
             {codes.map((c) => <code key={c}>{c}</code>)}
           </div>

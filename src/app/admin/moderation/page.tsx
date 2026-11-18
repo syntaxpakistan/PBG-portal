@@ -11,7 +11,7 @@ import { ProductImage } from "@/components/marketplace/product-image";
 function ModerateForm({ action, approveLabel = "Approve", rejectLabel = "Reject" }: { action: (fd: FormData) => Promise<void>; approveLabel?: string; rejectLabel?: string }) {
   return (
     <form action={action} className="flex items-center gap-2">
-      <input name="note" placeholder="Note (optional — sent to the org)" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12px] text-ink outline-none focus:border-navy-3" />
+      <input name="note" placeholder="Note (optional, sent to the org)" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12px] text-ink outline-none focus:border-navy-3" />
       <SubmitButton name="decision" value="APPROVED" className="rounded-lg bg-(--st-green-bg) px-3 py-2 text-[12px] font-semibold text-(--st-green-fg) hover:brightness-95">{approveLabel}</SubmitButton>
       <SubmitButton name="decision" value="REJECTED" className="rounded-lg bg-(--st-red-bg) px-3 py-2 text-[12px] font-semibold text-(--st-red-fg) hover:brightness-95">{rejectLabel}</SubmitButton>
     </form>
@@ -65,13 +65,13 @@ export default async function ModerationPage() {
 
   return (
     <>
-      <PageHead title="Content moderation" sub="Nothing reaches the marketplace without your approval — request-board posts, lab service listings and supplier products queue here." />
+      <PageHead title="Content moderation" sub="Nothing reaches the marketplace without your approval, request-board posts, lab service listings and supplier products queue here." />
 
       {/* request board queue */}
       <div className="card mb-8 overflow-hidden">
         <div className="border-b border-line px-5 py-3.5">
           <h2 className="text-[14px] font-semibold text-ink">Request-board posts <span className="font-normal text-muted">({pendingRfqs.length} pending)</span></h2>
-          <p className="mt-0.5 text-[12px] text-muted">Approved requests go live on the lab board — all verified labs can see and quote them. Buyer identity stays masked to labs.</p>
+          <p className="mt-0.5 text-[12px] text-muted">Approved requests go live on the lab board, all verified labs can see and quote them. Buyer identity stays masked to labs.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-[12.5px]">

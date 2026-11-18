@@ -20,7 +20,7 @@ export default async function SupplierProductsPage() {
     <>
       <PageHead
         title="Products"
-        sub={`${profile.products.length} listed — new products go live after a quick review by the Gateway team.`}
+        sub={`${profile.products.length} listed, new products go live after a quick review by the Gateway team.`}
         action={approved ? <StorefrontLink supplierId={profile.id} /> : undefined}
       />
 
@@ -29,7 +29,7 @@ export default async function SupplierProductsPage() {
           <h3 className="mb-4 text-[14px] font-semibold text-ink">List a product</h3>
           {approved
             ? <ProductForm />
-            : <p className="text-[12.5px] text-muted">Available after verification — the Gateway team is reviewing your organization.</p>}
+            : <p className="text-[12.5px] text-muted">Available after verification, the Gateway team is reviewing your organization.</p>}
         </div>
         <div className="card overflow-hidden self-start">
           <div className="border-b border-line px-5 py-3.5"><h3 className="text-[14px] font-semibold text-ink">Your catalog</h3></div>

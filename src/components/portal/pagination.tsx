@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const PAGE_SIZE = 25;
 
-/** Build "?a=b&c=d" from params — drops empties and `page`. */
+/** Build "?a=b&c=d" from params, drops empties and `page`. */
 export function qs(params: Record<string, string | undefined>) {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) if (v && k !== "page") p.set(k, v);
@@ -63,7 +63,7 @@ export function Pagination({
   );
 }
 
-/** GET search bar — submits ?q= (keeps any extra hidden params). */
+/** GET search bar, submits ?q= (keeps any extra hidden params). */
 export function SearchBar({
   q,
   placeholder = "Search…",

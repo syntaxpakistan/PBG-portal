@@ -39,7 +39,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
 
       {rfq.visibility === "BOARD" && rfq.moderation === "PENDING" && (
         <div className="mb-5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] text-(--st-amber-fg)">
-          This request is awaiting admin review — it will go live on the request board once approved, and matching labs will be notified.
+          This request is awaiting admin review, it will go live on the request board once approved, and matching labs will be notified.
         </div>
       )}
       {rfq.visibility === "BOARD" && rfq.moderation === "REJECTED" && (
@@ -49,7 +49,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
       )}
       {rfq.visibility === "BOARD" && rfq.moderation === "APPROVED" && (
         <div className="mb-5 rounded-xl border border-(--st-green-bd) bg-(--st-green-bg) px-4 py-3 text-[13px] text-(--st-green-fg)">
-          Live on the request board — all verified labs can see it and submit sealed quotes.
+          Live on the request board, all verified labs can see it and submit sealed quotes.
         </div>
       )}
 
@@ -70,7 +70,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
       </h2>
       {rfq.quotes.length === 0 && (
         <div className="card p-8 text-center text-[13px] text-muted">
-          Waiting for providers — you&apos;ll be notified as quotes arrive.
+          Waiting for providers, you&apos;ll be notified as quotes arrive.
         </div>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
@@ -110,7 +110,7 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
                 {q.scope && <div><span className="font-medium text-ink">Scope:</span> {q.scope}</div>}
                 {q.exclusions && <div><span className="font-medium text-ink">Exclusions:</span> {q.exclusions}</div>}
                 {q.notes && <div><span className="font-medium text-ink">Notes:</span> {q.notes}</div>}
-                {q.validUntil && <div className={expired ? "font-medium text-(--st-red-fg)" : "text-muted"}>Quote valid until {q.validUntil.toLocaleDateString()}{expired ? " — expired" : ""}</div>}
+                {q.validUntil && <div className={expired ? "font-medium text-(--st-red-fg)" : "text-muted"}>Quote valid until {q.validUntil.toLocaleDateString()}{expired ? ", expired" : ""}</div>}
               </div>
             )}
             {rfq.status === "OPEN" && q.status === "SUBMITTED" && !expired && (
@@ -118,12 +118,12 @@ export default async function RfqDetailPage({ params }: { params: Promise<{ id: 
             )}
             {rfq.status === "OPEN" && q.status === "SUBMITTED" && expired && (
               <div className="mt-4 rounded-lg bg-paper-2 px-3.5 py-2.5 text-center text-[12px] font-medium text-muted">
-                This offer has lapsed — ask the lab to re-submit with fresh validity before awarding.
+                This offer has lapsed, ask the lab to re-submit with fresh validity before awarding.
               </div>
             )}
             {q.status === "SELECTED" && (
               <div className="mt-4 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-center text-[13px] font-semibold text-(--st-green-fg)">
-                Selected — project created
+                Selected, project created
               </div>
             )}
           </div>

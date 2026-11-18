@@ -20,7 +20,7 @@ async function audit(actorId: string, action: string, entity: string, entityId: 
   await prisma.auditLog.create({ data: { actorId, action, entity, entityId, meta } });
 }
 
-// capability routing — notify approved providers matching the RFQ's category + explicit invitees
+// capability routing, notify approved providers matching the RFQ's category + explicit invitees
 export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; title: string; organism: string; sampleCount: number; sampleType: string; serviceCategory: string; requestedOutput?: string | null; deadline?: Date | null; budgetHint?: string | null; customerId: string }, board = false) {
   const cat = rfq.serviceCategory.toLowerCase();
   const providers = await prisma.providerProfile.findMany({ where: { status: "APPROVED" } });
@@ -34,7 +34,7 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
   const targets = new Map(
     [...(routed.length ? routed : providers), ...providers.filter((p) => invitedSet.has(p.id))].map((p) => [p.id, p])
   );
-  // PRO/CUSTOM partners get priority routing — every capability-matched RFQ reaches them
+  // PRO/CUSTOM partners get priority routing, every capability-matched RFQ reaches them
   const prioritySubs = await prisma.subscription.findMany({
     where: { userId: { in: providers.map((p) => p.userId) }, status: "ACTIVE", plan: { in: ["PRO", "CUSTOM"] } },
     select: { userId: true },
@@ -49,7 +49,7 @@ export async function notifyProvidersForRfq(rfq: { id: string; refNo: string; ti
     rfq.requestedOutput ? `Output: ${rfq.requestedOutput}` : null,
     rfq.deadline ? `Deadline: ${rfq.deadline.toLocaleDateString()}` : null,
     rfq.budgetHint ? `Budget hint: ${rfq.budgetHint}` : null,
-  ].filter(Boolean).join(" — ");
+  ].filter(Boolean).join(", ");
   for (const p of targets.values()) {
     await notify({
       toUserId: p.userId,
@@ -67,10 +67,10 @@ export async function createRfq(formData: FormData) {
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
   await assertCustomerApproved(session.user.id);
   if (!rateLimit(`rfq:${session.user.id}`, await getRfqRateLimit(), 24 * 3600e3)) {
-    throw new Error("Too many RFQs — please try again tomorrow.");
+    throw new Error("Too many RFQs, please try again tomorrow.");
   }
 
-  // server-side duplicate guard — repeated clicks/submits must not create twins
+  // server-side duplicate guard, repeated clicks/submits must not create twins
   const dupe = await prisma.rfq.findFirst({
     where: {
       customerId: session.user.id,
@@ -81,7 +81,7 @@ export async function createRfq(formData: FormData) {
     },
     select: { id: true },
   });
-  if (dupe) throw new Error("This looks like a duplicate — you already submitted the same request moments ago.");
+  if (dupe) throw new Error("This looks like a duplicate, you already submitted the same request moments ago.");
 
   const inviteIds = formData.getAll("inviteIds").map(String).filter(Boolean);
   const board = formData.get("visibility") === "BOARD";
@@ -137,7 +137,7 @@ export async function createRfq(formData: FormData) {
         rfq.requestedOutput ? `Output: ${rfq.requestedOutput}` : null,
         rfq.deadline ? `Deadline: ${rfq.deadline.toLocaleDateString()}` : null,
         rfq.budgetHint ? `Budget: ${rfq.budgetHint}` : null,
-      ].filter(Boolean).join(" — ") + ". Review it in the moderation queue.",
+      ].filter(Boolean).join(", ") + ". Review it in the moderation queue.",
       "/admin/moderation"
     );
   } else {
@@ -146,7 +146,7 @@ export async function createRfq(formData: FormData) {
   redirect(`/dashboard/rfqs/${rfq.id}`);
 }
 
-// hard-delete an RFQ — only before a quote is awarded (quotes/invites/declines cascade)
+// hard-delete an RFQ, only before a quote is awarded (quotes/invites/declines cascade)
 export async function deleteRfq(rfqId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
@@ -157,7 +157,7 @@ export async function deleteRfq(rfqId: string) {
   });
   if (rfq.customerId !== session.user.id) throw new Error("Not your RFQ");
   if (rfq.project || rfq.status === "AWARDED") {
-    throw new Error("This request already has an awarded project — it can't be deleted.");
+    throw new Error("This request already has an awarded project, it can't be deleted.");
   }
   await prisma.rfq.delete({ where: { id: rfqId } });
   await audit(session.user.id, "RFQ_DELETED", "Rfq", rfqId, rfq.refNo);
@@ -176,7 +176,7 @@ export async function selectQuote(quoteId: string, poNumber?: string) {
   });
   if (quote.rfq.customerId !== session.user.id) throw new Error("Not your RFQ");
   if (quote.rfq.status !== "OPEN") throw new Error("RFQ already awarded");
-  if (quote.validUntil && quote.validUntil < new Date()) throw new Error("This quote has expired — ask the lab to re-submit");
+  if (quote.validUntil && quote.validUntil < new Date()) throw new Error("This quote has expired, ask the lab to re-submit");
 
   const feePercent = await getFeePercent();
   const [projRef, txnRef] = await Promise.all([nextRef("PRJ"), nextRef("TXN", { yearly: true })]);
@@ -212,11 +212,11 @@ export async function selectQuote(quoteId: string, poNumber?: string) {
   await audit(session.user.id, "QUOTE_SELECTED", "Quote", quoteId, `${quote.rfq.refNo} → ${proj.refNo}`);
   await notify({
     toUserId: quote.provider.userId,
-    subject: `You were awarded ${proj.refNo} — accept or decline`,
-    body: `The customer selected your offer on "${quote.rfq.title}" (PKR ${(quote.price + quote.taxAmount).toLocaleString()} · ${quote.turnaroundDays}d TAT). Review and accept the project in your lab portal — or decline if you can't take it on.`,
+    subject: `You were awarded ${proj.refNo}, accept or decline`,
+    body: `The customer selected your offer on "${quote.rfq.title}" (PKR ${(quote.price + quote.taxAmount).toLocaleString()} · ${quote.turnaroundDays}d TAT). Review and accept the project in your lab portal, or decline if you can't take it on.`,
     href: `/lab/projects/${proj.id}`,
   });
-  // let the competing labs know their sealed quote wasn't selected — no prices disclosed
+  // let the competing labs know their sealed quote wasn't selected, no prices disclosed
   const losers = await prisma.quote.findMany({
     where: { rfqId: quote.rfqId, status: "DECLINED" },
     include: { provider: { select: { userId: true } } },
@@ -224,7 +224,7 @@ export async function selectQuote(quoteId: string, poNumber?: string) {
   for (const l of losers) {
     await notify({
       toUserId: l.provider.userId,
-      subject: `${quote.rfq.refNo} awarded — your quote wasn't selected`,
+      subject: `${quote.rfq.refNo} awarded, your quote wasn't selected`,
       body: `The customer chose another provider's offer on "${quote.rfq.title}". Your sealed quote stayed confidential throughout. New requests keep routing to your capabilities.`,
       href: "/lab/rfqs",
     });
@@ -239,7 +239,7 @@ export async function postMessage(projectId: string, formData: FormData) {
   const allowed = [project.customerId, project.providerUserId];
   const isAdmin = session.user.role === "ADMIN";
   if (!allowed.includes(session.user.id) && !isAdmin) throw new Error("Not in this project");
-  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages, slow down a little.");
   const file = formData.get("attachment");
   let attachmentName: string | null = null;
   let attachmentKey: string | null = null;
@@ -258,7 +258,7 @@ export async function postMessage(projectId: string, formData: FormData) {
 
 // ---------- provider ----------
 
-// server-side mirror of the board gate — pending/rejected board posts are only
+// server-side mirror of the board gate, pending/rejected board posts are only
 // quotable by explicitly invited labs; everything else must be OPEN + visible
 async function assertRfqQuotable(rfqId: string, providerId: string) {
   const rfq = await prisma.rfq.findUnique({ where: { id: rfqId }, select: { status: true, visibility: true, moderation: true } });
@@ -302,7 +302,7 @@ export async function submitQuote(rfqId: string, formData: FormData) {
   const rfq = await prisma.rfq.findUnique({ where: { id: rfqId }, select: { customerId: true, refNo: true } });
   if (rfq) await notify({
     toUserId: rfq.customerId,
-    subject: `New quote on ${rfq.refNo} — ${profile.orgName}`,
+    subject: `New quote on ${rfq.refNo}, ${profile.orgName}`,
     body: `${profile.orgName} submitted a sealed offer: PKR ${(quote.price + quote.taxAmount).toLocaleString()} all-in · ${quote.turnaroundDays} days TAT · ${quote.platform}. Sign in to compare it against other offers.`,
     href: `/dashboard/rfqs/${rfqId}`,
   });
@@ -310,7 +310,7 @@ export async function submitQuote(rfqId: string, formData: FormData) {
   redirect("/lab");
 }
 
-// provider opts out of a routed RFQ — stays invisible to the customer
+// provider opts out of a routed RFQ, stays invisible to the customer
 export async function declineRfq(rfqId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -342,14 +342,14 @@ export async function withdrawQuote(rfqId: string) {
   await notify({
     toUserId: rfq.customerId,
     subject: `${rfq.refNo}: a quote was withdrawn`,
-    body: `${profile.orgName} withdrew its sealed offer.${remaining > 0 ? ` ${remaining} other offer${remaining === 1 ? "" : "s"} still on the table.` : " No offers remain — the request stays open for new quotes."}`,
+    body: `${profile.orgName} withdrew its sealed offer.${remaining > 0 ? ` ${remaining} other offer${remaining === 1 ? "" : "s"} still on the table.` : " No offers remain, the request stays open for new quotes."}`,
     href: `/dashboard/rfqs/${rfqId}`,
   });
   revalidatePath("/lab");
   redirect("/lab");
 }
 
-// provider accepts the awarded project — required before work can start
+// provider accepts the awarded project, required before work can start
 export async function acceptProject(projectId: string) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -362,8 +362,8 @@ export async function acceptProject(projectId: string) {
   const dueAt = new Date(now.getTime() + project.quote.turnaroundDays * 864e5);
   await prisma.$transaction([
     prisma.project.update({ where: { id: projectId }, data: { acceptedAt: now, dueAt, status: "SAMPLE_AWAITED" } }),
-    prisma.statusHistory.create({ data: { projectId, status: "SAMPLE_AWAITED", note: "Provider accepted the award — awaiting samples", changedById: session.user.id } }),
-    // spin up the in-lab work-stage ladder (idempotent — skipped stages may pre-exist)
+    prisma.statusHistory.create({ data: { projectId, status: "SAMPLE_AWAITED", note: "Provider accepted the award, awaiting samples", changedById: session.user.id } }),
+    // spin up the in-lab work-stage ladder (idempotent, skipped stages may pre-exist)
     prisma.workStage.createMany({
       data: WORK_STAGE_KEYS.map((key, i) => ({ projectId, key, sort: i })),
     }),
@@ -374,7 +374,7 @@ export async function acceptProject(projectId: string) {
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// provider declines an award — RFQ reopens so the customer can pick another offer
+// provider declines an award, RFQ reopens so the customer can pick another offer
 export async function declineProject(projectId: string, reason?: string) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -396,7 +396,7 @@ export async function declineProject(projectId: string, reason?: string) {
     prisma.transaction.deleteMany({ where: { projectId } }),
   ]);
   await audit(session.user.id, "PROJECT_DECLINED", "Project", projectId, `${project.refNo}${reason ? ` · ${reason}` : ""}`);
-  await notify({ toUserId: project.customerId, subject: `${project.refNo}: provider declined`, body: `The selected lab couldn't take on "${project.rfq.title}". Your RFQ is open again — you can select another offer.`, href: `/dashboard/rfqs/${project.rfqId}` });
+  await notify({ toUserId: project.customerId, subject: `${project.refNo}: provider declined`, body: `The selected lab couldn't take on "${project.rfq.title}". Your RFQ is open again, you can select another offer.`, href: `/dashboard/rfqs/${project.rfqId}` });
   revalidatePath("/lab");
   redirect("/lab");
 }
@@ -422,7 +422,7 @@ export async function advanceProjectStatus(projectId: string, status: ProjectSta
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// staged delivery — uploads stay lab-internal until explicitly released
+// staged delivery, uploads stay lab-internal until explicitly released
 export async function addResultFile(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -450,7 +450,7 @@ export async function addResultFile(projectId: string, formData: FormData) {
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// lab releases a deliverable to the customer — first release flips status + notifies
+// lab releases a deliverable to the customer, first release flips status + notifies
 export async function releaseResultFile(fileId: string) {
   const session = await getSession();
   if (!session) redirect("/login");
@@ -480,7 +480,7 @@ export async function completeProject(projectId: string) {
     prisma.project.update({ where: { id: projectId }, data: { status: "COMPLETED" } }),
     prisma.statusHistory.create({ data: { projectId, status: "COMPLETED", changedById: session.user.id } }),
   ]);
-  // never let commission slip — auto-issue the platform-fee invoice at completion
+  // never let commission slip, auto-issue the platform-fee invoice at completion
   const txn = await prisma.transaction.findUnique({ where: { projectId }, select: { id: true, invoiceId: true } });
   if (txn && !txn.invoiceId) await autoIssueFeeInvoice(txn.id);
   await audit(session.user.id, "PROJECT_COMPLETED", "Project", projectId, project.refNo);
@@ -500,8 +500,8 @@ export async function fileComplaint(projectId: string, formData: FormData) {
       session.user.id === project.providerUserId ||
       (session.user as { role?: string }).role === "ADMIN");
   if (!isParty) throw new Error("Only project parties can file a complaint on this project.");
-  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today — please contact support directly.");
-  // idempotent — one open complaint per project per filer; double-clicks can't spam the queue
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today, please contact support directly.");
+  // idempotent, one open complaint per project per filer; double-clicks can't spam the queue
   const open = await prisma.complaint.findFirst({
     where: { projectId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
     select: { id: true },
@@ -530,7 +530,7 @@ export async function fileComplaint(projectId: string, formData: FormData) {
 
 // ---------- sample logistics (chain of custody) ----------
 
-// customer marks samples as shipped — courier + tracking visible to the lab
+// customer marks samples as shipped, courier + tracking visible to the lab
 export async function shipSamples(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
@@ -559,7 +559,7 @@ export async function shipSamples(projectId: string, formData: FormData) {
   revalidatePath(`/lab/projects/${projectId}`);
 }
 
-// lab records sample receipt + QC result — moves to SAMPLE_RECEIVED
+// lab records sample receipt + QC result, moves to SAMPLE_RECEIVED
 export async function receiveSamples(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -568,11 +568,11 @@ export async function receiveSamples(projectId: string, formData: FormData) {
   if (project.status !== "SAMPLE_AWAITED") throw new Error("Samples not expected yet");
   const qc = String(formData.get("sampleQc") || "PASS");
   const note = String(formData.get("qcNote") || "") || null;
-  const qcLabel = qc === "PASS" ? "all samples passed QC" : qc === "PARTIAL" ? "partial QC pass — some samples flagged" : "samples failed QC";
+  const qcLabel = qc === "PASS" ? "all samples passed QC" : qc === "PARTIAL" ? "partial QC pass, some samples flagged" : "samples failed QC";
   await prisma.$transaction([
     prisma.project.update({ where: { id: projectId }, data: { status: "SAMPLE_RECEIVED", sampleQc: qc, sampleQcNote: note } }),
     prisma.statusHistory.create({
-      data: { projectId, status: "SAMPLE_RECEIVED", note: `Samples received — ${qcLabel}${note ? ` (${note})` : ""}`, changedById: session.user.id },
+      data: { projectId, status: "SAMPLE_RECEIVED", note: `Samples received, ${qcLabel}${note ? ` (${note})` : ""}`, changedById: session.user.id },
     }),
     // accessioning done → sample QC becomes the active stage
     prisma.workStage.updateMany({
@@ -587,7 +587,7 @@ export async function receiveSamples(projectId: string, formData: FormData) {
   await audit(session.user.id, "SAMPLES_RECEIVED", "Project", projectId, `${project.refNo} · QC ${qc}`);
   await notify({
     toUserId: project.customerId,
-    subject: `${project.refNo}: samples received — ${qcLabel}`,
+    subject: `${project.refNo}: samples received, ${qcLabel}`,
     body: `The lab logged receipt of your samples. QC: ${qc}.${note ? ` Note: ${note}` : ""}`,
     href: `/dashboard/projects/${projectId}`,
   });
@@ -611,7 +611,7 @@ async function advanceStageLadder(projectId: string, doneKey: string) {
   ]);
 }
 
-// lab updates a work stage — start / complete / skip with operator + note
+// lab updates a work stage, start / complete / skip with operator + note
 export async function setWorkStage(projectId: string, stageKey: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -633,7 +633,7 @@ export async function setWorkStage(projectId: string, stageKey: string, formData
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// structured QC record — PASS closes the gate; PARTIAL/FAIL opens the customer decision loop
+// structured QC record, PASS closes the gate; PARTIAL/FAIL opens the customer decision loop
 export async function addQcRecord(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -662,12 +662,12 @@ export async function addQcRecord(projectId: string, formData: FormData) {
   if (result === "PASS") {
     await advanceStageLadder(projectId, stage);
     await prisma.statusHistory.create({
-      data: { projectId, status: project.status, note: `${stage === "SAMPLE_QC" ? "Sample" : "Library"} QC passed — gate closed`, changedById: session.user.id },
+      data: { projectId, status: project.status, note: `${stage === "SAMPLE_QC" ? "Sample" : "Library"} QC passed, gate closed`, changedById: session.user.id },
     });
   } else {
     await prisma.workStage.updateMany({ where: { projectId, key: stage, status: "PENDING" }, data: { status: "ACTIVE", startedAt: new Date() } });
     await prisma.statusHistory.create({
-      data: { projectId, status: project.status, note: `${stage === "SAMPLE_QC" ? "Sample" : "Library"} QC ${result.toLowerCase()} — customer decision required`, changedById: session.user.id },
+      data: { projectId, status: project.status, note: `${stage === "SAMPLE_QC" ? "Sample" : "Library"} QC ${result.toLowerCase()}, customer decision required`, changedById: session.user.id },
     });
     await notify({
       toUserId: project.customerId,
@@ -681,7 +681,7 @@ export async function addQcRecord(projectId: string, formData: FormData) {
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// customer resolves a flagged QC — proceed w/ disclaimer, resend samples, or cancel
+// customer resolves a flagged QC, proceed w/ disclaimer, resend samples, or cancel
 export async function resolveQc(qcId: string, decision: string) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
@@ -695,7 +695,7 @@ export async function resolveQc(qcId: string, decision: string) {
   if (decision === "PROCEED") {
     await advanceStageLadder(rec.projectId, rec.stage);
     await prisma.statusHistory.create({
-      data: { projectId: rec.projectId, status: rec.project.status, note: `Customer signed QC disclaimer — proceeding`, changedById: session.user.id },
+      data: { projectId: rec.projectId, status: rec.project.status, note: `Customer signed QC disclaimer, proceeding`, changedById: session.user.id },
     });
   } else if (decision === "RESEND") {
     await prisma.$transaction([
@@ -704,7 +704,7 @@ export async function resolveQc(qcId: string, decision: string) {
         data: { status: "SAMPLE_AWAITED", shippedAt: null, trackingNo: null, shipmentCourier: null },
       }),
       prisma.statusHistory.create({
-        data: { projectId: rec.projectId, status: "SAMPLE_AWAITED", note: "QC flagged — customer sending replacement samples", changedById: session.user.id },
+        data: { projectId: rec.projectId, status: "SAMPLE_AWAITED", note: "QC flagged, customer sending replacement samples", changedById: session.user.id },
       }),
       // ladder rewinds: accessioning + QC reopen for the new batch
       prisma.workStage.updateMany({
@@ -722,8 +722,8 @@ export async function resolveQc(qcId: string, decision: string) {
   }
   await notify({
     toUserId: rec.project.providerUserId,
-    subject: `${rec.project.refNo}: QC decision — ${decision.toLowerCase()}`,
-    body: decision === "PROCEED" ? "Customer accepted the flagged QC and signed the disclaimer — continue processing." : decision === "RESEND" ? "Customer is sending replacement samples." : "Customer cancelled the project after the flagged QC.",
+    subject: `${rec.project.refNo}: QC decision, ${decision.toLowerCase()}`,
+    body: decision === "PROCEED" ? "Customer accepted the flagged QC and signed the disclaimer, continue processing." : decision === "RESEND" ? "Customer is sending replacement samples." : "Customer cancelled the project after the flagged QC.",
     href: `/lab/projects/${rec.projectId}`,
   });
   await audit(session.user.id, "QC_RESOLVED", "QcRecord", qcId, `${rec.project.refNo} · ${decision}`);
@@ -731,7 +731,7 @@ export async function resolveQc(qcId: string, decision: string) {
   revalidatePath(`/lab/projects/${rec.projectId}`);
 }
 
-// pause the SLA clock — Genohub math: due date shifts by pause duration on resume
+// pause the SLA clock, Genohub math: due date shifts by pause duration on resume
 export async function pauseProject(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -743,7 +743,7 @@ export async function pauseProject(projectId: string, formData: FormData) {
   await prisma.$transaction([
     prisma.project.update({ where: { id: projectId }, data: { pausedAt: new Date(), pausedFor, pauseReason: reason } }),
     prisma.statusHistory.create({
-      data: { projectId, status: project.status, note: `Paused — waiting on ${pausedFor === "CUSTOMER" ? "customer" : "lab"}${reason ? `: ${reason}` : ""}`, changedById: session.user.id },
+      data: { projectId, status: project.status, note: `Paused, waiting on ${pausedFor === "CUSTOMER" ? "customer" : "lab"}${reason ? `: ${reason}` : ""}`, changedById: session.user.id },
     }),
   ]);
   if (pausedFor === "CUSTOMER") {
@@ -774,7 +774,7 @@ export async function resumeProject(projectId: string) {
       data: { pausedAt: null, pausedFor: null, pauseReason: null, dueAt },
     }),
     prisma.statusHistory.create({
-      data: { projectId, status: project.status, note: `Resumed — turnaround clock restarted (due ${dueAt?.toLocaleDateString() ?? "—"})`, changedById: session.user.id },
+      data: { projectId, status: project.status, note: `Resumed, turnaround clock restarted (due ${dueAt?.toLocaleDateString() ?? "—"})`, changedById: session.user.id },
     }),
   ]);
   await notify({
@@ -788,7 +788,7 @@ export async function resumeProject(projectId: string) {
   revalidatePath(`/dashboard/projects/${projectId}`);
 }
 
-// lab-only metadata — internal accession ref, storage location, disposal date
+// lab-only metadata, internal accession ref, storage location, disposal date
 export async function updateLabInternals(projectId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "PROVIDER") redirect("/login");
@@ -816,7 +816,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   const e = await prisma.enquiry.findUniqueOrThrow({ where: { id: enquiryId }, include: { product: true, buyer: { select: { role: true } } } });
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
   if (e.status !== "OPEN" && e.status !== "QUOTED" && e.status !== "ANSWERED")
-    throw new Error("Offer already accepted — the price is locked in the invoice");
+    throw new Error("Offer already accepted, the price is locked in the invoice");
   const quoteFile = formData.get("quoteFile");
   const quoteFileKey = quoteFile instanceof File && quoteFile.size > 0 ? (await saveUpload(quoteFile)).key : undefined;
   await prisma.enquiry.update({
@@ -830,7 +830,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
     },
   });
   const price = formData.get("quotedPrice") ? Number(formData.get("quotedPrice")) : null;
-  await logEnquiryEvent(enquiryId, session.user.id, `Offer sent — ${price != null ? `PKR ${price.toLocaleString()}` : "price on request"}${formData.get("leadTimeDays") ? ` · ${formData.get("leadTimeDays")}d lead` : ""}`);
+  await logEnquiryEvent(enquiryId, session.user.id, `Offer sent, ${price != null ? `PKR ${price.toLocaleString()}` : "price on request"}${formData.get("leadTimeDays") ? ` · ${formData.get("leadTimeDays")}d lead` : ""}`);
   await notify({
     toUserId: e.buyerId,
     subject: `Supplier responded: ${e.product.name}`,
@@ -841,7 +841,7 @@ export async function respondEnquiry(enquiryId: string, formData: FormData) {
   revalidateEnquiry(enquiryId);
 }
 
-// buyer accepts a supplier's quoted price — raises an escrowed invoice (Syntax verifies payment)
+// buyer accepts a supplier's quoted price, raises an escrowed invoice (Syntax verifies payment)
 export async function acceptEnquiryQuote(enquiryId: string) {
   const session = await getSession();
   if (!session || (session.user.role !== "CUSTOMER" && session.user.role !== "PROVIDER")) redirect("/login");
@@ -862,15 +862,15 @@ export async function acceptEnquiryQuote(enquiryId: string) {
     enquiryId: e.id,
     currency: "PKR",
     dueAt: new Date(Date.now() + dueDays * 864e5),
-    note: `Supply order — ${e.product.name} × ${e.qty}`,
+    note: `Supply order, ${e.product.name} × ${e.qty}`,
     items: [{ description: `${e.product.name} × ${e.qty}${e.leadTimeDays != null ? ` · ${e.leadTimeDays}d lead` : ""}`, qty: e.qty, unitPrice: e.quotedPrice }],
   });
   await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "INVOICED" } });
-  await logEnquiryEvent(enquiryId, session.user.id, "Offer accepted — invoice issued, awaiting payment");
+  await logEnquiryEvent(enquiryId, session.user.id, "Offer accepted, invoice issued, awaiting payment");
   await notify({
     toUserId: e.supplier.userId,
-    subject: `Order accepted — ${e.product.name}`,
-    body: `${session.user.name} accepted your offer for ${e.qty} × ${e.product.name} (PKR ${(e.quotedPrice * e.qty).toLocaleString()}). Payment goes through Syntax escrow — you'll be notified when it's verified.`,
+    subject: `Order accepted, ${e.product.name}`,
+    body: `${session.user.name} accepted your offer for ${e.qty} × ${e.product.name} (PKR ${(e.quotedPrice * e.qty).toLocaleString()}). Payment goes through Syntax escrow, you'll be notified when it's verified.`,
     href: `/supplier/enquiries/${enquiryId}`,
   });
   await audit(session.user.id, "ENQUIRY_ACCEPTED", "Enquiry", enquiryId, `${e.product.name} × ${e.qty}`);
@@ -891,25 +891,25 @@ export async function fulfilEnquiry(enquiryId: string, formData?: FormData) {
   if (e.supplierId !== profile.id) throw new Error("Not your enquiry");
   if (!["PAID", "INVOICED"].includes(e.status)) throw new Error("The buyer must accept and pay before fulfilment");
   if (e.invoice && e.invoice.status !== "PAID" && e.invoice.status !== "VOID")
-    throw new Error("Await buyer payment — the invoice must settle before fulfilment");
+    throw new Error("Await buyer payment, the invoice must settle before fulfilment");
   const courier = formData ? String(formData.get("courier") || "") || null : null;
   const trackingNo = formData ? String(formData.get("trackingNo") || "") || null : null;
   await prisma.enquiry.update({
     where: { id: enquiryId },
     data: { status: "FULFILLED", courier, trackingNo },
   });
-  await logEnquiryEvent(enquiryId, session.user.id, `Order shipped${courier || trackingNo ? ` — via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""} — awaiting buyer confirmation`);
+  await logEnquiryEvent(enquiryId, session.user.id, `Order shipped${courier || trackingNo ? `, via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}, awaiting buyer confirmation`);
   await audit(session.user.id, "ENQUIRY_FULFILLED", "Enquiry", enquiryId, [courier, trackingNo].filter(Boolean).join(" ") || undefined);
   await notify({
     toUserId: e.buyerId,
     subject: `Order shipped: ${e.product.name}`,
-    body: `${profile.orgName} fulfilled your order for ${e.qty} × ${e.product.name}${courier || trackingNo ? ` — shipped via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}. Confirm receipt when it arrives.`,
+    body: `${profile.orgName} fulfilled your order for ${e.qty} × ${e.product.name}${courier || trackingNo ? `, shipped via ${[courier, trackingNo].filter(Boolean).join(" · ")}` : ""}. Confirm receipt when it arrives.`,
     href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
   revalidateEnquiry(enquiryId);
 }
 
-// supplier politely declines an enquiry — buyer sees the reason, thread closes
+// supplier politely declines an enquiry, buyer sees the reason, thread closes
 export async function declineEnquiry(enquiryId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "SUPPLIER") redirect("/login");
@@ -926,18 +926,18 @@ export async function declineEnquiry(enquiryId: string, formData: FormData) {
     where: { id: enquiryId },
     data: { status: "CLOSED", declineReason: reason },
   });
-  await logEnquiryEvent(enquiryId, session.user.id, `Enquiry declined${reason ? ` — ${reason}` : ""}`);
+  await logEnquiryEvent(enquiryId, session.user.id, `Enquiry declined${reason ? `, ${reason}` : ""}`);
   await audit(session.user.id, "ENQUIRY_DECLINED", "Enquiry", enquiryId, reason ?? undefined);
   await notify({
     toUserId: e.buyerId,
     subject: `Enquiry declined: ${e.product.name}`,
-    body: `${profile.orgName} can't fulfil your enquiry for ${e.qty} × ${e.product.name}${reason ? ` — ${reason}` : ""}. You can enquire with another supplier.`,
+    body: `${profile.orgName} can't fulfil your enquiry for ${e.qty} × ${e.product.name}${reason ? `, ${reason}` : ""}. You can enquire with another supplier.`,
     href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
   revalidateEnquiry(enquiryId);
 }
 
-// timeline entry on the order — rendered as a centered event in the shared thread
+// timeline entry on the order, rendered as a centered event in the shared thread
 async function logEnquiryEvent(enquiryId: string, authorId: string, body: string) {
   await prisma.enquiryMessage.create({ data: { enquiryId, authorId, kind: "EVENT", body } });
 }
@@ -952,7 +952,7 @@ function revalidateEnquiry(enquiryId: string) {
   revalidatePath("/lab/supplies");
 }
 
-// back-and-forth chat between buyer and supplier — stays open through fulfilment
+// back-and-forth chat between buyer and supplier, stays open through fulfilment
 // so shipping questions land on the same thread; supports file attachments
 export async function sendEnquiryMessage(enquiryId: string, formData: FormData) {
   const session = await getSession();
@@ -976,7 +976,7 @@ export async function sendEnquiryMessage(enquiryId: string, formData: FormData) 
   const isSupplier = e.supplier.userId === session.user.id;
   if (!isBuyer && !isSupplier) throw new Error("Not your enquiry");
   if (e.status === "CLOSED") throw new Error("This enquiry is closed");
-  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages, slow down a little.");
   await prisma.enquiryMessage.create({
     data: { enquiryId, authorId: session.user.id, body: body || (attachmentName ?? "Attachment"), attachmentName, attachmentKey },
   });
@@ -989,7 +989,7 @@ export async function sendEnquiryMessage(enquiryId: string, formData: FormData) 
   revalidateEnquiry(enquiryId);
 }
 
-// supplier posts a fulfilment update (packed / dispatched / courier fix…) — lands
+// supplier posts a fulfilment update (packed / dispatched / courier fix…), lands
 // on the order timeline and notifies the buyer
 export async function postShipmentUpdate(enquiryId: string, formData: FormData) {
   const session = await getSession();
@@ -1008,18 +1008,18 @@ export async function postShipmentUpdate(enquiryId: string, formData: FormData) 
   if (courier || trackingNo) {
     await prisma.enquiry.update({ where: { id: enquiryId }, data: { ...(courier ? { courier } : {}), ...(trackingNo ? { trackingNo } : {}) } });
   }
-  await logEnquiryEvent(enquiryId, session.user.id, `Shipment update — ${[note, courier && `via ${courier}`, trackingNo && `#${trackingNo}`].filter(Boolean).join(" · ")}`);
+  await logEnquiryEvent(enquiryId, session.user.id, `Shipment update, ${[note, courier && `via ${courier}`, trackingNo && `#${trackingNo}`].filter(Boolean).join(" · ")}`);
   await notify({
     toUserId: e.buyerId,
-    subject: `Shipment update — ${e.product.name}`,
-    body: note || `Shipping details updated${courier ? ` — ${courier}` : ""}${trackingNo ? ` #${trackingNo}` : ""}.`,
+    subject: `Shipment update, ${e.product.name}`,
+    body: note || `Shipping details updated${courier ? `, ${courier}` : ""}${trackingNo ? ` #${trackingNo}` : ""}.`,
     href: e.buyer.role === "PROVIDER" ? `/lab/enquiries/${enquiryId}` : `/dashboard/enquiries/${enquiryId}`,
   });
   await audit(session.user.id, "ENQUIRY_SHIPMENT_UPDATE", "Enquiry", enquiryId, note || [courier, trackingNo].filter(Boolean).join(" ") || undefined);
   revalidateEnquiry(enquiryId);
 }
 
-// buyer confirms the goods arrived — closes the delivery loop for the supplier
+// buyer confirms the goods arrived, closes the delivery loop for the supplier
 export async function confirmEnquiryReceived(enquiryId: string) {
   const session = await getSession();
   if (!session || (session.user.role !== "CUSTOMER" && session.user.role !== "PROVIDER")) redirect("/login");
@@ -1028,20 +1028,20 @@ export async function confirmEnquiryReceived(enquiryId: string) {
     include: { product: { select: { name: true } }, supplier: { select: { userId: true, orgName: true } } },
   });
   if (e.buyerId !== session.user.id) throw new Error("Not your order");
-  if (e.status !== "FULFILLED") throw new Error("Nothing to confirm yet — the supplier hasn't marked this order shipped");
+  if (e.status !== "FULFILLED") throw new Error("Nothing to confirm yet, the supplier hasn't marked this order shipped");
   await prisma.enquiry.update({ where: { id: enquiryId }, data: { status: "DELIVERED" } });
-  await logEnquiryEvent(enquiryId, session.user.id, "Delivery confirmed by the buyer — order complete");
+  await logEnquiryEvent(enquiryId, session.user.id, "Delivery confirmed by the buyer, order complete");
   await notify({
     toUserId: e.supplier.userId,
-    subject: `Delivered — ${e.product.name}`,
-    body: `${session.user.name} confirmed receipt of ${e.qty} × ${e.product.name}. The order is complete — Syntax will settle your payout.`,
+    subject: `Delivered, ${e.product.name}`,
+    body: `${session.user.name} confirmed receipt of ${e.qty} × ${e.product.name}. The order is complete, Syntax will settle your payout.`,
     href: `/supplier/enquiries/${enquiryId}`,
   });
   await audit(session.user.id, "ENQUIRY_DELIVERED", "Enquiry", enquiryId, e.product.name);
   revalidateEnquiry(enquiryId);
 }
 
-// support ticket without a project — suppliers (and any signed-in user) can
+// support ticket without a project, suppliers (and any signed-in user) can
 // raise payment/delivery/general issues to the Gateway team
 export async function fileSupportComplaint(formData: FormData) {
   const session = await getSession();
@@ -1049,12 +1049,12 @@ export async function fileSupportComplaint(formData: FormData) {
   const subject = String(formData.get("subject") || "").trim();
   const details = String(formData.get("details") || "").trim();
   if (!subject || !details) throw new Error("Subject and details are required");
-  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many tickets filed today — please contact support directly.");
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many tickets filed today, please contact support directly.");
   const open = await prisma.complaint.findFirst({
     where: { filedById: session.user.id, projectId: null, status: { in: ["OPEN", "IN_REVIEW"] } },
     select: { id: true },
   });
-  if (open) throw new Error("You already have an open ticket — add messages there instead");
+  if (open) throw new Error("You already have an open ticket, add messages there instead");
   const complaint = await prisma.complaint.create({
     data: { ticketNo: await nextRef("CMP", { yearly: true }), filedById: session.user.id, subject, details },
   });
@@ -1091,7 +1091,7 @@ export async function saveService(formData: FormData) {
   const profile = await prisma.providerProfile.findUniqueOrThrow({ where: { userId: session.user.id } });
   await assertPartnerActive(session.user.id);
 
-  // catalogue-driven listing — validate every selection against the taxonomy
+  // catalogue-driven listing, validate every selection against the taxonomy
   const category = String(formData.get("category") || "");
   const cat = findCategory(category);
   const svc = cat && findService(category, String(formData.get("service") || ""));
@@ -1112,7 +1112,7 @@ export async function saveService(formData: FormData) {
     }
   }
 
-  // consultation route — a sequencing offering can switch the listing into a
+  // consultation route, a sequencing offering can switch the listing into a
   // design consultation with a preselected topic (catalogue spec §5)
   const routed = svc.consultRoute && spec[svc.fields.find((f) => f.key === svc.consultRoute!.key)!.label] === svc.consultRoute.value;
   let finalCategory = category;
@@ -1147,7 +1147,7 @@ export async function saveService(formData: FormData) {
     priceVisibility: pricingMode === "QUOTE" ? "QUOTE_ONLY" : "PUBLIC",
     unit: pricingMode === "FIXED" ? unit : null,
     turnaroundDays: formData.get("turnaroundDays") ? Number(formData.get("turnaroundDays")) : null,
-    // edits re-enter moderation — listing hides until admin re-approves
+    // edits re-enter moderation, listing hides until admin re-approves
     moderation: "PENDING",
     moderationNote: null,
   };
@@ -1155,7 +1155,7 @@ export async function saveService(formData: FormData) {
   if (id) {
     await prisma.serviceListing.update({ where: { id, providerId: profile.id }, data });
   } else {
-    // idempotent — a double-submit (race or double-click) updates the listing instead of duplicating it
+    // idempotent, a double-submit (race or double-click) updates the listing instead of duplicating it
     const existing = await prisma.serviceListing.findFirst({
       where: { providerId: profile.id, name: data.name },
       select: { id: true },
@@ -1220,7 +1220,7 @@ export async function invoiceMilestone(milestoneId: string) {
   const m = await prisma.milestone.findUniqueOrThrow({ where: { id: milestoneId }, include: { project: { include: { provider: true } } } });
   if (m.project.providerUserId !== session.user.id) throw new Error("Not your project");
   await prisma.milestone.update({ where: { id: milestoneId }, data: { status: "INVOICED" } });
-  // raise a proper invoice to the customer — payment is confirmed by the lab, not self-attested
+  // raise a proper invoice to the customer, payment is confirmed by the lab, not self-attested
   const existing = await prisma.invoice.findFirst({ where: { milestoneId } });
   if (!existing) {
     await issueInvoice({
@@ -1231,10 +1231,10 @@ export async function invoiceMilestone(milestoneId: string) {
       currency: "PKR",
       dueAt: m.dueDate ?? new Date(Date.now() + 14 * 864e5),
       note: `Milestone on ${m.project.refNo}`,
-      items: [{ description: `${m.project.refNo} — ${m.title}`, unitPrice: m.amount }],
+      items: [{ description: `${m.project.refNo}, ${m.title}`, unitPrice: m.amount }],
     });
   }
-  await notify({ toUserId: m.project.customerId, subject: `${m.project.refNo}: invoice — ${m.title}`, body: `The lab invoiced a milestone for ${m.title} (PKR ${m.amount.toLocaleString()}). Review it in your project and report payment once sent.`, href: `/dashboard/projects/${m.projectId}` });
+  await notify({ toUserId: m.project.customerId, subject: `${m.project.refNo}: invoice, ${m.title}`, body: `The lab invoiced a milestone for ${m.title} (PKR ${m.amount.toLocaleString()}). Review it in your project and report payment once sent.`, href: `/dashboard/projects/${m.projectId}` });
   revalidatePath(`/lab/projects/${m.projectId}`);
   revalidatePath(`/dashboard/projects/${m.projectId}`);
   revalidatePath("/lab/billing");
@@ -1243,7 +1243,7 @@ export async function invoiceMilestone(milestoneId: string) {
 
 const PAYMENT_METHODS = ["BANK_TRANSFER", "JAZZCASH", "EASYPAISA", "CARD", "CASH", "OTHER"] as const;
 
-// customer reports a milestone payment — stays PENDING until the lab verifies it
+// customer reports a milestone payment, stays PENDING until the lab verifies it
 export async function payMilestone(milestoneId: string, formData: FormData) {
   const session = await getSession();
   if (!session || session.user.role !== "CUSTOMER") redirect("/login");
@@ -1265,7 +1265,7 @@ export async function payMilestone(milestoneId: string, formData: FormData) {
       currency: "PKR",
       dueAt: m.dueDate ?? new Date(Date.now() + 14 * 864e5),
       note: `Milestone on ${m.project.refNo}`,
-      items: [{ description: `${m.project.refNo} — ${m.title}`, unitPrice: m.amount }],
+      items: [{ description: `${m.project.refNo}, ${m.title}`, unitPrice: m.amount }],
     });
   }
   const confirmed = await prisma.payment.aggregate({
@@ -1285,7 +1285,7 @@ export async function payMilestone(milestoneId: string, formData: FormData) {
         amount: outstanding,
         method: method as PaymentMethod,
         reference,
-        note: `Milestone payment — ${m.project.refNo} · ${m.title}`,
+        note: `Milestone payment, ${m.project.refNo} · ${m.title}`,
         recordedById: session.user.id,
       },
     });
@@ -1293,13 +1293,13 @@ export async function payMilestone(milestoneId: string, formData: FormData) {
   await notify({
     toUserId: m.project.providerUserId,
     subject: `${m.project.refNo}: milestone payment reported`,
-    body: `The customer reported payment for "${m.title}" (PKR ${outstanding.toLocaleString()}). Syntax verifies receipt into the platform account — the milestone settles once confirmed. Track it under Billing.`,
+    body: `The customer reported payment for "${m.title}" (PKR ${outstanding.toLocaleString()}). Syntax verifies receipt into the platform account, the milestone settles once confirmed. Track it under Billing.`,
     href: "/lab/billing",
   });
-  // escrow — admin must verify the money landed in the Syntax account
+  // escrow, admin must verify the money landed in the Syntax account
   await notifyAllAdmins(
     `Milestone payment to verify: ${m.project.refNo}`,
-    `${m.project.refNo} · "${m.title}" — customer reported PKR ${outstanding.toLocaleString()}. Confirm receipt in Finance to release the milestone.`,
+    `${m.project.refNo} · "${m.title}", customer reported PKR ${outstanding.toLocaleString()}. Confirm receipt in Finance to release the milestone.`,
     "/admin/finance"
   );
   await audit(session.user.id, "MILESTONE_PAYMENT_REPORTED", "Milestone", milestoneId, `${m.project.refNo} · ${m.title}`);

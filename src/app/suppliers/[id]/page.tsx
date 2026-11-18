@@ -92,8 +92,8 @@ export default async function SupplierStorefrontPage({ params }: { params: Promi
           )}
         </div>
         <p className="mt-8 text-[11.5px] text-muted">
-          *Verification is a platform-level review by the Gateway team — not a government accreditation or license.
-          Ordering is enquiry-based — sign in as an approved customer or lab to send an enquiry.
+          *Verification is a platform-level review by the Gateway team, not a government accreditation or license.
+          Ordering is enquiry-based, sign in as an approved customer or lab to send an enquiry.
         </p>
       </section>
       <Footer />

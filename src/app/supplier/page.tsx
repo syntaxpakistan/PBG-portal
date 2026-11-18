@@ -49,13 +49,13 @@ export default async function SupplierPage() {
       <PageHead title={profile.orgName} sub={`${profile.city} · ${profile.categories}`} action={<StatusBadge status={profile.status} />} />
       {profile.status !== "APPROVED" && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-amber-bd) bg-(--st-amber-bg) px-4 py-3 text-[13px] font-medium text-(--st-amber-fg)">
-          <Clock3 className="size-4" /> {profile.status === "PENDING" ? "Verification in progress — you'll be able to list products once approved." : `Status: ${profile.status}${profile.statusNote ? ` — ${profile.statusNote}` : ""}`}
+          <Clock3 className="size-4" /> {profile.status === "PENDING" ? "Verification in progress, you'll be able to list products once approved." : `Status: ${profile.status}${profile.statusNote ? `, ${profile.statusNote}` : ""}`}
         </div>
       )}
       {!access.active && (
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
           <span>
-            Subscription {access.status === "PENDING_PAYMENT" ? "awaiting payment" : access.inGrace ? "expired — grace period" : "inactive"}.
+            Subscription {access.status === "PENDING_PAYMENT" ? "awaiting payment" : access.inGrace ? "expired, grace period" : "inactive"}.
             {" "}Product listings and enquiry responses are paused.
           </span>
           <Link href="/supplier/billing" className="rounded-full bg-navy px-3.5 py-1.5 text-[12px] font-semibold text-yellow hover:bg-navy-2">Go to billing</Link>
@@ -93,7 +93,7 @@ export default async function SupplierPage() {
             <Link href="/supplier/products" className="text-[12px] font-semibold text-blue hover:text-ink">Manage catalog →</Link>
           </div>
           <div className="divide-y divide-line">
-            {profile.products.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No products yet — list your first one.</p>}
+            {profile.products.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No products yet, list your first one.</p>}
             {profile.products.slice(0, 4).map((p) => (
               <div key={p.id} className="flex items-center justify-between px-5 py-3">
                 <div>

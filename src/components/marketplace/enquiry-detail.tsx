@@ -37,7 +37,7 @@ const STEP_INDEX: Record<string, number> = {
 };
 
 /**
- * Full order detail — shared by the supplier portal and both buyer portals.
+ * Full order detail, shared by the supplier portal and both buyer portals.
  * Pipeline stepper on top, order/parties/money on the left, the
  * conversation + event timeline on the right.
  */
@@ -90,7 +90,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
       </div>
       <PageHead
         title={`${e.enquiryNo} · ${e.product.name} × ${e.qty}`}
-        sub={`${isSupplier ? `From ${e.buyer.name}${buyerOrg ? ` · ${buyerOrg}` : ""}` : `From ${e.supplier.orgName} · ${e.supplier.city}`} — sent ${e.createdAt.toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}`}
+        sub={`${isSupplier ? `From ${e.buyer.name}${buyerOrg ? ` · ${buyerOrg}` : ""}` : `From ${e.supplier.orgName} · ${e.supplier.city}`}, sent ${e.createdAt.toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}`}
         action={<StatusBadge status={e.status} />}
       />
 
@@ -113,7 +113,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
         </div>
       ) : (
         <div className="card mb-6 bg-paper-2 px-5 py-3.5 text-[13px] text-muted">
-          This enquiry was {e.declineReason ? "declined" : "closed"}{e.declineReason ? ` — ${e.declineReason}` : "."}
+          This enquiry was {e.declineReason ? "declined" : "closed"}{e.declineReason ? `, ${e.declineReason}` : "."}
         </div>
       )}
 
@@ -197,7 +197,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
 
           {isSupplier && e.status === "PAID" && (
             <div className="card p-5">
-              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-(--st-green-fg)"><PackageCheck className="size-4" /> Payment verified — ship the order</p>
+              <p className="flex items-center gap-1.5 text-[13px] font-semibold text-(--st-green-fg)"><PackageCheck className="size-4" /> Payment verified, ship the order</p>
               <form action={fulfilEnquiry.bind(null, e.id)} className="mt-3 space-y-2.5">
                 <input name="courier" placeholder="Courier (TCS, Leopards…)" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <input name="trackingNo" placeholder="Tracking / consignment #" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
@@ -223,7 +223,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
           {isBuyer && e.status === "QUOTED" && e.quotedPrice != null && (
             <div className="card border-blue/40 p-5">
               <p className="text-[13px] font-semibold text-ink">Accept this offer?</p>
-              <p className="mt-1 text-[12.5px] text-muted">An escrow invoice is raised — Syntax holds your payment until the supplier fulfils.</p>
+              <p className="mt-1 text-[12.5px] text-muted">An escrow invoice is raised, Syntax holds your payment until the supplier fulfils.</p>
               <form action={acceptEnquiryQuote.bind(null, e.id)} className="mt-3">
                 <SubmitButton className="btn-primary !py-2 text-[12px]">Accept &amp; get invoice</SubmitButton>
               </form>
@@ -232,14 +232,14 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
 
           {isBuyer && e.status === "INVOICED" && (
             <div className="card bg-(--st-amber-bg) p-5 text-[12.5px] text-(--st-amber-fg)">
-              Invoice issued — pay through Billing and Syntax will verify it with the supplier.
+              Invoice issued, pay through Billing and Syntax will verify it with the supplier.
               <Link href={billing} className="ml-1 font-semibold underline underline-offset-2">Go to Billing →</Link>
             </div>
           )}
 
           {isBuyer && e.status === "PAID" && (
             <div className="card bg-(--st-green-bg) p-5 text-[12.5px] text-(--st-green-fg)">
-              Payment verified by Syntax — the supplier is fulfilling your order.
+              Payment verified by Syntax, the supplier is fulfilling your order.
             </div>
           )}
 
@@ -247,7 +247,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
             <div className="card border-green/40 p-5">
               <p className="text-[13px] font-semibold text-ink">Order shipped</p>
               {(e.courier || e.trackingNo) && <p className="mt-1 text-[12.5px] text-body">Via {[e.courier, e.trackingNo && `#${e.trackingNo}`].filter(Boolean).join(" · ")}</p>}
-              <p className="mt-1 text-[12.5px] text-muted">Confirm receipt to close the order — this tells Syntax the delivery is complete.</p>
+              <p className="mt-1 text-[12.5px] text-muted">Confirm receipt to close the order, this tells Syntax the delivery is complete.</p>
               <form action={confirmEnquiryReceived.bind(null, e.id)} className="mt-3">
                 <SubmitButton className="rounded-md bg-(--st-green-fg) px-3 py-2 text-[12px] font-semibold text-white hover:opacity-90">Confirm received</SubmitButton>
               </form>
@@ -256,15 +256,15 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
 
           {e.status === "DELIVERED" && (
             <div className="card bg-(--st-green-bg) p-5 text-[12.5px] text-(--st-green-fg)">
-              <PackageCheck className="mb-1 inline size-4" /> Delivered — receipt confirmed by the buyer. Order complete.
+              <PackageCheck className="mb-1 inline size-4" /> Delivered, receipt confirmed by the buyer. Order complete.
             </div>
           )}
 
-          {/* disputes — filed tickets + a private mediated complaint thread */}
+          {/* disputes, filed tickets + a private mediated complaint thread */}
           {(isSupplier || isBuyer) && (
             <div className="card p-5">
               <p className="text-[13px] font-semibold text-ink">Report a problem</p>
-              <p className="mt-1 text-[12px] text-muted">Opens a mediated ticket — Gateway support can message you and the {isSupplier ? "buyer" : "supplier"} on separate private threads.</p>
+              <p className="mt-1 text-[12px] text-muted">Opens a mediated ticket, Gateway support can message you and the {isSupplier ? "buyer" : "supplier"} on separate private threads.</p>
               {e.complaints.map((c) => (
                 <div key={c.id} className="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
                   <span className="min-w-0 truncate text-ink"><span className="font-mono text-[11px] text-muted">{c.ticketNo}</span> · {c.subject}{c.filedById !== self.id && <span className="text-muted"> (by {isSupplier ? "buyer" : "supplier"})</span>}</span>
@@ -272,7 +272,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
                 </div>
               ))}
               <form action={fileEnquiryComplaint.bind(null, e.id)} className="mt-3 space-y-2.5">
-                <input name="subject" required maxLength={140} placeholder="Subject — e.g. order arrived damaged" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
+                <input name="subject" required maxLength={140} placeholder="Subject, e.g. order arrived damaged" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <textarea name="details" required rows={2} placeholder="What happened and what you need…" className="w-full resize-y rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
                 <SubmitButton className="btn-outline !py-2 text-[12px]">File complaint</SubmitButton>
               </form>
@@ -285,7 +285,7 @@ export async function EnquiryDetail({ id, self }: { id: string; self: { id: stri
           <EnquiryThread
             enquiryId={e.id}
             title={isSupplier ? `You ↔ ${buyerOrg ?? e.buyer.name}` : `You ↔ ${e.supplier.orgName}`}
-            subtitle="Order conversation — offers, shipment events and delivery all land here"
+            subtitle="Order conversation, offers, shipment events and delivery all land here"
             messages={msgs}
             selfId={self.id}
             locked={e.status === "CLOSED"}

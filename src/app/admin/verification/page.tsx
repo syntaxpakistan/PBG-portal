@@ -47,10 +47,10 @@ export default async function VerificationPage({ searchParams }: { searchParams:
     <>
       <PageHead
         title="Verification queue"
-        sub="Approve, reject or suspend labs, suppliers and client accounts. Approved orgs receive the 'Gateway-verified' badge — explicitly non-governmental."
+        sub="Approve, reject or suspend labs, suppliers and client accounts. Approved orgs receive the 'Gateway-verified' badge, explicitly non-governmental."
       />
 
-      {/* entity tabs — underline tab strip */}
+      {/* entity tabs, underline tab strip */}
       <div className="mb-5 flex flex-wrap gap-x-1 border-b border-line">
         {tabs.map((t) => (
           <Link
@@ -72,7 +72,7 @@ export default async function VerificationPage({ searchParams }: { searchParams:
         ))}
       </div>
 
-      {/* status filter — segmented control */}
+      {/* status filter, segmented control */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted">Status</span>
         <div className="inline-flex flex-wrap items-center gap-0.5 rounded-lg border border-line bg-paper-2 p-1">

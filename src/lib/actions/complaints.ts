@@ -11,7 +11,7 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export type { ComplaintChannel };
 
-// buyer or supplier raises a dispute on a supply order — one ticket, two
+// buyer or supplier raises a dispute on a supply order, one ticket, two
 // private admin-mediated channels (buyer = CUSTOMER, supplier = PROVIDER)
 export async function fileEnquiryComplaint(enquiryId: string, formData: FormData) {
   const session = await getSession();
@@ -26,8 +26,8 @@ export async function fileEnquiryComplaint(enquiryId: string, formData: FormData
       session.user.id === enquiry.supplier.userId ||
       (session.user.role ?? "") === "ADMIN");
   if (!isParty) throw new Error("Only the buyer or supplier can file a complaint on this order.");
-  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today — please contact support directly.");
-  // idempotent — one open complaint per order per filer; double-clicks can't spam the queue
+  if (!rateLimit(`cmp:${session.user.id}`, 5, 24 * 3600e3)) throw new Error("Too many complaints filed today, please contact support directly.");
+  // idempotent, one open complaint per order per filer; double-clicks can't spam the queue
   const open = await prisma.complaint.findFirst({
     where: { enquiryId, filedById: session.user.id, status: { in: ["OPEN", "IN_REVIEW"] } },
     select: { id: true },
@@ -65,7 +65,7 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
   if (!session) redirect("/login");
   const text = body.trim();
   if (!text) return;
-  if (text.length > 2000) throw new Error("Message too long — keep it under 2000 characters.");
+  if (text.length > 2000) throw new Error("Message too long, keep it under 2000 characters.");
 
   const complaint = await prisma.complaint.findUniqueOrThrow({
     where: { id: complaintId },
@@ -76,7 +76,7 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
     },
   });
   if (complaint.status === "RESOLVED" || complaint.status === "DISMISSED") {
-    throw new Error("This complaint is closed — the conversation is locked.");
+    throw new Error("This complaint is closed, the conversation is locked.");
   }
 
   const role = session.user.role ?? "";
@@ -97,19 +97,19 @@ export async function sendComplaintMessage(complaintId: string, channel: Complai
     if (!counterpartyUserId) throw new Error(`No ${channel === "CUSTOMER" ? "client" : "provider"} is a party to this complaint.`);
   } else {
     // the channel a party may post on is decided by which SIDE of the dispute
-    // they sit on, not their account role — a lab buying supplies is the buyer
+    // they sit on, not their account role, a lab buying supplies is the buyer
     const allowedChannel =
       session.user.id === customerUserId ? "CUSTOMER"
       : session.user.id === providerUserId ? "PROVIDER"
       : null;
     if (!allowedChannel || channel !== allowedChannel) throw new Error("Not your complaint.");
   }
-  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages — slow down a little.");
+  if (!rateLimit(`msg:${session.user.id}`, 60, 3600e3)) throw new Error("Too many messages, slow down a little.");
 
   await prisma.complaintMessage.create({
     data: { complaintId, channel, senderId: session.user.id, body: text },
   });
-  // a live conversation means someone is reviewing it — OPEN bumps to IN_REVIEW
+  // a live conversation means someone is reviewing it, OPEN bumps to IN_REVIEW
   if (complaint.status === "OPEN") {
     await prisma.complaint.update({ where: { id: complaintId }, data: { status: "IN_REVIEW" } });
   }

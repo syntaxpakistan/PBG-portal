@@ -14,7 +14,7 @@ export async function notify(opts: { toUserId: string; subject: string; body: st
     data: { userId: opts.toUserId, subject: opts.subject, body: opts.body, href: opts.href ?? null },
   });
 
-  // browser/device push — no-ops when VAPID keys aren't configured
+  // browser/device push, no-ops when VAPID keys aren't configured
   try {
     await sendPushToUser(opts.toUserId, { title: opts.subject, body: opts.body, url: opts.href });
   } catch (e) {
@@ -33,7 +33,7 @@ export async function notify(opts: { toUserId: string; subject: string; body: st
       console.error("[notify] Resend failed:", e);
     }
   }
-  console.log(`[notify→${user.email}] ${opts.subject} — ${opts.body}`);
+  console.log(`[notify→${user.email}] ${opts.subject}, ${opts.body}`);
   await prisma.auditLog.create({
     data: {
       actorId: opts.toUserId,
@@ -45,7 +45,7 @@ export async function notify(opts: { toUserId: string; subject: string; body: st
   });
 }
 
-// fan-out to every admin — moderation queues, escalations
+// fan-out to every admin, moderation queues, escalations
 export async function notifyAllAdmins(subject: string, body: string, href?: string) {
   const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
   for (const a of admins) await notify({ toUserId: a.id, subject, body, href });

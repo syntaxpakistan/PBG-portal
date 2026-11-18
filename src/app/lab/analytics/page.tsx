@@ -48,7 +48,7 @@ export default async function LabAnalyticsPage() {
 
   return (
     <>
-      <PageHead title="Lab analytics" sub="Quote performance, turnaround and collections — Pro-plan reporting." />
+      <PageHead title="Lab analytics" sub="Quote performance, turnaround and collections, Pro-plan reporting." />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Quotes submitted" value={quotes} sub={`${wonQuotes} won · ${winRate}% win rate`} />
         <StatCard label="Projects" value={projects} sub={`${completed} completed`} />

@@ -27,7 +27,7 @@ export default function Verify2FAPage() {
       router.push(role === "ADMIN" ? "/admin" : role === "PROVIDER" ? "/lab" : role === "SUPPLIER" ? "/supplier" : "/dashboard");
       router.refresh();
     } catch {
-      toast.error("Invalid code — try again.");
+      toast.error("Invalid code, try again.");
       setLoading(false);
     }
   }

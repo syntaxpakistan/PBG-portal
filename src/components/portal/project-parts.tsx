@@ -20,7 +20,7 @@ export function HistoryTimeline({ history }: { history: (StatusHistory & { chang
                 <span className="text-[11px] text-muted">{h.createdAt.toLocaleString()}</span>
               </div>
               <div className="mt-1 text-[12px] text-body">
-                {h.changedBy.name}{h.note ? ` — ${h.note}` : ""}
+                {h.changedBy.name}{h.note ? `, ${h.note}` : ""}
               </div>
             </div>
           </div>

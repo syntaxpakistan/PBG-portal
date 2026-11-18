@@ -17,10 +17,10 @@ export default async function LabComplaintsPage() {
 
   return (
     <>
-      <PageHead title="Complaints" sub="Tickets you've filed plus disputes raised on your projects — each has a private thread with the Gateway team." />
+      <PageHead title="Complaints" sub="Tickets you've filed plus disputes raised on your projects, each has a private thread with the Gateway team." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && (
-          <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints — tickets filed by you or about your projects appear here.</p>
+          <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints, tickets filed by you or about your projects appear here.</p>
         )}
         {complaints.map((c) => {
           const aboutYou = c.filedById !== session.user.id;

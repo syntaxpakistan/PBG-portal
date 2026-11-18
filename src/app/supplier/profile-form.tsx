@@ -60,7 +60,7 @@ export function SupplierProfileForm({ profile }: { profile: SupplierProfile }) {
       </div>
       <div className="sm:col-span-2 rounded-xl border border-line bg-paper-2 p-4">
         <h3 className="text-[13px] font-semibold text-ink">Payout bank account</h3>
-        <p className="mb-3 mt-0.5 text-[11px] text-muted">Where Syntax settles your earnings — admin sees this when scheduling payouts.</p>
+        <p className="mb-3 mt-0.5 text-[11px] text-muted">Where Syntax settles your earnings, admin sees this when scheduling payouts.</p>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
             <label className="mb-1 block text-[11.5px] font-medium text-ink">Account title</label>

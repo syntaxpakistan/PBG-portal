@@ -27,7 +27,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     <>
       <PageHead
         title="Leads"
-        sub={`${openCount} open · ${total} ${sp.q ? "matching" : "total"} — public quote & contact form submissions.`}
+        sub={`${openCount} open · ${total} ${sp.q ? "matching" : "total"}, public quote & contact form submissions.`}
       />
       <SearchBar q={sp.q} placeholder="Search name, email, org or interest…" />
       <div className="card divide-y divide-line">

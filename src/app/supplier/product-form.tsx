@@ -46,8 +46,8 @@ export function ProductForm({ product }: { product?: SupplierProduct }) {
           }
           toast.success(
             editing
-              ? "Product updated — content changes go through a quick review before going live."
-              : "Product submitted — it goes live after a quick review by the Gateway team."
+              ? "Product updated, content changes go through a quick review before going live."
+              : "Product submitted, it goes live after a quick review by the Gateway team."
           );
           router.refresh();
         } catch (err) {
@@ -67,7 +67,7 @@ export function ProductForm({ product }: { product?: SupplierProduct }) {
         <input name="brand" defaultValue={product?.brand ?? ""} placeholder="Brand / manufacturer" className={input} />
       </div>
       <input name="spec" defaultValue={product?.spec ?? ""} placeholder="Spec / variant (e.g. 100 rxns, 500 mL)" className={input} />
-      <textarea name="description" rows={3} defaultValue={product?.description ?? ""} placeholder="Description — what it is, pack contents, storage, applications…" className={`${input} resize-y`} />
+      <textarea name="description" rows={3} defaultValue={product?.description ?? ""} placeholder="Description, what it is, pack contents, storage, applications…" className={`${input} resize-y`} />
       <div className="grid gap-3 sm:grid-cols-2">
         <input name="price" type="number" min={0} defaultValue={product?.price ?? ""} placeholder="Price (PKR)" className={input} />
         <input name="unit" defaultValue={product?.unit ?? ""} placeholder="Unit (kit, vial, pack)" className={input} />

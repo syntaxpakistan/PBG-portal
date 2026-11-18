@@ -24,7 +24,7 @@ export default async function LabBillingPage() {
     }),
     prisma.payout.findMany({ where: { payeeId: profile.id }, orderBy: { createdAt: "desc" } }),
     prisma.payment.findMany({
-      // milestone invoices are escrowed — Syntax admin verifies those, not the lab
+      // milestone invoices are escrowed, Syntax admin verifies those, not the lab
       where: { status: "PENDING", invoice: { issuerType: "PROVIDER", issuerId: profile.id, milestoneId: null } },
       include: { invoice: true },
       orderBy: { createdAt: "asc" },

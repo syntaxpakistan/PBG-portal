@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
-// POST { endpoint, keys: { p256dh, auth } } — register this browser's push
+// POST { endpoint, keys: { p256dh, auth } }, register this browser's push
 // subscription against the signed-in user (upsert by endpoint: a device can
 // move between accounts on the same browser profile)
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-// DELETE { endpoint } — unregister this browser
+// DELETE { endpoint }, unregister this browser
 export async function DELETE(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Sign in required" }, { status: 401 });

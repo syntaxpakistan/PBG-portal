@@ -60,7 +60,7 @@ export function ComplaintThread({
       </div>
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-paper-2/60 px-4 py-4">
         {messages.length === 0 && (
-          <p className="py-10 text-center text-[12.5px] text-muted">No messages yet — start the conversation below.</p>
+          <p className="py-10 text-center text-[12.5px] text-muted">No messages yet, start the conversation below.</p>
         )}
         {messages.map((m) => {
           const mine = m.senderId === selfId;
@@ -85,7 +85,7 @@ export function ComplaintThread({
       <div className="border-t border-line p-3">
         {locked ? (
           <p className="flex items-center justify-center gap-1.5 py-1 text-[12px] text-muted">
-            <Lock className="size-3.5" /> Complaint closed — conversation locked.
+            <Lock className="size-3.5" /> Complaint closed, conversation locked.
           </p>
         ) : (
           <div className="flex items-end gap-2">

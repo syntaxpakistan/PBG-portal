@@ -99,13 +99,13 @@ export function ServiceGrid({ services, mode }: { services: ServiceCardData[]; m
         )}
       </div>
 
-      {/* compare tray — Science Exchange multi-supplier cart */}
+      {/* compare tray, Science Exchange multi-supplier cart */}
       {picked.size > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur-md">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3.5">
             <div className="flex items-center gap-2.5 text-[13px] text-ink">
               <GitCompareArrows className="size-4.5 text-(--st-blue-fg)" />
-              <span><b>{picked.size}</b> service{picked.size > 1 ? "s" : ""} · <b>{providerIds.length}</b> lab{providerIds.length > 1 ? "s" : ""} selected — one request reaches them all, quotes arrive sealed</span>
+              <span><b>{picked.size}</b> service{picked.size > 1 ? "s" : ""} · <b>{providerIds.length}</b> lab{providerIds.length > 1 ? "s" : ""} selected, one request reaches them all, quotes arrive sealed</span>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => setPicked(new Map())} className="btn-ghost !px-3 !py-2 text-[12px]"><X className="size-3.5" /> Clear</button>

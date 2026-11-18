@@ -108,7 +108,7 @@ export async function issueInvoice(input: InvoiceInput): Promise<Invoice> {
   });
   await notify({
     toUserId: input.billedUserId,
-    subject: `Invoice ${invoice.number} — ${invoice.currency} ${invoice.total.toLocaleString()}`,
+    subject: `Invoice ${invoice.number}, ${invoice.currency} ${invoice.total.toLocaleString()}`,
     body: `${invoice.issuerType === "PLATFORM" ? "Syntax of Life" : "Your counterparty"} issued invoice ${invoice.number} for ${invoice.currency} ${invoice.total.toLocaleString()}${invoice.dueAt ? `, due ${invoice.dueAt.toLocaleDateString()}` : ""}. View it under Billing.`,
     href: billingHref(role),
   });
@@ -131,7 +131,7 @@ async function recomputeInvoice(invoiceId: string) {
   return { invoice: { ...inv, status: status as Invoice["status"] }, paid };
 }
 
-/** Side effects once a payment is CONFIRMED — settle linked records. */
+/** Side effects once a payment is CONFIRMED, settle linked records. */
 async function applyConfirmedPayment(paymentId: string) {
   const payment = await prisma.payment.findUniqueOrThrow({
     where: { id: paymentId },
@@ -147,14 +147,14 @@ async function applyConfirmedPayment(paymentId: string) {
       await notify({
         toUserId: m.project.providerUserId,
         subject: `${m.project.refNo}: milestone payment confirmed`,
-        body: `Payment for "${m.title}" (invoice ${invoice.number}) was verified — milestone settled.`,
+        body: `Payment for "${m.title}" (invoice ${invoice.number}) was verified, milestone settled.`,
         href: `/lab/projects/${m.projectId}`,
       });
       await audit(payment.confirmedById ?? payment.recordedById, "MILESTONE_PAID", "Milestone", m.id, `${m.project.refNo} · ${m.title} · ${invoice.number}`);
     }
   }
   if (invoice.enquiryId) {
-    // supply sale settled — mark the enquiry paid and accrue the platform fee
+    // supply sale settled, mark the enquiry paid and accrue the platform fee
     const enquiry = await prisma.enquiry.update({
       where: { id: invoice.enquiryId },
       data: { status: "PAID" },
@@ -180,12 +180,12 @@ async function applyConfirmedPayment(paymentId: string) {
         enquiryId: enquiry.id,
         authorId: payment.confirmedById ?? payment.recordedById,
         kind: "EVENT",
-        body: `Payment verified by Syntax — ${invoice.number} · held in escrow`,
+        body: `Payment verified by Syntax, ${invoice.number} · held in escrow`,
       },
     });
     await notify({
       toUserId: enquiry.supplier.userId,
-      subject: `Payment received — ${enquiry.product.name}`,
+      subject: `Payment received, ${enquiry.product.name}`,
       body: `Syntax confirmed the buyer's payment (${invoice.currency} ${payment.amount.toLocaleString()} · ${invoice.number}). Ship the order, then mark the enquiry fulfilled.`,
       href: `/supplier/enquiries/${enquiry.id}`,
     });
@@ -194,7 +194,7 @@ async function applyConfirmedPayment(paymentId: string) {
     await prisma.transaction.updateMany({ where: { id: invoice.transactionId, status: { not: "PAID" } }, data: { status: "PAID" } });
   }
   if (invoice.addOnId) {
-    // feature add-on paid — activate it for a one-year term from today
+    // feature add-on paid, activate it for a one-year term from today
     const addOn = await prisma.addOn.update({
       where: { id: invoice.addOnId },
       data: {
@@ -206,7 +206,7 @@ async function applyConfirmedPayment(paymentId: string) {
     await notify({
       toUserId: invoice.billedUserId,
       subject: `${addOn.label} activated`,
-      body: `Payment confirmed — ${addOn.label} is now unlocked for one year (until ${addOn.expiresAt!.toLocaleDateString()}).`,
+      body: `Payment confirmed, ${addOn.label} is now unlocked for one year (until ${addOn.expiresAt!.toLocaleDateString()}).`,
       href: payment.invoice.billedUser.role === "CUSTOMER" ? "/dashboard/analytics" : payment.invoice.billedUser.role === "PROVIDER" ? "/lab/analytics" : "/supplier/analytics",
     });
     await audit(payment.confirmedById ?? payment.recordedById, "ADDON_ACTIVATED", "AddOn", addOn.id, `${addOn.kind} · ${invoice.number}`);
@@ -214,7 +214,7 @@ async function applyConfirmedPayment(paymentId: string) {
   if (invoice.subscriptionId) {
     await notify({
       toUserId: invoice.billedUserId,
-      subject: `Payment received — invoice ${invoice.number} settled`,
+      subject: `Payment received, invoice ${invoice.number} settled`,
       body: `Your payment of ${invoice.currency} ${payment.amount.toLocaleString()} was confirmed. Invoice ${invoice.number} is fully paid. Thank you.`,
       href: billingHref(payment.invoice.billedUser.role),
     });
@@ -263,7 +263,7 @@ export async function reportPayment(invoiceId: string, formData: FormData) {
   if (invoice.issuerType === "PLATFORM" || invoice.milestoneId || invoice.enquiryId) {
     await notifyAllAdmins(
       `Payment reported: ${invoice.number}`,
-      `${invoice.billedOrg} reported ${invoice.currency} ${amount.toLocaleString()} via ${method}${payment.reference ? ` (ref ${payment.reference})` : ""}.${invoice.milestoneId || invoice.enquiryId ? " Escrow — confirm receipt into the Syntax account, then settle the order." : " Confirm it in Finance."}`,
+      `${invoice.billedOrg} reported ${invoice.currency} ${amount.toLocaleString()} via ${method}${payment.reference ? ` (ref ${payment.reference})` : ""}.${invoice.milestoneId || invoice.enquiryId ? " Escrow, confirm receipt into the Syntax account, then settle the order." : " Confirm it in Finance."}`,
       "/admin/finance"
     );
   } else {
@@ -318,9 +318,9 @@ export async function confirmPayment(paymentId: string) {
   const payment = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId }, include: { invoice: true } });
   if (payment.status !== "PENDING") throw new Error("Payment already resolved");
   const isAdmin = session.user.role === "ADMIN";
-  // milestone + supply-sale invoices are escrowed — only Syntax admin verifies the money, never the partner
+  // milestone + supply-sale invoices are escrowed, only Syntax admin verifies the money, never the partner
   if ((payment.invoice.milestoneId || payment.invoice.enquiryId) && !isAdmin)
-    throw new Error("Escrowed payments are verified by Syntax — contact support if this is wrong");
+    throw new Error("Escrowed payments are verified by Syntax, contact support if this is wrong");
   const issuer = await issuerFor(payment.invoice);
   if (!isAdmin && issuer?.userId !== session.user.id) throw new Error("Only admin or the issuer can confirm");
   await prisma.payment.update({
@@ -343,7 +343,7 @@ export async function rejectPayment(paymentId: string, formData: FormData) {
   await prisma.payment.update({ where: { id: paymentId }, data: { status: "REJECTED", confirmedById: session.user.id, confirmedAt: new Date(), note: note ?? payment.note } });
   await notify({
     toUserId: payment.invoice.billedUserId,
-    subject: `Payment could not be verified — ${payment.invoice.number}`,
+    subject: `Payment could not be verified, ${payment.invoice.number}`,
     body: `The ${payment.invoice.currency} ${payment.amount.toLocaleString()} payment you reported was rejected${note ? `: ${note}` : "."} You can report it again or contact support.`,
     href: billingHref(payment.invoice.billedUser.role),
   });
@@ -352,7 +352,7 @@ export async function rejectPayment(paymentId: string, formData: FormData) {
   revalidatePath("/dashboard/billing");
 }
 
-/** admin records money already received offline — confirmed immediately */
+/** admin records money already received offline, confirmed immediately */
 export async function adminRecordPayment(invoiceId: string, formData: FormData) {
   const session = await requireAdmin();
   const invoice = await prisma.invoice.findUniqueOrThrow({ where: { id: invoiceId } });
@@ -387,7 +387,7 @@ export async function voidInvoice(invoiceId: string, formData: FormData) {
   const session = await requireAdmin();
   const note = String(formData.get("note") || "") || null;
   const invoice = await prisma.invoice.findUniqueOrThrow({ where: { id: invoiceId }, include: { payments: true } });
-  if (invoice.payments.some((p) => p.status === "CONFIRMED")) throw new Error("Invoice has confirmed payments — refund flow required first");
+  if (invoice.payments.some((p) => p.status === "CONFIRMED")) throw new Error("Invoice has confirmed payments, refund flow required first");
   await prisma.invoice.update({ where: { id: invoiceId }, data: { status: "VOID", note: note ?? invoice.note } });
   await audit(session.user.id, "INVOICE_VOIDED", "Invoice", invoiceId, invoice.number);
   revalidatePath("/admin/finance");
@@ -406,7 +406,7 @@ export async function requestPlanChange(plan: string) {
   const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
   if (sub && sub.plan === plan) throw new Error("Already on this plan");
   if (!sub) {
-    // no subscription yet — create one on the requested plan; invoice goes out immediately
+    // no subscription yet, create one on the requested plan; invoice goes out immediately
     const planPrice = await getPlanPrice(planKey);
     const created = await prisma.subscription.create({
       data: { userId: session.user.id, plan: planKey as Plan, pricePkr: planPrice },
@@ -417,8 +417,8 @@ export async function requestPlanChange(plan: string) {
       subscriptionId: created.id,
       currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
-      note: `${PLANS[planKey].label} plan — first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      note: `${PLANS[planKey].label} plan, first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
       `New subscription: ${planKey}`,
@@ -457,11 +457,11 @@ async function createFeeInvoiceForEnquiry(enquiryId: string, currency: string, f
     currency,
     dueAt: new Date(Date.now() + 14 * 864e5),
     note: `Platform fee ${feePercent}% on supply sale · ${enquiry.product.name}`,
-    items: [{ description: `Platform commission — ${enquiry.product.name} × ${enquiry.qty} (supply sale)`, unitPrice: feeAmount }],
+    items: [{ description: `Platform commission, ${enquiry.product.name} × ${enquiry.qty} (supply sale)`, unitPrice: feeAmount }],
   });
 }
 
-/** Core fee-invoice creator — shared by the admin button and auto-issue at project completion / sale settlement. */
+/** Core fee-invoice creator, shared by the admin button and auto-issue at project completion / sale settlement. */
 async function createFeeInvoice(transactionId: string) {
   const txn = await prisma.transaction.findUniqueOrThrow({
     where: { id: transactionId },
@@ -486,7 +486,7 @@ async function createFeeInvoice(transactionId: string) {
     dueAt: new Date(Date.now() + 14 * 864e5),
     note: `Platform fee ${txn.feePercent}% on ${txn.project!.refNo} (quoted value PKR ${txn.quotedValue.toLocaleString()})`,
     items: [{
-      description: `Platform commission — ${txn.project!.refNo} (${txn.project!.rfq?.title ?? "sequencing project"})`,
+      description: `Platform commission, ${txn.project!.refNo} (${txn.project!.rfq?.title ?? "sequencing project"})`,
       unitPrice: txn.feeAmount,
     }],
   });
@@ -505,14 +505,14 @@ export async function issueFeeInvoice(transactionId: string) {
   revalidatePath("/supplier/billing");
 }
 
-/** Called when a project completes or a supply sale settles — auto-issues the fee invoice so commission is never forgotten. */
+/** Called when a project completes or a supply sale settles, auto-issues the fee invoice so commission is never forgotten. */
 export async function autoIssueFeeInvoice(transactionId: string) {
   const result = await createFeeInvoice(transactionId);
   if (!result) return;
   await notify({
     toUserId: result.billedUserId,
-    subject: `Platform fee invoice — ${result.inv.number}`,
-    body: `Your ${result.inv.number} invoice for the Syntax platform commission is due — see Billing.`,
+    subject: `Platform fee invoice, ${result.inv.number}`,
+    body: `Your ${result.inv.number} invoice for the Syntax platform commission is due, see Billing.`,
     href: "/lab/billing",
   });
   await notifyAllAdmins(`Fee invoiced: ${result.label}`, `${result.inv.number} · PKR ${result.inv.total.toLocaleString()} commission accrued.`, "/admin/transactions");
@@ -538,7 +538,7 @@ export async function createPayout(formData: FormData) {
   if (!Number.isFinite(grossAmount) || grossAmount <= 0) throw new Error("Gross amount must be a positive number");
   if (!Number.isFinite(feeAmount) || feeAmount < 0) throw new Error("Fee amount must be zero or positive");
   if (periodEnd <= periodStart) throw new Error("Period end must be after period start");
-  if (netAmount <= 0) throw new Error("Net payout must be positive — fees cannot meet or exceed gross");
+  if (netAmount <= 0) throw new Error("Net payout must be positive, fees cannot meet or exceed gross");
 
   let payeeUserId = "";
   let payeeOrg = "";
@@ -559,7 +559,7 @@ export async function createPayout(formData: FormData) {
   });
   await notify({
     toUserId: payeeUserId,
-    subject: `Payout ${payout.payoutNo} scheduled — ${netAmount.toLocaleString()} PKR`,
+    subject: `Payout ${payout.payoutNo} scheduled, ${netAmount.toLocaleString()} PKR`,
     body: `A settlement of PKR ${netAmount.toLocaleString()} (gross ${grossAmount.toLocaleString()} − fees ${feeAmount.toLocaleString()}) for ${periodStart.toLocaleDateString()} → ${periodEnd.toLocaleDateString()} is on the books. Track it under Billing → Payouts.`,
     href: payeeType === "PROVIDER" ? "/lab/billing" : "/supplier/billing",
   });
@@ -579,7 +579,7 @@ export async function setPayoutStatus(id: string, status: "PROCESSING" | "PAID" 
   if (status === "PAID") {
     await notify({
       toUserId: payout.payeeUserId,
-      subject: `Payout sent — PKR ${payout.netAmount.toLocaleString()}`,
+      subject: `Payout sent, PKR ${payout.netAmount.toLocaleString()}`,
       body: `Your settlement of PKR ${payout.netAmount.toLocaleString()} was paid${payout.reference ? ` (ref ${payout.reference})` : ""}. It will reflect in your account per your bank's timeline.`,
       href: payout.payeeType === "PROVIDER" ? "/lab/billing" : "/supplier/billing",
     });
@@ -592,16 +592,16 @@ export async function setPayoutStatus(id: string, status: "PROCESSING" | "PAID" 
 
 // ---------- feature add-ons (customers + Basic-tier partners) ----------
 
-/** Purchase the Analytics add-on — issues a PLATFORM invoice; unlocks after payment is confirmed. */
+/** Purchase the Analytics add-on, issues a PLATFORM invoice; unlocks after payment is confirmed. */
 export async function requestAnalyticsAddOn() {
   const session = await getSession();
-  // customers and Basic-tier labs — supplier analytics is included for all suppliers
+  // customers and Basic-tier labs, supplier analytics is included for all suppliers
   if (!session || !["CUSTOMER", "PROVIDER"].includes(session.user.role ?? "")) redirect("/login");
   if (await hasAnalyticsAccess(session.user.id)) throw new Error("Analytics is already unlocked on your account");
   const pending = await prisma.addOn.findFirst({
     where: { userId: session.user.id, kind: "ANALYTICS", status: "PENDING_PAYMENT" },
   });
-  if (pending) throw new Error("You already have an unpaid add-on invoice — settle it from Billing to activate.");
+  if (pending) throw new Error("You already have an unpaid add-on invoice, settle it from Billing to activate.");
   const price = await getAnalyticsAddonPrice();
   const addOn = await prisma.addOn.create({
     data: { userId: session.user.id, kind: "ANALYTICS", label: "Analytics add-on", pricePkr: price },
@@ -612,12 +612,12 @@ export async function requestAnalyticsAddOn() {
     addOnId: addOn.id,
     currency: "PKR",
     dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
-    note: "Analytics add-on — 1-year unlock",
-    items: [{ description: "Gateway Analytics add-on — sample & report analysis dashboard (1 year)", unitPrice: price }],
+    note: "Analytics add-on, 1-year unlock",
+    items: [{ description: "Gateway Analytics add-on, sample & report analysis dashboard (1 year)", unitPrice: price }],
   });
   await notifyAllAdmins(
     `Add-on requested: Analytics`,
-    `${session.user.name} (${session.user.email}) requested the Analytics add-on — invoice issued, confirm payment to activate.`,
+    `${session.user.name} (${session.user.email}) requested the Analytics add-on, invoice issued, confirm payment to activate.`,
     "/admin/finance"
   );
   await audit(session.user.id, "ADDON_REQUESTED", "AddOn", addOn.id, "ANALYTICS");

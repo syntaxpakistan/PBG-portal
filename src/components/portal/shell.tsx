@@ -29,7 +29,7 @@ export async function PortalShell({
     <div className="flex min-h-screen flex-col bg-paper-2 lg:flex-row">
       {/* mobile top bar + drawer */}
       <PortalMobileNav title={title} items={items} unread={unread} name={user.name} email={user.email} />
-      {/* sidebar — desktop only */}
+      {/* sidebar, desktop only */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-line bg-navy lg:flex">
         <div className="px-5 pt-5">
           <Link href="/" className="inline-block" aria-label="Pakistan Biotechnology Gateway home">

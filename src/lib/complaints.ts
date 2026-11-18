@@ -2,7 +2,7 @@ export type ComplaintChannel = "CUSTOMER" | "PROVIDER";
 
 export const PROVIDER_ROLES = ["PROVIDER", "SUPPLIER"];
 
-// who sits on each side of a complaint — the project's two parties, the
+// who sits on each side of a complaint, the project's two parties, the
 // enquiry's buyer + supplier, or the filer alone when nothing is attached
 export function complaintParties(c: {
   projectId: string | null;

@@ -44,7 +44,7 @@ export default async function LabRfqsPage({
           }),
     },
     include: {
-      // masked context only — org type, never the buyer's name/org
+      // masked context only, org type, never the buyer's name/org
       customer: { select: { customerProfile: { select: { orgType: true, city: true } } } },
       _count: { select: { quotes: true } },
     },
@@ -67,7 +67,7 @@ export default async function LabRfqsPage({
           !approved
             ? "Available once your lab is verified."
             : isBoard
-              ? "Admin-approved requests open to every verified lab — buyer identities stay masked until award."
+              ? "Admin-approved requests open to every verified lab, buyer identities stay masked until award."
               : `${inbox.length} open request${inbox.length === 1 ? "" : "s"} routed to you.`
         }
         action={
@@ -96,7 +96,7 @@ export default async function LabRfqsPage({
               {!approved && <tr><td colSpan={7} className="px-5 py-8 text-center text-muted">RFQs appear here once you&rsquo;re verified.</td></tr>}
               {approved && inbox.length === 0 && (
                 <tr><td colSpan={7} className="px-5 py-10 text-center text-muted">
-                  {isBoard ? "No open board requests right now — new posts appear here after admin approval." : `No open RFQs${invited ? " matching this filter" : ""} — you'll be notified when one routes to you.`}
+                  {isBoard ? "No open board requests right now, new posts appear here after admin approval." : `No open RFQs${invited ? " matching this filter" : ""}, you'll be notified when one routes to you.`}
                 </td></tr>
               )}
               {approved && inbox.map((r) => (

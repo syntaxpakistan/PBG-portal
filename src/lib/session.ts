@@ -29,6 +29,6 @@ export async function requireRole(...roles: Role[]) {
 export async function assertCustomerApproved(userId: string) {
   const profile = await prisma.customerProfile.findUnique({ where: { userId }, select: { status: true } });
   if (!profile || profile.status !== "APPROVED") {
-    throw new Error("Your account is awaiting admin approval — the client portal unlocks once the Gateway team verifies your registration.");
+    throw new Error("Your account is awaiting admin approval, the client portal unlocks once the Gateway team verifies your registration.");
   }
 }

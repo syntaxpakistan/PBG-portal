@@ -25,7 +25,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
 
   return (
     <>
-      <PageHead title="Complaints" sub="Disputes filed on projects and supply orders — triage and resolve." />
+      <PageHead title="Complaints" sub="Disputes filed on projects and supply orders, triage and resolve." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints filed.</p>}
         {complaints.map((c) => (

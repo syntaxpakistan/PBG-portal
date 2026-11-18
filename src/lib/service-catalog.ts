@@ -1,4 +1,4 @@
-// PBG Service Catalogue taxonomy — shared by the lab "Add a service" form
+// PBG Service Catalogue taxonomy, shared by the lab "Add a service" form
 // (client cascade) and the saveService server action (validation + naming).
 
 export type DepField = {
@@ -209,7 +209,7 @@ export function visibleFields(svc: CatalogService, values: Record<string, string
 }
 
 /**
- * Generated listing name — service + selected options.
+ * Generated listing name, service + selected options.
  * If an option value already contains the service name (e.g. "High-molecular-weight
  * DNA extraction" ⊃ "DNA extraction"), it replaces the service as the base so the
  * result reads "High-molecular-weight DNA extraction · Plant tissue".

@@ -54,7 +54,7 @@ function PromoBar({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div className="relative flex h-9 items-center justify-center gap-3 bg-yellow px-4 text-navy">
       <p className="truncate text-center text-[12px] font-semibold sm:text-[12.5px]">
-        🎉 Launch offer — 50% off all subscriptions until 31 Dec 2026
+        🎉 Launch offer: 50% off all subscriptions until 31 Dec 2026
       </p>
       <Link
         href="/#pricing"

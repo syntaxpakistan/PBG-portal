@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { FlaskConical, MapPin, Cpu, TestTubes, BadgeCheck, Star, Sparkles, Boxes } from "lucide-react";
 
-export const metadata = { title: "National Facility Registry — Pakistan Biotechnology Gateway" };
+export const metadata = { title: "National Facility Registry, Pakistan Biotechnology Gateway" };
 
 const isFeatured = (sub: { plan: string; status: string; expiresAt: Date | null } | null | undefined) =>
   !!sub && sub.status === "ACTIVE" && (sub.plan === "PRO" || sub.plan === "CUSTOM");
@@ -77,7 +77,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
           </h1>
           <p className="mt-4 max-w-xl text-[14.5px] text-[#c5d2e1]">
             Every facility is reviewed by the Gateway team before listing. Badges are platform-level
-            verification — explicitly non-governmental.
+            verification, explicitly non-governmental.
           </p>
           {/* tab switch */}
           <div className="mt-7 inline-flex rounded-full border border-white/15 bg-white/5 p-1">
@@ -153,7 +153,7 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
                 );
               })}
               {filteredSuppliers.length === 0 && (
-                <div className="card col-span-full p-14 text-center text-[14px] text-muted">No suppliers match — widen your filters.</div>
+                <div className="card col-span-full p-14 text-center text-[14px] text-muted">No suppliers match, widen your filters.</div>
               )}
             </div>
           </>
@@ -207,13 +207,13 @@ export default async function RegistryPage({ searchParams }: { searchParams: Pro
             );
           })}
           {filtered.length === 0 && (
-            <div className="card col-span-full p-14 text-center text-[14px] text-muted">No facilities match — widen your filters.</div>
+            <div className="card col-span-full p-14 text-center text-[14px] text-muted">No facilities match, widen your filters.</div>
           )}
         </div>
           </>
         )}
         <p className="mt-8 text-[11.5px] text-muted">
-          *Verification is a platform-level review by the Gateway team — not a government accreditation or license.
+          *Verification is a platform-level review by the Gateway team, not a government accreditation or license.
         </p>
       </section>
       <Footer />

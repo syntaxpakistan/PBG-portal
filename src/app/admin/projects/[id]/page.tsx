@@ -35,7 +35,7 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
   return (
     <>
       <PageHead
-        title={`${project.refNo} — ${project.rfq.title}`}
+        title={`${project.refNo}, ${project.rfq.title}`}
         sub={`${project.customer.name} ↔ ${project.provider.orgName} · awarded ${pkr(project.quote.price + project.quote.taxAmount)}${project.poNumber ? ` · PO ${project.poNumber}` : ""}${project.internalId ? ` · lab ref ${project.internalId}` : ""}`}
         action={<StatusBadge status={project.status} />}
       />
@@ -43,7 +43,7 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
         <StageTracker status={project.status} />
         {sla && (
           <div className={`mt-3 text-[12.5px] font-medium ${sla.overdue ? "text-(--st-red-fg)" : sla.paused ? "text-(--st-orange-fg)" : "text-body"}`}>
-            {sla.paused ? `Paused — ${sla.days}d remaining on resume` : sla.overdue ? `Overdue by ${Math.abs(sla.days)}d (due ${sla.dueAt.toLocaleDateString()})` : `Due ${sla.dueAt.toLocaleDateString()} · ${sla.days}d left`}
+            {sla.paused ? `Paused, ${sla.days}d remaining on resume` : sla.overdue ? `Overdue by ${Math.abs(sla.days)}d (due ${sla.dueAt.toLocaleDateString()})` : `Due ${sla.dueAt.toLocaleDateString()} · ${sla.days}d left`}
           </div>
         )}
       </div>
@@ -122,7 +122,7 @@ export default async function AdminProjectPage({ params }: { params: Promise<{ i
           {project.review && (
             <div className="card p-5">
               <h3 className="mb-2 text-[14px] font-semibold text-ink">Customer review</h3>
-              <p className="text-[13px] text-body"><span className="font-semibold text-ink">{project.review.rating}/5</span>{project.review.comment ? ` — “${project.review.comment}”` : ""}</p>
+              <p className="text-[13px] text-body"><span className="font-semibold text-ink">{project.review.rating}/5</span>{project.review.comment ? `, “${project.review.comment}”` : ""}</p>
             </div>
           )}
           <HistoryTimeline history={project.history} />

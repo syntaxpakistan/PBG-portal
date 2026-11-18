@@ -49,14 +49,14 @@ export default async function CustomerProjectsPage({
         ))}
       </div>
       <div className="card divide-y divide-line">
-        {shown.length === 0 && <p className="px-5 py-10 text-center text-[13px] text-muted">No projects here — award a quote to start one.</p>}
+        {shown.length === 0 && <p className="px-5 py-10 text-center text-[13px] text-muted">No projects here, award a quote to start one.</p>}
         {shown.map((p) => {
           const sla = slaInfo(p.dueAt, p.status, p.pausedAt);
           return (
             <Link key={p.id} href={`/dashboard/projects/${p.id}`} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-paper-2">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-[13.5px] font-medium text-ink">
-                  {p.refNo} — {p.rfq.title}
+                  {p.refNo}, {p.rfq.title}
                   {p.pausedAt && <PauseCircle className="size-3.5 text-(--st-orange-fg)" />}
                 </div>
                 <div className="mt-0.5 text-[11.5px] text-muted">

@@ -7,7 +7,7 @@ import { SubmitButton } from "@/components/portal/submit-button";
 import { EnquiryForm } from "./enquiry-form";
 import { ProductImage } from "./product-image";
 
-// supplies browse — shared by customers (/dashboard/marketplace) and providers (/lab/supplies)
+// supplies browse, shared by customers (/dashboard/marketplace) and providers (/lab/supplies)
 export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string; cat?: string; buyerId: string; basePath: string }) {
   const products = await prisma.product.findMany({
     where: {
@@ -66,19 +66,19 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                 )}
                 {e.status === "INVOICED" && (
                   <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-(--st-amber-bg,#fef3c7) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg,#92400e)">
-                    <span>Invoice issued — pay through Billing and Syntax will verify it with the supplier.</span>
+                    <span>Invoice issued, pay through Billing and Syntax will verify it with the supplier.</span>
                     <Link href={basePath.startsWith("/lab") ? "/lab/billing" : "/dashboard/billing"} className="shrink-0 font-semibold underline underline-offset-2">Go to Billing</Link>
                   </div>
                 )}
                 {e.status === "PAID" && (
                   <div className="mt-2 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                    Payment verified by Syntax — the supplier is fulfilling your order.
+                    Payment verified by Syntax, the supplier is fulfilling your order.
                   </div>
                 )}
                 {e.status === "FULFILLED" && (
                   <div className="mt-2 flex flex-wrap items-center gap-3 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
                     <span>
-                      Shipped{e.quotedPrice != null ? ` — ${pkr(e.quotedPrice)}` : ""}
+                      Shipped{e.quotedPrice != null ? `, ${pkr(e.quotedPrice)}` : ""}
                       {(e.courier || e.trackingNo) && <span className="block mt-0.5">Via {[e.courier, e.trackingNo].filter(Boolean).join(" · ")}</span>}
                     </span>
                     <form action={confirmEnquiryReceived.bind(null, e.id)} className="ml-auto">
@@ -88,12 +88,12 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
                 )}
                 {e.status === "DELIVERED" && (
                   <div className="mt-2 rounded-lg bg-(--st-green-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-green-fg)">
-                    Delivered — you confirmed receipt. Order complete.
+                    Delivered, you confirmed receipt. Order complete.
                   </div>
                 )}
                 {e.status === "CLOSED" && (
                   <div className="mt-2 rounded-lg bg-paper-2 px-3.5 py-2.5 text-[12.5px] text-muted">
-                    The supplier declined this enquiry{e.declineReason ? ` — ${e.declineReason}` : ""}. You can enquire with another supplier below.
+                    The supplier declined this enquiry{e.declineReason ? `, ${e.declineReason}` : ""}. You can enquire with another supplier below.
                   </div>
                 )}
                 {e.messages.length > 0 && (
@@ -163,7 +163,7 @@ export async function SuppliesBrowse({ q, cat, buyerId, basePath }: { q?: string
         ))}
         {products.length === 0 && <p className="col-span-full py-12 text-center text-[13px] text-muted">No products match.</p>}
       </div>
-      <p className="mt-6 text-[11px] text-muted">*Verification is a platform-level review by the Gateway team — not a government accreditation.</p>
+      <p className="mt-6 text-[11px] text-muted">*Verification is a platform-level review by the Gateway team, not a government accreditation.</p>
     </>
   );
 }

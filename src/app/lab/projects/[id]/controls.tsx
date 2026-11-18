@@ -49,7 +49,7 @@ export function ResultUploadForm({ projectId }: { projectId: string }) {
         try {
           await addResultFile(projectId, new FormData(e.currentTarget));
           (e.target as HTMLFormElement).reset();
-          toast.success("Draft uploaded — release it when ready for the customer.");
+          toast.success("Draft uploaded, release it when ready for the customer.");
         } catch (err) {
           toast.error(err instanceof Error ? err.message : "Upload failed");
         }
@@ -72,7 +72,7 @@ export function ResultUploadForm({ projectId }: { projectId: string }) {
   );
 }
 
-// in-lab stage editor — start / complete / skip with operator + note
+// in-lab stage editor, start / complete / skip with operator + note
 export function StageControls({ projectId, stageKey, status }: { projectId: string; stageKey: string; status: string }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -113,7 +113,7 @@ export function StageControls({ projectId, stageKey, status }: { projectId: stri
   );
 }
 
-// structured QC capture — metrics + pass/fail gate
+// structured QC capture, metrics + pass/fail gate
 export function QcForm({ projectId, stages }: { projectId: string; stages: string[] }) {
   const [loading, setLoading] = useState(false);
   return (
@@ -138,8 +138,8 @@ export function QcForm({ projectId, stages }: { projectId: string; stages: strin
         </select>
         <select name="result" required className="rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3">
           <option value="PASS">Pass</option>
-          <option value="PARTIAL">Partial — customer decision</option>
-          <option value="FAIL">Fail — customer decision</option>
+          <option value="PARTIAL">Partial, customer decision</option>
+          <option value="FAIL">Fail, customer decision</option>
         </select>
         <input name="instrument" placeholder="Qubit 4 / BioAnalyzer…" className="w-44 rounded-lg border border-line bg-surface px-3 py-2 text-[12.5px] text-ink outline-none focus:border-navy-3" />
       </div>
@@ -156,7 +156,7 @@ export function QcForm({ projectId, stages }: { projectId: string; stages: strin
   );
 }
 
-// SLA pause clock — lab pauses, names whose time it is
+// SLA pause clock, lab pauses, names whose time it is
 export function PauseControls({ projectId, paused }: { projectId: string; paused: boolean }) {
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState("");
@@ -167,7 +167,7 @@ export function PauseControls({ projectId, paused }: { projectId: string; paused
         onClick={async () => { setLoading(true); try { await resumeProject(projectId); } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); } setLoading(false); }}
         disabled={loading} className="btn-primary !py-2 text-[12px]"
       >
-        {loading ? <Loader2 className="size-3.5 animate-spin" /> : "Resume work — restart clock"}
+        {loading ? <Loader2 className="size-3.5 animate-spin" /> : "Resume work, restart clock"}
       </button>
     );
   }
@@ -197,7 +197,7 @@ export function PauseControls({ projectId, paused }: { projectId: string; paused
   );
 }
 
-// staged result release — lab publishes a draft deliverable to the customer
+// staged result release, lab publishes a draft deliverable to the customer
 export function ReleaseButton({ fileId }: { fileId: string }) {
   const [loading, setLoading] = useState(false);
   return (
@@ -215,7 +215,7 @@ export function ReleaseButton({ fileId }: { fileId: string }) {
   );
 }
 
-// lab-only fields — internal accession ref, storage, disposal
+// lab-only fields, internal accession ref, storage, disposal
 export function InternalsForm({ projectId, defaults }: { projectId: string; defaults: { internalId: string | null; storageLoc: string | null; disposalAt: Date | null } }) {
   const [loading, setLoading] = useState(false);
   return (
@@ -246,13 +246,13 @@ export function AwardDecision({ projectId }: { projectId: string }) {
     <div className="card border-(--st-blue-bd) bg-(--st-blue-bg)/60 p-5">
       <h3 className="text-[14px] font-semibold text-ink">You were selected for this project</h3>
       <p className="mb-4 mt-1 text-[12px] text-body">
-        Accept to confirm you can take it on — the work stages unlock. Decline if you can&apos;t; the RFQ reopens and the customer picks another offer (your name stays private until award).
+        Accept to confirm you can take it on, the work stages unlock. Decline if you can&apos;t; the RFQ reopens and the customer picks another offer (your name stays private until award).
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={async () => {
             setLoading("accept");
-            try { await acceptProject(projectId); toast.success("Award accepted — project is live."); }
+            try { await acceptProject(projectId); toast.success("Award accepted, project is live."); }
             catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
             setLoading(null);
           }}

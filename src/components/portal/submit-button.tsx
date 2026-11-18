@@ -3,7 +3,7 @@
 import { useFormStatus } from "react-dom";
 import { Loader2 } from "lucide-react";
 
-/** Submit button for server-action <form action={...}> — disables itself while the action runs so double-clicks can't duplicate submissions. */
+/** Submit button for server-action <form action={...}>, disables itself while the action runs so double-clicks can't duplicate submissions. */
 export function SubmitButton({
   children,
   className = "btn-primary !py-2 text-[12px]",

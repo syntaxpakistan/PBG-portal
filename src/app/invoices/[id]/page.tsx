@@ -64,10 +64,10 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
   const billedRef = inv.billedUser.customerProfile?.orgNo ?? inv.billedUser.providerProfile?.orgNo ?? inv.billedUser.supplierProfile?.orgNo ?? "";
   const purpose =
-    inv.milestones[0] ? `Project milestone — ${inv.milestones[0].project.refNo} · ${inv.milestones[0].title}` :
-    inv.transactions[0] ? `Platform fee — ${inv.transactions[0].txnNo}${inv.transactions[0].project ? ` · ${inv.transactions[0].project.refNo}` : ""}` :
-    inv.enquiry ? `Supply order — ${inv.enquiry.enquiryNo} · ${inv.enquiry.product.name}` :
-    inv.subscription ? `Gateway subscription — ${inv.subscription.plan} plan` :
+    inv.milestones[0] ? `Project milestone, ${inv.milestones[0].project.refNo} · ${inv.milestones[0].title}` :
+    inv.transactions[0] ? `Platform fee, ${inv.transactions[0].txnNo}${inv.transactions[0].project ? ` · ${inv.transactions[0].project.refNo}` : ""}` :
+    inv.enquiry ? `Supply order, ${inv.enquiry.enquiryNo} · ${inv.enquiry.product.name}` :
+    inv.subscription ? `Gateway subscription, ${inv.subscription.plan} plan` :
     "Marketplace services";
   const escrowed = inv.milestones.length > 0 || !!inv.enquiry;
 
@@ -187,7 +187,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                   <div className="flex gap-2"><dt className="w-24 shrink-0 text-muted">IBAN / A/C</dt><dd className="font-mono font-semibold text-ink">{payTo.iban || "—"}</dd></div>
                 </dl>
                 <p className="text-body">
-                  {payTo.instructions || `Quote invoice ${inv.number} as the payment reference, then report the payment from your Billing page with the transfer receipt — Syntax confirms receipt and settles this invoice.`}
+                  {payTo.instructions || `Quote invoice ${inv.number} as the payment reference, then report the payment from your Billing page with the transfer receipt, Syntax confirms receipt and settles this invoice.`}
                   {escrowed && " Payments on this invoice are held in escrow by Syntax and released to the partner on confirmation."}
                 </p>
               </div>

@@ -23,11 +23,11 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
   const interest = String(formData.get("interest") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
 
-  // honeypot — bots fill this hidden field
+  // honeypot, bots fill this hidden field
   if (String(formData.get("website") ?? "").trim()) return { ok: true };
-  // spam brake — a few submissions per address per day is plenty
+  // spam brake, a few submissions per address per day is plenty
   if (email && !rateLimit(`lead:${email}`, 3, 24 * 3600e3)) {
-    return { ok: false, error: "Too many submissions — please try again later or email us directly." };
+    return { ok: false, error: "Too many submissions, please try again later or email us directly." };
   }
 
   if (!firstName || !/^\S+@\S+\.\S+$/.test(email)) {
@@ -44,8 +44,8 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
   const name = `${firstName} ${lastName}`.trim();
   const subject =
     type === "QUOTE"
-      ? `Quote request — ${interest || "General enquiry"} — ${name}`
-      : `Contact message — ${name}`;
+      ? `Quote request, ${interest || "General enquiry"}, ${name}`
+      : `Contact message, ${name}`;
   const body = [
     `New ${type === "QUOTE" ? "quote request" : "contact message"} on pbg-teal.vercel.app`,
     "",
@@ -55,7 +55,7 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
     `Interest:     ${interest || "—"}`,
     message ? `Message:\n${message}` : null,
     "",
-    `Lead ID: ${lead.id} — view in /admin/leads`,
+    `Lead ID: ${lead.id}, view in /admin/leads`,
   ]
     .filter(Boolean)
     .join("\n");

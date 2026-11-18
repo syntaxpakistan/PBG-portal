@@ -101,7 +101,7 @@ export async function setProductActive(productId: string, active: boolean) {
   revalidatePath("/supplier/products");
 }
 
-// permanent delete — only when the product has no enquiry/order history
+// permanent delete, only when the product has no enquiry/order history
 // (enquiries cascade on delete, so history-carrying products must be hidden instead)
 export async function deleteProduct(productId: string) {
   const { session, profile } = await requireSupplier();
@@ -110,7 +110,7 @@ export async function deleteProduct(productId: string) {
     include: { _count: { select: { enquiries: true } } },
   });
   if (product.supplierId !== profile.id) throw new Error("Not your product");
-  if (product._count.enquiries > 0) throw new Error("This product has enquiry/order history — hide it instead of deleting");
+  if (product._count.enquiries > 0) throw new Error("This product has enquiry/order history, hide it instead of deleting");
   await prisma.product.delete({ where: { id: productId } });
   await prisma.auditLog.create({
     data: { actorId: session.user.id, action: "PRODUCT_DELETED", entity: "Product", entityId: productId, meta: product.name },

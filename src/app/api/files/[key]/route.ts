@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { readUpload } from "@/lib/files";
 import JSZip from "jszip";
 
-/** docx is a zip of XML — pull the text out of word/document.xml for preview */
+/** docx is a zip of XML, pull the text out of word/document.xml for preview */
 async function docxText(buf: Buffer): Promise<string | null> {
   try {
     const zip = await JSZip.loadAsync(buf);
@@ -23,7 +23,7 @@ async function docxText(buf: Buffer): Promise<string | null> {
 
 /**
  * Secure document download. A storage key is only served if the caller is a
- * legitimate party: project customer / assigned lab / admin — or, for RFQ
+ * legitimate party: project customer / assigned lab / admin, or, for RFQ
  * attachments, the customer / any approved provider / admin.
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ key: string }> }) {
@@ -46,14 +46,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
 
   let filename: string | null = null;
   if (product) {
-    // marketplace assets — public once the listing is approved; the owning
+    // marketplace assets, public once the listing is approved; the owning
     // supplier and admins can always fetch them (incl. pending images)
     const owner = product.supplier.userId === uid;
     if (product.moderation !== "APPROVED" && !owner && !isAdmin)
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     filename = product.imageKey === key ? `${product.prodNo}` : `${product.prodNo}-datasheet`;
   } else if (enquiry) {
-    // formal quotation — buyer, supplier and admin only
+    // formal quotation, buyer, supplier and admin only
     if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!isAdmin && uid !== enquiry.buyerId && uid !== enquiry.supplier.userId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     filename = message.attachmentName;
   } else if (enquiryMsg) {
-    // order-thread attachment — buyer, supplier and admin only
+    // order-thread attachment, buyer, supplier and admin only
     if (!uid) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const e = enquiryMsg.enquiry;
     if (!isAdmin && uid !== e.buyerId && uid !== e.supplier.userId)
@@ -82,7 +82,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
     const isProvider = session?.user.role === "PROVIDER";
     if (!isAdmin && !isProvider && uid !== rfq.customerId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    // providers only see attachments on requests they're eligible for — pending
+    // providers only see attachments on requests they're eligible for, pending
     // board posts are limited to explicitly invited labs
     if (isProvider && rfq.visibility === "BOARD" && rfq.moderation !== "APPROVED") {
       const profile = await prisma.providerProfile.findUnique({ where: { userId: uid }, select: { id: true } });
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
     const buf = await readUpload(key);
     const ext = key.split(".").pop()?.toLowerCase() ?? "";
 
-    // docx can't render natively — extract text and show a read-only preview page
+    // docx can't render natively, extract text and show a read-only preview page
     if (inline && ext === "docx") {
       const text = await docxText(buf);
       if (text != null) {
@@ -121,7 +121,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
         return new NextResponse(
           `<!doctype html><html><head><meta charset="utf-8"><title>${(filename ?? "document").replace(/"/g, "")}</title>
 <style>body{font-family:system-ui,sans-serif;max-width:820px;margin:40px auto;padding:0 20px;color:#1a1a1a}h1{font-size:18px}pre{white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;background:#f6f6f4;border:1px solid #e5e2da;border-radius:10px;padding:20px}a{color:#1d4ed8}</style></head>
-<body><h1>${(filename ?? "Document").replace(/&/g, "&amp;").replace(/</g, "&lt;")}</h1><pre>${esc || "(no extractable text — download to view)"}</pre>
+<body><h1>${(filename ?? "Document").replace(/&/g, "&amp;").replace(/</g, "&lt;")}</h1><pre>${esc || "(no extractable text, download to view)"}</pre>
 <p><a href="/api/files/${key}">⬇ Download original file</a></p></body></html>`,
           { headers: { "Content-Type": "text/html; charset=utf-8" } }
         );
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
       "Content-Disposition": `${inline && previewable ? "inline" : "attachment"}; filename="${filename ?? key}"`,
       "X-Content-Type-Options": "nosniff",
     };
-    // uploaded HTML previews in a sandboxed context — static content (QC
+    // uploaded HTML previews in a sandboxed context, static content (QC
     // reports, tables) renders but scripts can't run in our origin
     if (inline && (ext === "html" || ext === "htm")) headers["Content-Security-Policy"] = "sandbox";
     return new NextResponse(new Uint8Array(buf), { headers });

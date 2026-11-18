@@ -118,13 +118,13 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
                 <StatusBadge status={sub.status} />
               </div>
               <dl className="space-y-2 text-[13px]">
-                <Row k="Plan" v={`${PLANS[sub.plan].label} — ${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)} term`} />
+                <Row k="Plan" v={`${PLANS[sub.plan].label}, ${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)} term`} />
                 <Row k="Since" v={sub.startedAt?.toLocaleDateString()} />
                 <Row k="Renews until" v={sub.expiresAt?.toLocaleDateString()} />
               </dl>
             </div>
           )}
-          {/* analytics add-on — custom pricing / free grant */}
+          {/* analytics add-on, custom pricing / free grant */}
           {(user.role === "CUSTOMER" || user.role === "PROVIDER") && (
             <div className="card p-5">
               <div className="mb-3 flex items-center justify-between">
@@ -140,7 +140,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
                 </dl>
               )}
               {addOnState.state === "PENDING" && addOn && (
-                <p className="mb-3 text-[12px] text-muted">Invoice {addOn.invoice?.number} issued at {pkr(addOn.pricePkr)} — activates on payment.</p>
+                <p className="mb-3 text-[12px] text-muted">Invoice {addOn.invoice?.number} issued at {pkr(addOn.pricePkr)}, activates on payment.</p>
               )}
               {(addOnState.state === "NONE" || addOnState.state === "PENDING") && (
                 <form action={adminSetAnalyticsAddOn.bind(null, user.id)} className="flex items-end gap-2">
@@ -182,7 +182,7 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
               <div className="divide-y divide-line">
                 {user.rfqs.map((r) => (
                   <div key={r.id} className="flex items-center justify-between px-5 py-2.5">
-                    <span className="text-[12.5px] text-ink">{r.refNo} — {r.title}</span>
+                    <span className="text-[12.5px] text-ink">{r.refNo}, {r.title}</span>
                     <StatusBadge status={r.status} />
                   </div>
                 ))}

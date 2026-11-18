@@ -26,7 +26,7 @@ export function ServiceForm({
   action: (formData: FormData) => void | Promise<void>;
   input: string;
   label: string;
-  /** platforms the lab declared at onboarding — suggested in the instrument field */
+  /** platforms the lab declared at onboarding, suggested in the instrument field */
   platforms?: string[];
 }) {
   const [category, setCategory] = useState("");
@@ -38,7 +38,7 @@ export function ServiceForm({
   const cat = findCategory(category);
   const svc = cat && service ? findService(category, service) : undefined;
 
-  // consultation route — a sequencing offering can switch this listing into a
+  // consultation route, a sequencing offering can switch this listing into a
   // design consultation with the topic preselected (per catalogue spec §5)
   const consultRouted =
     svc?.consultRoute && values[svc.consultRoute.key] === svc.consultRoute.value
@@ -47,7 +47,7 @@ export function ServiceForm({
 
   const fields = useMemo(() => (svc ? visibleFields(svc, values) : []), [svc, values]);
 
-  // platform/instrument is optional *where relevant* — sequencing runs and qPCR (spec §1)
+  // platform/instrument is optional *where relevant*, sequencing runs and qPCR (spec §1)
   const showPlatform = !!svc && !consultRouted && (category === "Sequencing" || svc.name === "qPCR");
   const platformOptions = [...platforms, ...KNOWN_PLATFORMS.filter((p) => !platforms.includes(p))];
 
@@ -206,7 +206,7 @@ export function ServiceForm({
             </div>
           </div>
         ) : (
-          <p className="mt-2 text-[11.5px] text-muted">No fixed price — buyers see “By quote” and send a request through the RFQ workflow.</p>
+          <p className="mt-2 text-[11.5px] text-muted">No fixed price, buyers see “By quote” and send a request through the RFQ workflow.</p>
         )}
       </div>
 

@@ -21,12 +21,12 @@ export default async function SupplierComplaintsPage() {
 
   return (
     <>
-      <PageHead title="Complaints &amp; support" sub="Delivery, payment or buyer issues — each ticket opens a private thread with the Gateway team." />
+      <PageHead title="Complaints &amp; support" sub="Delivery, payment or buyer issues, each ticket opens a private thread with the Gateway team." />
 
       <div className="card mb-6 p-5">
         <h3 className="mb-3 text-[14px] font-semibold text-ink">Raise a ticket</h3>
         <form action={fileSupportComplaint} className="space-y-3">
-          <input name="subject" required maxLength={140} placeholder="Subject — e.g. delayed payment on ENQ-2026-0007" className={input} />
+          <input name="subject" required maxLength={140} placeholder="Subject, e.g. delayed payment on ENQ-2026-0007" className={input} />
           <textarea name="details" required rows={3} placeholder="What happened, which order/enquiry it relates to, and what you need…" className={`${input} resize-y`} />
           <SubmitButton className="btn-primary !py-2.5 text-[13px]">Submit ticket</SubmitButton>
         </form>
@@ -34,7 +34,7 @@ export default async function SupplierComplaintsPage() {
 
       <div className="card divide-y divide-line">
         {complaints.length === 0 && (
-          <p className="px-5 py-10 text-center text-[13px] text-muted">No tickets yet — payment or delivery issues you raise appear here.</p>
+          <p className="px-5 py-10 text-center text-[13px] text-muted">No tickets yet, payment or delivery issues you raise appear here.</p>
         )}
         {complaints.map((c) => {
           const aboutYou = c.filedById !== session.user.id;

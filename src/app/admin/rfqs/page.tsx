@@ -63,7 +63,7 @@ export default async function AdminRfqsPage({
             {rfqs.map((r) => (
               <tr key={r.id} className="hover:bg-paper-2/60">
                 <td className="px-5 py-3">
-                  <div className="font-medium text-ink">{r.refNo} — {r.title}</div>
+                  <div className="font-medium text-ink">{r.refNo}, {r.title}</div>
                   <div className="text-[11px] text-muted">{r.sampleCount}× {r.sampleType} · {r.createdAt.toLocaleDateString()}{r.deadline ? ` · due ${r.deadline.toLocaleDateString()}` : ""}</div>
                 </td>
                 <td className="px-5 py-3 text-body">{r.customer.customerProfile?.orgName ?? r.customer.name}</td>

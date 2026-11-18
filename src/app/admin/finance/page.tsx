@@ -49,7 +49,7 @@ export default async function FinancePage() {
 
   return (
     <>
-      <PageHead title="Finance" sub="Billing ledger — invoices, payments, platform fees and partner payouts." />
+      <PageHead title="Finance" sub="Billing ledger, invoices, payments, platform fees and partner payouts." />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Billed" value={money(billed)} sub={`${invoices.filter((i) => i.status !== "VOID").length} invoices`} />
         <StatCard label="Collected" value={money(collected)} sub="confirmed payments" />

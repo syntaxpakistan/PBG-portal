@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pakistan Biotechnology Gateway — Sequencing, Bioinformatics & Supply Marketplace",
+  title: "Pakistan Biotechnology Gateway, Sequencing, Bioinformatics & Supply Marketplace",
   description:
     "A federated digital marketplace connecting researchers, universities, hospitals and industry with verified sequencing labs, bioinformatics providers and indigenous biotech suppliers across Pakistan.",
 };

@@ -93,7 +93,7 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
                 </td>
               </tr>
             ))}
-            {txns.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No transactions yet — they appear when quotes are awarded.</td></tr>}
+            {txns.length === 0 && <tr><td colSpan={6} className="px-5 py-8 text-center text-muted">No transactions yet, they appear when quotes are awarded.</td></tr>}
           </tbody>
         </table></div>
         <Pagination page={page} total={total} base="/admin/transactions" />

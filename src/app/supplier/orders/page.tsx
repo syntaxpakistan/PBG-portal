@@ -9,10 +9,10 @@ import { PageHead } from "@/components/portal/ui";
 import { pkr } from "@/lib/constants";
 
 const SECTIONS = [
-  { key: "paid", statuses: ["PAID"], title: "To ship", hint: "Payment verified in escrow — fulfil these now", icon: Wallet, accent: "text-(--st-green-fg)" },
-  { key: "transit", statuses: ["FULFILLED"], title: "In transit", hint: "Shipped — waiting for the buyer to confirm receipt", icon: Truck, accent: "text-blue" },
-  { key: "delivered", statuses: ["DELIVERED"], title: "Delivered", hint: "Receipt confirmed — complete orders", icon: PackageCheck, accent: "text-(--st-green-fg)" },
-  { key: "awaiting", statuses: ["INVOICED"], title: "Awaiting payment", hint: "Offer accepted — invoice issued, escrow pending", icon: Hourglass, accent: "text-(--st-amber-fg)" },
+  { key: "paid", statuses: ["PAID"], title: "To ship", hint: "Payment verified in escrow, fulfil these now", icon: Wallet, accent: "text-(--st-green-fg)" },
+  { key: "transit", statuses: ["FULFILLED"], title: "In transit", hint: "Shipped, waiting for the buyer to confirm receipt", icon: Truck, accent: "text-blue" },
+  { key: "delivered", statuses: ["DELIVERED"], title: "Delivered", hint: "Receipt confirmed, complete orders", icon: PackageCheck, accent: "text-(--st-green-fg)" },
+  { key: "awaiting", statuses: ["INVOICED"], title: "Awaiting payment", hint: "Offer accepted, invoice issued, escrow pending", icon: Hourglass, accent: "text-(--st-amber-fg)" },
 ];
 
 export default async function SupplierOrdersPage() {
@@ -40,7 +40,7 @@ export default async function SupplierOrdersPage() {
 
       {orders.length === 0 && (
         <div className="card px-5 py-10 text-center text-[13px] text-muted">
-          No orders yet — once a buyer accepts your offer and pays, the order appears here.
+          No orders yet, once a buyer accepts your offer and pays, the order appears here.
         </div>
       )}
 

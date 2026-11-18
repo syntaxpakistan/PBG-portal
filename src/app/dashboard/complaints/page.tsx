@@ -17,7 +17,7 @@ export default async function CustomerComplaintsPage() {
 
   return (
     <>
-      <PageHead title="My complaints" sub="Disputes you've filed with the Gateway team — track triage and resolution." />
+      <PageHead title="My complaints" sub="Disputes you've filed with the Gateway team, track triage and resolution." />
       <div className="card divide-y divide-line">
         {complaints.length === 0 && (
           <p className="px-5 py-10 text-center text-[13px] text-muted">No complaints filed. Open a project and use “Report an issue” to file one.</p>

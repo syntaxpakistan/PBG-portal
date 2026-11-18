@@ -38,7 +38,7 @@ export function ReportPaymentForm({ invoiceId, outstanding, currency }: { invoic
   return (
     <form
       action={async (fd) => {
-        await act(async () => { await reportPayment(invoiceId, fd); }, "Payment reported — awaiting confirmation.");
+        await act(async () => { await reportPayment(invoiceId, fd); }, "Payment reported, awaiting confirmation.");
       }}
       className="mt-3 grid gap-2 rounded-lg bg-paper-2 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]"
     >
@@ -98,7 +98,7 @@ export function AttachReceiptForm({ paymentId }: { paymentId: string }) {
   );
 }
 
-// plan list with price pinned right — used on billing pages in every portal
+// plan list with price pinned right, used on billing pages in every portal
 export function PlanPicker({ current, plans }: { current: string; plans: { key: string; label: string; price: number; tagline?: string }[] }) {
   const { loading, act } = useAct();
   return (
@@ -116,7 +116,7 @@ export function PlanPicker({ current, plans }: { current: string; plans: { key: 
             <span className="font-display text-[18px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span></span>
             {p.key !== current && (
               <button type="button" disabled={loading}
-                onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested — the Gateway team will confirm.`)}
+                onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested, the Gateway team will confirm.`)}
                 className="rounded-full border border-line px-3 py-1 text-[11.5px] font-medium text-ink hover:bg-paper-2 disabled:opacity-50">
                 {loading ? <Loader2 className="size-3 animate-spin" /> : "Request"}
               </button>
@@ -193,7 +193,7 @@ export function PayoutForm({ payees }: { payees: { type: string; id: string; org
         <div className="self-center text-[11.5px] text-muted sm:col-span-1">
           {payee.bankTitle || payee.bankName || payee.bankIban
             ? <>Pay to: <span className="font-medium text-ink">{[payee.bankTitle, payee.bankName, payee.bankIban].filter(Boolean).join(" · ")}</span></>
-            : "No bank details on file — ask the partner to complete their profile."}
+            : "No bank details on file, ask the partner to complete their profile."}
         </div>
       )}
       <input name="periodStart" type="date" required className={input} />

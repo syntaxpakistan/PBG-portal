@@ -6,7 +6,7 @@ import { notifyAllAdmins } from "@/lib/notify";
 /**
  * Weekly Monday-morning digest (Vercel Cron): last-7-days marketplace activity
  * + open queues, emailed to every admin and mirrored in-app.
- * Secure with CRON_SECRET — Vercel injects it automatically when configured.
+ * Secure with CRON_SECRET, Vercel injects it automatically when configured.
  */
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   const money = (n: number) => `PKR ${Math.round(n).toLocaleString()}`;
   const open = verifyPend + modRfqs + modListings + leadsPend + complaintsPend + payPend;
-  const subject = `Weekly digest — ${money(fees._sum.feeAmount ?? 0)} fees · ${open} items need action`;
+  const subject = `Weekly digest, ${money(fees._sum.feeAmount ?? 0)} fees · ${open} items need action`;
   const body = [
     `Last 7 days on the Gateway:`,
     ``,

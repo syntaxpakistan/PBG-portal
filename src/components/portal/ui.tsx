@@ -101,7 +101,7 @@ export function StatCard({ label, value, sub, icon, compact }: { label: string; 
   );
 }
 
-// SLA compliance score ring — green ≥90, amber ≥70, red below
+// SLA compliance score ring, green ≥90, amber ≥70, red below
 export function SlaScore({ pct }: { pct: number | null }) {
   if (pct == null) return <span className="text-muted">—</span>;
   const tone = pct >= 90 ? "var(--st-green-fg)" : pct >= 70 ? "var(--st-orange-fg)" : "var(--st-red-fg)";
@@ -134,7 +134,7 @@ export function FunnelBar({ label, value, max, tone }: { label: string; value: n
 
 type StageLite = { key: string; status: string; note?: string | null; operator?: string | null; startedAt?: Date | null; doneAt?: Date | null };
 
-// in-lab pipeline ladder — read-only; lab gets its own editor version
+// in-lab pipeline ladder, read-only; lab gets its own editor version
 export function StageLadder({ stages, paused }: { stages: StageLite[]; paused?: boolean }) {
   const map = new Map(stages.map((s) => [s.key, s]));
   return (

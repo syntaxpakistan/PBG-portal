@@ -40,7 +40,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <PageHead title="Users & organizations" sub={`Every account on the Gateway — ${total} total.`} />
+      <PageHead title="Users & organizations" sub={`Every account on the Gateway, ${total} total.`} />
       <form className="mb-4 flex flex-wrap items-center gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search name, email or org…" className="w-full max-w-xs rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3" />
         <select name="role" defaultValue={role ?? ""} className="rounded-full border border-line bg-surface px-4 py-2 text-[13px] outline-none focus:border-navy-3">

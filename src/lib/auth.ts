@@ -6,7 +6,7 @@ import { sendEmail } from "@/lib/email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  // Google is sign-in only — all accounts are created through the registration
+  // Google is sign-in only, all accounts are created through the registration
   // form (role choice + org details + admin verification). disableSignUp blocks
   // OAuth account creation; accountLinking attaches Google to the existing user
   // row by verified email once an admin has approved them (emailVerified=true).
@@ -67,7 +67,7 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24,
   },
-  // enabled by default in production already — stated explicitly so it can't
+  // enabled by default in production already, stated explicitly so it can't
   // silently flip off; stricter built-in rules apply on sign-in/sign-up/reset
   rateLimit: {
     enabled: true,

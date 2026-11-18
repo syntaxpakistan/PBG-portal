@@ -39,15 +39,15 @@ export async function BillingView({
   receivables: InvoiceWithDetails[];
   payouts: Payout[];
   pendingForMe: { payment: Payment & { invoice: Invoice }; canConfirm: boolean }[];
-  /** false for customers — subscriptions are partner-only; clients never pick a plan */
+  /** false for customers, subscriptions are partner-only; clients never pick a plan */
   canSubscribe?: boolean;
-  /** Analytics add-on purchase state — renders the add-on card when provided */
+  /** Analytics add-on purchase state, renders the add-on card when provided */
   analyticsAddOn?: AnalyticsAddOnState;
 }) {
   const openPayables = payables.filter((i) => i.status !== "PAID" && i.status !== "VOID");
   const nextPayout = payouts.find((p) => p.status === "PLANNED" || p.status === "PROCESSING");
 
-  // totals are grouped per currency — legacy invoices may still carry USD
+  // totals are grouped per currency, legacy invoices may still carry USD
   const sumByCurrency = (list: InvoiceWithDetails[], fn: (i: InvoiceWithDetails) => number) => {
     const map = new Map<string, number>();
     for (const i of list) map.set(i.currency, (map.get(i.currency) ?? 0) + fn(i));
@@ -61,7 +61,7 @@ export async function BillingView({
 
   return (
     <>
-      <PageHead title="Billing & statements" sub="Invoices, payments and payouts — your account ledger on the Gateway." />
+      <PageHead title="Billing & statements" sub="Invoices, payments and payouts, your account ledger on the Gateway." />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {owedByCur.length === 0
@@ -88,19 +88,19 @@ export async function BillingView({
           <p className="mt-1 text-[12px] text-muted">
             Status: <span className="font-medium text-ink">{access.status?.toLowerCase().replace("_", " ")}</span>
             {access.expiresAt && <> · paid through {access.expiresAt.toLocaleDateString()}{access.daysLeft != null && access.daysLeft < 0 ? ` (${Math.abs(access.daysLeft)}d overdue)` : access.daysLeft != null ? ` (${access.daysLeft}d left)` : ""}</>}
-            {access.inGrace && <span className="ml-1 font-medium text-(--st-amber-fg)">— grace period</span>}
+            {access.inGrace && <span className="ml-1 font-medium text-(--st-amber-fg)">· grace period</span>}
           </p>
           <PlanPicker current={access.plan} plans={planOptions} />
           <p className="mt-2 text-[11.5px] text-muted">Plan changes are reviewed by the Gateway team and applied from the next term.</p>
         </div>
       )}
 
-      {/* no subscription yet — partners pick a plan (creates sub + invoice) */}
+      {/* no subscription yet, partners pick a plan (creates sub + invoice) */}
       {canSubscribe && !access.hasSubscription && (
         <div className="card mb-6 p-5">
           <h3 className="text-[14px] font-semibold text-ink">Choose your plan</h3>
           <p className="mt-1 text-[12px] text-muted">
-            {access.plan ? "" : "No subscription on file. Pick a plan to activate paid features — an invoice is issued immediately and your plan activates once payment is confirmed."}
+            {access.plan ? "" : "No subscription on file. Pick a plan to activate paid features, an invoice is issued immediately and your plan activates once payment is confirmed."}
           </p>
           <PlanPicker current="" plans={planOptions} />
         </div>
@@ -112,7 +112,7 @@ export async function BillingView({
           <div>
             <h3 className="text-[14px] font-semibold text-ink">Analytics add-on</h3>
             <p className="mt-0.5 text-[12px] text-muted">
-              Sample &amp; report analysis dashboard —{" "}
+              Sample &amp; report analysis dashboard,{" "}
               {analyticsAddOn.state === "INCLUDED" ? "included in your plan"
                 : analyticsAddOn.state === "ACTIVE" ? `active${analyticsAddOn.expiresAt ? ` until ${analyticsAddOn.expiresAt.toLocaleDateString()}` : ""}`
                 : analyticsAddOn.state === "PENDING" ? `invoice ${analyticsAddOn.invoiceNo ?? ""} awaiting payment`
@@ -146,7 +146,7 @@ export async function BillingView({
                 </div>
                 {canConfirm && (
                   <div className="flex gap-2">
-                    <ConfirmPaymentButton paymentId={p.id} label="Money received — confirm" />
+                    <ConfirmPaymentButton paymentId={p.id} label="Money received, confirm" />
                     <RejectPaymentButton paymentId={p.id} />
                   </div>
                 )}
@@ -171,7 +171,7 @@ export async function BillingView({
                     <StatusBadge status={inv.status} />
                   </div>
                   <div className="mt-1 text-[12px] text-muted">
-                    {inv.items.map((i) => i.description).join(" · ")} — issued {inv.issuedAt.toLocaleDateString()}
+                    {inv.items.map((i) => i.description).join(" · ")}, issued {inv.issuedAt.toLocaleDateString()}
                     {inv.dueAt && ` · due ${inv.dueAt.toLocaleDateString()}`}
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export async function BillingView({
                       <StatusBadge status={inv.status} />
                     </div>
                     <div className="mt-1 text-[12px] text-muted">
-                      {inv.billedOrg} · {inv.items.map((i) => i.description).join(" · ")} — {inv.issuedAt.toLocaleDateString()}
+                      {inv.billedOrg} · {inv.items.map((i) => i.description).join(" · ")}, {inv.issuedAt.toLocaleDateString()}
                     </div>
                   </div>
                   <div className="font-display text-[18px] font-medium text-ink">{money(inv.total)}</div>
@@ -237,7 +237,7 @@ export async function BillingView({
       {/* payouts */}
       <h3 className="mb-3 text-[15px] font-semibold text-ink">Payouts</h3>
       <div className="card divide-y divide-line">
-        {payouts.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No settlements yet — Syntax schedules payouts after collections clear.</p>}
+        {payouts.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No settlements yet, Syntax schedules payouts after collections clear.</p>}
         {payouts.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5">
             <div className="text-[13px]">

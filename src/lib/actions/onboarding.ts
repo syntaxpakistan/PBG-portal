@@ -66,11 +66,11 @@ export async function createOrgProfile(input: {
       subscriptionId: sub.id,
       currency: "PKR",
       dueAt: new Date(Date.now() + dueIn),
-      note: `${PLANS[planKey].label} plan — first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      note: `${PLANS[planKey].label} plan, first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
-      "New laboratory registration — approval needed",
+      "New laboratory registration, approval needed",
       `${input.orgName} signed up for the ${PLANS[planKey].label} plan and is waiting in the verification queue.`,
       "/admin/verification"
     );
@@ -97,11 +97,11 @@ export async function createOrgProfile(input: {
       subscriptionId: sub.id,
       currency: "PKR",
       dueAt: new Date(Date.now() + dueIn),
-      note: `${PLANS[planKey].label} plan — first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription — ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      note: `${PLANS[planKey].label} plan, first billing cycle`,
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
-      "New supplier registration — approval needed",
+      "New supplier registration, approval needed",
       `${input.orgName} signed up for the ${PLANS[planKey].label} plan and is waiting in the verification queue.`,
       "/admin/verification"
     );
@@ -120,7 +120,7 @@ export async function createOrgProfile(input: {
     });
     // customers are free but must be approved by an admin before the portal unlocks
     await notifyAllAdmins(
-      "New client registration — approval needed",
+      "New client registration, approval needed",
       `${input.orgName || "A new client"} signed up and is waiting in the verification queue.`,
       "/admin/verification"
     );

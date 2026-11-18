@@ -11,9 +11,9 @@ import { PLANS, SUPPLIER_FEATURES, planTermLabel, ORG_TYPES, type PlanKey } from
 import { toast } from "sonner";
 
 const ROLES = [
-  { id: "CUSTOMER", icon: Users, title: "Customer", desc: "Researcher, university, hospital or industry — submit RFQs and compare blind quotes. Free." },
-  { id: "PROVIDER", icon: FlaskConical, title: "Laboratory / Provider", desc: "Sequencing or bioinformatics facility — receive routed RFQs and quote on merit." },
-  { id: "SUPPLIER", icon: Package, title: "Supplier", desc: "Reagents, kits & consumables vendor — list products in the moderated catalog." },
+  { id: "CUSTOMER", icon: Users, title: "Customer", desc: "Researcher, university, hospital or industry, submit RFQs and compare blind quotes. Free." },
+  { id: "PROVIDER", icon: FlaskConical, title: "Laboratory / Provider", desc: "Sequencing or bioinformatics facility, receive routed RFQs and quote on merit." },
+  { id: "SUPPLIER", icon: Package, title: "Supplier", desc: "Reagents, kits & consumables vendor, list products in the moderated catalog." },
 ];
 
 const ROLE_DEST: Record<string, string> = {
@@ -71,9 +71,9 @@ export default function JoinPage() {
     }
     setLoading(false);
     if (needsOrg) {
-      toast.success(`Account created on the ${PLANS[plan!].label} plan — the Gateway team will contact you about payment & verification.`);
+      toast.success(`Account created on the ${PLANS[plan!].label} plan, the Gateway team will contact you about payment & verification.`);
     } else {
-      toast.success("Account created — your portal unlocks once the Gateway team approves your registration.");
+      toast.success("Account created, your portal unlocks once the Gateway team approves your registration.");
     }
     router.push(ROLE_DEST[role] ?? "/dashboard");
     router.refresh();
@@ -101,13 +101,13 @@ export default function JoinPage() {
               Join Pakistan&apos;s First <em className="grad-text">Biotechnology Gateway</em>
             </h1>
             <p className="mt-5 max-w-sm text-[14.5px] leading-relaxed text-[#c5d2e1]">
-              The verified network — your full profile is created at signup; labs and
+              The verified network, your full profile is created at signup; labs and
               suppliers choose a plan, then the Gateway team verifies the organization before it goes live.
             </p>
             <div className="mt-6 space-y-2 text-[13px] text-[#9fb9cd]">
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Basic — PKR 50,000 / 1 yr · standard listing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro — PKR 144,000 / 3 yrs · priority routing</div>
-              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Elite — PKR 240,000 / 5 yrs · dedicated manager</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Basic, PKR 50,000 / 1 yr · standard listing</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Pro, PKR 144,000 / 3 yrs · priority routing</div>
+              <div className="flex items-center gap-2"><BadgeCheck className="size-4 text-yellow" /> Elite, PKR 240,000 / 5 yrs · dedicated manager</div>
             </div>
           </div>
           <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
@@ -147,7 +147,7 @@ export default function JoinPage() {
                 <ArrowLeft className="size-3.5" /> Back to roles
               </button>
               <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Choose your plan</h2>
-              <p className="mt-2 text-[13.5px] text-body">Billed once per term after the Gateway team approves your organization — invoiced offline, no card needed now.</p>
+              <p className="mt-2 text-[13.5px] text-body">Billed once per term after the Gateway team approves your organization, invoiced offline, no card needed now.</p>
               <div className="mt-7 space-y-3">
                 {(Object.keys(PLANS) as PlanKey[]).map((k) => {
                   const p = PLANS[k];
@@ -181,11 +181,11 @@ export default function JoinPage() {
               </h2>
               {needsOrg ? (
                 <p className="mt-2 rounded-lg border border-(--st-amber-bd) bg-(--st-amber-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-amber-fg)">
-                  Your profile is created now and goes live after payment + Gateway verification — usually within 2 business days.
+                  Your profile is created now and goes live after payment + Gateway verification, usually within 2 business days.
                 </p>
               ) : (
                 <p className="mt-2 rounded-lg border border-(--st-blue-bd) bg-(--st-blue-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-blue-fg)">
-                  Free to join — no plan needed. Your portal unlocks once the Gateway team approves your registration, usually within 1 business day.
+                  Free to join, no plan needed. Your portal unlocks once the Gateway team approves your registration, usually within 1 business day.
                 </p>
               )}
               <form onSubmit={onSubmit} className="mt-7 space-y-4">

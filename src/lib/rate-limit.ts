@@ -1,6 +1,6 @@
 /**
  * Lightweight in-memory fixed-window rate limiter.
- * Suitable for a single-instance dev/small deployment — for multi-instance
+ * Suitable for a single-instance dev/small deployment, for multi-instance
  * production, swap for Upstash Ratelimit (same call signature).
  */
 const buckets = new Map<string, { count: number; resetAt: number }>();

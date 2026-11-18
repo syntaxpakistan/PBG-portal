@@ -69,10 +69,10 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
             <div className="card overflow-hidden">
               <div className="border-b border-line px-6 py-4">
                 <h2 className="text-[15px] font-semibold text-ink">Service catalog</h2>
-                <p className="text-[12px] text-muted">Listed services &amp; starting prices — final quotes are submitted per-RFQ</p>
+                <p className="text-[12px] text-muted">Listed services &amp; starting prices, final quotes are submitted per-RFQ</p>
               </div>
               <div className="divide-y divide-line">
-                {p.services.length === 0 && <p className="px-6 py-8 text-center text-[13px] text-muted">This facility hasn&apos;t listed fixed services yet — submit an RFQ for a custom quote.</p>}
+                {p.services.length === 0 && <p className="px-6 py-8 text-center text-[13px] text-muted">This facility hasn&apos;t listed fixed services yet, submit an RFQ for a custom quote.</p>}
                 {p.services.map((s) => (
                   <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
                     <div className="min-w-0">
@@ -143,7 +143,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
                 {p.contactPerson && <div className="flex items-center gap-2"><UserRound className="size-3.5 text-muted" /><span className="text-ink">{p.contactPerson}</span></div>}
                 {p.website && <div className="flex items-center gap-2"><Globe className="size-3.5 text-muted" /><a href={p.website} target="_blank" rel="noreferrer" className="text-(--st-blue-fg) hover:underline">{p.website.replace(/^https?:\/\//, "")}</a></div>}
                 <div className="border-t border-line pt-3 text-[11.5px] text-muted">
-                  To engage this facility, submit an RFQ — verified providers quote blind and you compare offers side-by-side.
+                  To engage this facility, submit an RFQ, verified providers quote blind and you compare offers side-by-side.
                 </div>
               </dl>
               <Link href="/dashboard/rfqs/new" className="btn-primary mt-4 w-full justify-center !py-2.5 text-[13px]">Submit an RFQ →</Link>
@@ -151,7 +151,7 @@ export default async function ProviderDetailPage({ params }: { params: Promise<{
           </div>
         </div>
         <p className="mt-8 text-[11.5px] text-muted">
-          *Verification is a platform-level review by the Gateway team — not a government accreditation or license.
+          *Verification is a platform-level review by the Gateway team, not a government accreditation or license.
         </p>
       </section>
       <Footer />

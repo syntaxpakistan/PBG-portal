@@ -44,7 +44,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
   return (
     <>
       <PageHead
-        title={`${project.refNo} — ${project.rfq.title}`}
+        title={`${project.refNo}, ${project.rfq.title}`}
         sub={`Customer: ${project.customer.name} · awarded ${pkr(project.quote.price + project.quote.taxAmount)}`}
         action={<StatusBadge status={project.status} />}
       />
@@ -53,7 +53,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
         {sla && (
           <div className={`mt-3 flex items-center gap-2 text-[12.5px] font-medium ${sla.overdue ? "text-(--st-red-fg)" : sla.paused ? "text-(--st-orange-fg)" : "text-body"}`}>
             {sla.paused
-              ? `Clock paused — ${sla.days}d remaining on resume · due ${sla.dueAt.toLocaleDateString()} (will shift)`
+              ? `Clock paused, ${sla.days}d remaining on resume · due ${sla.dueAt.toLocaleDateString()} (will shift)`
               : sla.overdue
               ? `⚠ ${Math.abs(sla.days)} day${Math.abs(sla.days) === 1 ? "" : "s"} past quoted turnaround (due ${sla.dueAt.toLocaleDateString()})`
               : `Turnaround SLA: due ${sla.dueAt.toLocaleDateString()} · ${sla.days} day${sla.days === 1 ? "" : "s"} remaining${project.quote.estTurnaround ? ` · est. ${project.quote.estTurnaround}d` : ""}`}
@@ -61,7 +61,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
         )}
       </div>
 
-      {/* original RFQ attachment — stays accessible after award since the RFQ page closes */}
+      {/* original RFQ attachment, stays accessible after award since the RFQ page closes */}
       {project.rfq.attachmentName && (
         <div className="mb-6">
           <FileLink storageKey={project.rfq.attachmentKey} filename={project.rfq.attachmentName} label={`RFQ attachment: ${project.rfq.attachmentName}`} />
@@ -73,7 +73,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
         <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-(--st-orange-bd) bg-(--st-orange-bg) px-4 py-3">
           <span className="flex items-center gap-2 text-[13px] font-medium text-(--st-orange-fg)">
             <PauseCircle className="size-4" />
-            Paused — waiting on {project.pausedFor === "CUSTOMER" ? "the customer" : "lab (internal)"}
+            Paused, waiting on {project.pausedFor === "CUSTOMER" ? "the customer" : "lab (internal)"}
             {project.pauseReason && <span className="font-normal">· {project.pauseReason}</span>}
           </span>
           <PauseControls projectId={project.id} paused />
@@ -85,7 +85,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
         </div>
       )}
 
-      {/* sample receipt + QC — chain of custody */}
+      {/* sample receipt + QC, chain of custody */}
       {project.status === "SAMPLE_AWAITED" && (
         <div className="card mb-6 p-5">
           <h3 className="text-[14px] font-semibold text-ink">Receive samples</h3>
@@ -101,9 +101,9 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
             <div>
               <label className="mb-1 block text-[11.5px] font-medium text-ink">Receipt QC *</label>
               <select name="sampleQc" required className="rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3">
-                <option value="PASS">Pass — all samples good</option>
-                <option value="PARTIAL">Partial — some flagged</option>
-                <option value="FAIL">Fail — unusable</option>
+                <option value="PASS">Pass, all samples good</option>
+                <option value="PARTIAL">Partial, some flagged</option>
+                <option value="FAIL">Fail, unusable</option>
               </select>
             </div>
             <input name="qcNote" placeholder="QC note (e.g. 22/24 FFPE passed DV200)" className="w-72 rounded-lg border border-line bg-surface px-3 py-2 text-[13px] text-ink outline-none focus:border-navy-3" />
@@ -114,7 +114,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
 
       {awaitingDecision && <AwardDecision projectId={project.id} />}
 
-      {/* in-lab pipeline — editable ladder + QC gates */}
+      {/* in-lab pipeline, editable ladder + QC gates */}
       {project.workStages.length > 0 && (
         <div className="card mb-6 p-5">
           <div className="mb-4 flex items-center justify-between">
@@ -157,7 +157,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
           {/* QC gate log + capture */}
           <div className="mt-5 border-t border-line pt-4">
             <h4 className="text-[13px] font-semibold text-ink">QC records</h4>
-            {project.qcRecords.length === 0 && <p className="mt-1 text-[12px] text-muted">No QC records yet — log sample QC after receipt and library QC before the run.</p>}
+            {project.qcRecords.length === 0 && <p className="mt-1 text-[12px] text-muted">No QC records yet, log sample QC after receipt and library QC before the run.</p>}
             <div className="mt-2 space-y-2">
               {project.qcRecords.map((q) => (
                 <div key={q.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-paper-2 px-4 py-2.5">
@@ -184,11 +184,11 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
         </div>
       )}
 
-      {/* lab internals — never shown to the customer */}
+      {/* lab internals, never shown to the customer */}
       {project.acceptedAt && (
         <div className="card mb-6 p-5">
           <h3 className="flex items-center gap-2 text-[14px] font-semibold text-ink">
-            <Lock className="size-4 text-muted" /> Lab internals <span className="text-[11px] font-normal text-muted">— hidden from customer</span>
+            <Lock className="size-4 text-muted" /> Lab internals <span className="text-[11px] font-normal text-muted">(hidden from customer)</span>
           </h3>
           <InternalsForm
             projectId={project.id}
@@ -203,7 +203,7 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
           {!awaitingDecision && project.status !== "CANCELLED" && (
             <div className="card p-5">
               <h3 className="text-[14px] font-semibold text-ink">Milestones &amp; invoicing</h3>
-              <p className="mb-4 mt-1 text-[12px] text-muted">Plan partial payments tied to deliverables — invoice each when the stage is reached.</p>
+              <p className="mb-4 mt-1 text-[12px] text-muted">Plan partial payments tied to deliverables, invoice each when the stage is reached.</p>
               <div className="space-y-2">
                 {project.milestones.map((m) => (
                   <div key={m.id} className="flex items-center justify-between rounded-lg bg-paper-2 px-4 py-2.5">
@@ -242,8 +242,8 @@ export default async function LabProjectPage({ params }: { params: Promise<{ id:
             <div className="card p-5">
               <h3 className="mb-1 text-[14px] font-semibold text-ink">Deliver results</h3>
               <p className="mb-4 text-[12px] text-muted">
-                Upload drafts freely — the customer sees nothing until you press <span className="font-medium text-ink">Release</span>.
-                Raw data (FASTQ/BAM/VCF) is sent out-of-band — never hosted here.
+                Upload drafts freely, the customer sees nothing until you press <span className="font-medium text-ink">Release</span>.
+                Raw data (FASTQ/BAM/VCF) is sent out-of-band, never hosted here.
               </p>
               <ResultUploadForm projectId={project.id} />
               {project.resultFiles.length > 0 && (

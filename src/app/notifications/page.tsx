@@ -48,7 +48,7 @@ export default async function NotificationsPage() {
           {items.length === 0 && (
             <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
               <Bell className="size-8 text-line-strong" />
-              <p className="text-[13.5px] text-muted">Nothing yet — quotes, awards, status updates and invoices land here.</p>
+              <p className="text-[13.5px] text-muted">Nothing yet, quotes, awards, status updates and invoices land here.</p>
             </div>
           )}
           {items.map((n) => (

@@ -12,7 +12,7 @@ export function LeadForm() {
   if (state?.ok) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-(--st-green-bd) bg-(--st-green-bg) px-5 py-4 text-[13.5px] text-(--st-green-fg)">
-        <Check className="size-4 shrink-0" /> Message received — The Gateway team will get back to you within one business day.
+        <Check className="size-4 shrink-0" /> Message received, The Gateway team will get back to you within one business day.
       </div>
     );
   }
@@ -44,9 +44,9 @@ export function LeadForm() {
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Interested in</label>
           <select name="interest" className={input}>
             <option value="">General enquiry</option>
-            <option>Request a quote — sequencing</option>
-            <option>Request a quote — bioinformatics</option>
-            <option>Request a quote — molecular biology</option>
+            <option>Request a quote, sequencing</option>
+            <option>Request a quote, bioinformatics</option>
+            <option>Request a quote, molecular biology</option>
             <option>Reagents & supplies</option>
             <option>Listing my lab or company</option>
           </select>
@@ -61,7 +61,7 @@ export function LeadForm() {
       </div>
       <div>
         <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Message</label>
-        <textarea name="message" rows={3} className={input} placeholder="Tell us what you're working on — sample types, targets, timeline…" />
+        <textarea name="message" rows={3} className={input} placeholder="Tell us what you're working on, sample types, targets, timeline…" />
       </div>
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {state?.error && <p className="text-[12.5px] text-(--st-red-fg)">{state.error}</p>}

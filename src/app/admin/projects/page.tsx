@@ -64,7 +64,7 @@ export default async function AdminProjectsPage({
               <tr key={p.id} className="hover:bg-paper-2/60">
                 <td className="px-5 py-3">
                   <Link href={`/admin/projects/${p.id}`} className="font-medium text-blue hover:underline">{p.refNo}</Link>
-                  <div className="text-[11px] text-muted">{p.rfq.refNo} — {p.rfq.title} · {p.createdAt.toLocaleDateString()}{p.dueAt ? ` · due ${p.dueAt.toLocaleDateString()}` : ""}</div>
+                  <div className="text-[11px] text-muted">{p.rfq.refNo}, {p.rfq.title} · {p.createdAt.toLocaleDateString()}{p.dueAt ? ` · due ${p.dueAt.toLocaleDateString()}` : ""}</div>
                 </td>
                 <td className="px-5 py-3 text-body">{p.customer.customerProfile?.orgName ?? p.customer.name}</td>
                 <td className="px-5 py-3 text-body">

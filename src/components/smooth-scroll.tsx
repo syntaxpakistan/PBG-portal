@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 
-// landing-page-only smooth scroll — keep it out of the portal shells
+// landing-page-only smooth scroll, keep it out of the portal shells
 export function SmoothScroll() {
   useEffect(() => {
     const lenis = new Lenis({

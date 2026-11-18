@@ -9,9 +9,9 @@ import {
 import { PANELS } from "./data";
 
 export const metadata = {
-  title: "Services — Pakistan Biotechnology Gateway",
+  title: "Services, Pakistan Biotechnology Gateway",
   description:
-    "Molecular biology, sequencing and bioinformatics services from verified laboratories across Pakistan — request a quote and compare offers.",
+    "Molecular biology, sequencing and bioinformatics services from verified laboratories across Pakistan, request a quote and compare offers.",
 };
 
 
@@ -42,7 +42,7 @@ export default function ServicesPage() {
               Sequencing, molecular biology &amp; <em className="grad-text">bioinformatics services.</em>
             </h1>
             <p className="mt-5 max-w-2xl text-[15.5px] leading-relaxed text-[#c5d2e1]">
-              Everything a project needs — from DNA extraction to publication-ready analysis —
+              Everything a project needs, from DNA extraction to publication-ready analysis,
               provided by verified laboratories across Pakistan. Browse the catalogue, then post a
               request for quotes and compare offers side by side.
             </p>
@@ -58,7 +58,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* service panels — one dropdown per category */}
+      {/* service panels, one dropdown per category */}
       <section className="bg-paper py-16 sm:py-20">
         <div className="container-x max-w-4xl">
           <div className="space-y-5">
@@ -113,8 +113,8 @@ export default function ServicesPage() {
           <div className="card mt-10 grid gap-5 p-7 sm:grid-cols-3">
             {[
               { icon: SearchCheck, t: "Pick a service", d: "Open a panel, choose the sub-service that fits your project." },
-              { icon: ShieldCheck, t: "Post your request", d: "Describe samples, organism and output — routed only to verified labs that declare the capability." },
-              { icon: Dna, t: "Compare sealed quotes", d: "Labs quote independently — compare price, turnaround and scope side by side before awarding." },
+              { icon: ShieldCheck, t: "Post your request", d: "Describe samples, organism and output, routed only to verified labs that declare the capability." },
+              { icon: Dna, t: "Compare sealed quotes", d: "Labs quote independently, compare price, turnaround and scope side by side before awarding." },
             ].map((s) => (
               <div key={s.t} className="flex items-start gap-3">
                 <s.icon className="mt-0.5 size-5 shrink-0 text-blue" />
@@ -134,7 +134,7 @@ export default function ServicesPage() {
           <h2 className="h-section on-dark">Not sure which service fits? <em className="grad-text">Consult an expert.</em></h2>
           <p className="mx-auto mt-4 max-w-xl text-[14px] leading-relaxed text-[#a2c1d7]">
             Get guidance on experimental design, sample requirements, sequencing platforms and
-            bioinformatics before you start — then let verified labs compete for the work.
+            bioinformatics before you start, then let verified labs compete for the work.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <span className="btn-wrap">

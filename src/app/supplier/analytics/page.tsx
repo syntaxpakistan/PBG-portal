@@ -60,13 +60,13 @@ export default async function SupplierAnalyticsPage() {
             <FunnelBar label="Delivered" value={fulfilled} max={funnelMax} tone="bg-(--st-green-bg) text-(--st-green-fg)" />
           </div>
           {profile.enquiries.length === 0 && (
-            <p className="mt-4 text-[12.5px] text-muted">Enquiries arrive when buyers request your products on the marketplace — keep listings complete with photos and datasheets to convert more.</p>
+            <p className="mt-4 text-[12.5px] text-muted">Enquiries arrive when buyers request your products on the marketplace, keep listings complete with photos and datasheets to convert more.</p>
           )}
         </div>
 
         <div className="card p-5">
           <h3 className="mb-4 text-[14px] font-semibold text-ink">Top products by enquiries</h3>
-          {topProducts.length === 0 && <p className="text-[12.5px] text-muted">No products yet — list your first product on the Overview page.</p>}
+          {topProducts.length === 0 && <p className="text-[12.5px] text-muted">No products yet, list your first product on the Overview page.</p>}
           <div className="divide-y divide-line">
             {topProducts.map((p) => (
               <div key={p.id} className="flex items-center justify-between py-2.5">

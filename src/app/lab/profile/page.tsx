@@ -53,7 +53,7 @@ export default async function LabProfilePage() {
           <div>
             <label className={label}>Service categories</label>
             <input name="serviceCategories" defaultValue={profile.serviceCategories} className={input} placeholder="WGS, RNA-Seq, Epigenetics…" />
-            <p className="mt-1 text-[11px] text-muted">These drive RFQ routing — keep them accurate.</p>
+            <p className="mt-1 text-[11px] text-muted">These drive RFQ routing, keep them accurate.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -81,7 +81,7 @@ export default async function LabProfilePage() {
           </div>
           <div className="rounded-xl border border-line bg-paper-2 p-4">
             <h3 className="text-[13.5px] font-semibold text-ink">Payout bank account</h3>
-            <p className="mb-3 mt-0.5 text-[11.5px] text-muted">Where Syntax settles your earnings — admin sees this when scheduling payouts.</p>
+            <p className="mb-3 mt-0.5 text-[11.5px] text-muted">Where Syntax settles your earnings, admin sees this when scheduling payouts.</p>
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <label className={label}>Account title</label>

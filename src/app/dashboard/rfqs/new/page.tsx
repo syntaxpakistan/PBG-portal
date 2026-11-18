@@ -18,11 +18,11 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
   });
   return (
     <div className="max-w-3xl">
-      <PageHead title="Submit an RFQ" sub="Verified providers matching your service category are routed automatically. Quotes arrive blind — labs can't see each other." />
+      <PageHead title="Submit an RFQ" sub="Verified providers matching your service category are routed automatically. Quotes arrive blind, labs can't see each other." />
       <form action={createRfq} className="card space-y-5 p-6">
         <div>
           <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Project title *</label>
-          <input name="title" required defaultValue={sp.title ?? ""} className={input} placeholder="e.g. Wheat rust resistance panel — 48 samples" />
+          <input name="title" required defaultValue={sp.title ?? ""} className={input} placeholder="e.g. Wheat rust resistance panel, 48 samples" />
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -83,14 +83,14 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
               <input type="radio" name="visibility" value="BOARD" className="mt-0.5 accent-navy" />
               <span>
                 <span className="block text-[13px] font-medium text-ink">Open request board</span>
-                <span className="mt-0.5 block text-[11.5px] leading-snug text-muted">Every verified lab can see and quote — your org stays masked. Live after admin approval.</span>
+                <span className="mt-0.5 block text-[11.5px] leading-snug text-muted">Every verified lab can see and quote, your org stays masked. Live after admin approval.</span>
               </span>
             </label>
           </div>
         </div>
         <details className="rounded-xl border border-line p-4" open={invitedIds.size > 0}>
           <summary className="cursor-pointer text-[13px] font-medium text-ink">
-            Invite specific facilities <span className="text-[11.5px] font-normal text-muted">(optional — they get a direct invite on top of automatic routing)</span>
+            Invite specific facilities <span className="text-[11.5px] font-normal text-muted">(optional, they get a direct invite on top of automatic routing)</span>
             {invitedIds.size > 0 && <span className="ml-2 rounded-full bg-(--st-blue-bg) px-2 py-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">{invitedIds.size} pre-selected</span>}
           </summary>
           <div className="mt-3 grid max-h-48 gap-1.5 overflow-y-auto sm:grid-cols-2">
@@ -106,9 +106,9 @@ export default async function NewRfqPage({ searchParams }: { searchParams: Promi
           </div>
         </details>
         <div>
-          <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Attachment (PDF, Word, Excel, CSV, TXT, HTML, ZIP or image — ≤25MB)</label>
+          <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Attachment (PDF, Word, Excel, CSV, TXT, HTML, ZIP or image, ≤25MB)</label>
           <input name="attachment" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.html,.zip,.png,.jpg,.jpeg,.webp" className="w-full rounded-lg border border-line bg-surface px-3.5 py-2 text-[13px] file:mr-3 file:rounded-full file:border-0 file:bg-navy file:px-4 file:py-1.5 file:text-[12px] file:font-medium file:text-yellow" />
-          <p className="mt-1.5 text-[11.5px] text-muted">Raw sequencing data (FASTQ/BAM/VCF) is never hosted on the Gateway — labs transfer it via secure out-of-band links.</p>
+          <p className="mt-1.5 text-[11.5px] text-muted">Raw sequencing data (FASTQ/BAM/VCF) is never hosted on the Gateway, labs transfer it via secure out-of-band links.</p>
         </div>
         <SubmitButton />
       </form>

@@ -32,12 +32,12 @@ export async function setProviderStatus(id: string, status: VerificationStatus, 
   await notify({
     toUserId: p.userId,
     subject:
-      status === "APPROVED" ? `Verification approved — ${p.orgName} (${p.orgNo}) is live` :
-      status === "REJECTED" ? `Verification not approved — ${p.orgName}` :
-      `Account ${status.toLowerCase()} — ${p.orgName}`,
+      status === "APPROVED" ? `Verification approved, ${p.orgName} (${p.orgNo}) is live` :
+      status === "REJECTED" ? `Verification not approved, ${p.orgName}` :
+      `Account ${status.toLowerCase()}, ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Gateway verified ${p.orgName} — your lab account number is ${p.orgNo}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
+        ? `Gateway verified ${p.orgName}, your lab account number is ${p.orgNo}. Incoming RFQs now route to you, the request board is open, and your approved service listings appear on the marketplace.`
         : `Your laboratory verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: status === "APPROVED" ? "/lab" : "/lab/profile",
   });
@@ -55,12 +55,12 @@ export async function setSupplierStatus(id: string, status: VerificationStatus, 
   await notify({
     toUserId: p.userId,
     subject:
-      status === "APPROVED" ? `Verification approved — ${p.orgName} (${p.orgNo}) is live` :
-      status === "REJECTED" ? `Verification not approved — ${p.orgName}` :
-      `Account ${status.toLowerCase()} — ${p.orgName}`,
+      status === "APPROVED" ? `Verification approved, ${p.orgName} (${p.orgNo}) is live` :
+      status === "REJECTED" ? `Verification not approved, ${p.orgName}` :
+      `Account ${status.toLowerCase()}, ${p.orgName}`,
     body:
       status === "APPROVED"
-        ? `Gateway verified ${p.orgName} — your supplier account number is ${p.orgNo}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
+        ? `Gateway verified ${p.orgName}, your supplier account number is ${p.orgNo}. Your products are now visible to marketplace buyers and you can respond to enquiries.`
         : `Your supplier verification status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/supplier",
   });
@@ -80,12 +80,12 @@ export async function setCustomerStatus(id: string, status: VerificationStatus, 
   await notify({
     toUserId: p.userId,
     subject:
-      status === "APPROVED" ? `Account approved — welcome to the Gateway` :
-      status === "REJECTED" ? `Registration not approved — ${label}` :
-      `Account ${status.toLowerCase()} — ${label}`,
+      status === "APPROVED" ? `Account approved, welcome to the Gateway` :
+      status === "REJECTED" ? `Registration not approved, ${label}` :
+      `Account ${status.toLowerCase()}, ${label}`,
     body:
       status === "APPROVED"
-        ? `the Gateway team approved your registration — your client account number is ${p.orgNo}. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
+        ? `the Gateway team approved your registration, your client account number is ${p.orgNo}. You can now post RFQs, receive lab quotes, and run projects on the Gateway.`
         : `Your client registration status is now ${status.toLowerCase()}.${note ? ` Reason: ${note}.` : ""} Contact admin@syntaxlife.pk if you believe this is an error.`,
     href: "/dashboard",
   });
@@ -103,7 +103,7 @@ export async function setComplaintStatus(id: string, status: ComplaintStatus, re
     },
   });
   await audit(session.user.id, `COMPLAINT_${status}`, "Complaint", id, resolution);
-  // tell both parties — the filer and the counterparty — that the case moved
+  // tell both parties, the filer and the counterparty, that the case moved
   const notifyIds = new Set([complaint.filedById, complaint.project?.customerId, complaint.project?.providerUserId, complaint.enquiry?.buyerId, complaint.enquiry?.supplier.userId].filter((x): x is string => !!x && x !== session.user.id));
   const roles = new Map(
     (await prisma.user.findMany({ where: { id: { in: [...notifyIds] } }, select: { id: true, role: true } })).map((u) => [u.id, u.role])
@@ -142,7 +142,7 @@ export async function setEnquiryStatus(id: string, status: "OPEN" | "ANSWERED" |
   revalidatePath("/admin");
 }
 
-// editable platform settings — whitelist keeps arbitrary keys out of the table
+// editable platform settings, whitelist keeps arbitrary keys out of the table
 const EDITABLE_SETTINGS: Record<string, { label: string; min: number; max: number; suffix?: string }> = {
   platform_fee_percent: { label: "Platform fee", min: 0, max: 30, suffix: "%" },
   plan_price_basic: { label: "Basic plan price", min: 0, max: 10000000, suffix: "PKR" },
@@ -171,7 +171,7 @@ export async function setPlatformSetting(key: string, value: string) {
   revalidatePath("/admin/settings");
 }
 
-// free-text settings — payment instructions shown on every invoice
+// free-text settings, payment instructions shown on every invoice
 const EDITABLE_TEXT_SETTINGS: Record<string, { label: string; maxLen: number }> = {
   payment_account_title: { label: "Account title", maxLen: 120 },
   payment_bank_name: { label: "Bank name", maxLen: 120 },
@@ -196,7 +196,7 @@ export async function setPlatformTextSetting(key: string, value: string) {
 
 // ---------- content moderation (request board + service catalog) ----------
 
-// approve/reject an RFQ's board visibility — approval publishes it + fires routing notifications
+// approve/reject an RFQ's board visibility, approval publishes it + fires routing notifications
 export async function setRfqBoardModeration(id: string, decision: "APPROVED" | "REJECTED", note?: string) {
   const session = await requireAdmin();
   const rfq = await prisma.rfq.findUniqueOrThrow({ where: { id } });
@@ -208,7 +208,7 @@ export async function setRfqBoardModeration(id: string, decision: "APPROVED" | "
     await notify({
       toUserId: rfq.customerId,
       subject: `${rfq.refNo}: your request is live on the board`,
-      body: `"${rfq.title}" was approved — all verified labs can now see it and submit sealed quotes.`,
+      body: `"${rfq.title}" was approved, all verified labs can now see it and submit sealed quotes.`,
       href: `/dashboard/rfqs/${rfq.id}`,
     });
     await notifyProvidersForRfq(rfq, true);
@@ -224,7 +224,7 @@ export async function setRfqBoardModeration(id: string, decision: "APPROVED" | "
   revalidatePath("/admin/rfqs");
 }
 
-// approve/reject a service listing — only approved listings appear on the marketplace
+// approve/reject a service listing, only approved listings appear on the marketplace
 export async function setServiceModeration(id: string, decision: "APPROVED" | "REJECTED", note?: string) {
   const session = await requireAdmin();
   const svc = await prisma.serviceListing.findUniqueOrThrow({ where: { id }, include: { provider: true } });
@@ -291,8 +291,8 @@ export async function setSubscriptionStatus(id: string, status: "ACTIVE" | "CANC
         subscriptionId: id,
         currency: "PKR",
         dueAt: sub.expiresAt ?? undefined,
-        note: `${plan.label} plan — activation`,
-        items: [{ description: `Gateway ${plan.label} subscription — ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
+        note: `${plan.label} plan, activation`,
+        items: [{ description: `Gateway ${plan.label} subscription, ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
       });
     }
   }
@@ -306,7 +306,7 @@ export async function setSubscriptionPlan(id: string, plan: "BASIC" | "PRO" | "C
   const sub = await prisma.subscription.findUniqueOrThrow({ where: { id }, include: { user: { select: { role: true } } } });
   const p = PLANS[plan];
   const data: Record<string, unknown> = { plan, pricePkr, requestedPlan: null, planChangeRequestedAt: null };
-  // cancelled/expired subs can't just flip plans — send them back to awaiting payment with a fresh invoice
+  // cancelled/expired subs can't just flip plans, send them back to awaiting payment with a fresh invoice
   const needsReactivation = sub.status === "CANCELLED" || sub.status === "EXPIRED";
   const refreshPendingInvoice = sub.status === "PENDING_PAYMENT";
   if (needsReactivation) {
@@ -330,15 +330,15 @@ export async function setSubscriptionPlan(id: string, plan: "BASIC" | "PRO" | "C
       subscriptionId: id,
       currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
-      note: `${p.label} plan — ${needsReactivation ? "reactivation" : "updated invoice"}`,
-      items: [{ description: `Gateway ${p.label} subscription — ${planTermLabel(plan)} term`, unitPrice: pricePkr }],
+      note: `${p.label} plan, ${needsReactivation ? "reactivation" : "updated invoice"}`,
+      items: [{ description: `Gateway ${p.label} subscription, ${planTermLabel(plan)} term`, unitPrice: pricePkr }],
     });
   }
   if (needsReactivation) {
     await notify({
       toUserId: sub.userId,
-      subject: `Plan changed to ${p.label} — payment needed`,
-      body: `Your subscription was moved to the ${p.label} plan (${pkr(pricePkr)} · ${planTermLabel(plan)} term). A new invoice is on your billing page — the plan activates once payment is confirmed.`,
+      subject: `Plan changed to ${p.label}, payment needed`,
+      body: `Your subscription was moved to the ${p.label} plan (${pkr(pricePkr)} · ${planTermLabel(plan)} term). A new invoice is on your billing page, the plan activates once payment is confirmed.`,
       href: sub.user.role === "PROVIDER" ? "/lab/billing" : sub.user.role === "SUPPLIER" ? "/supplier/billing" : "/dashboard/billing",
     });
   }
@@ -370,13 +370,13 @@ export async function reactivateSubscription(id: string) {
     subscriptionId: id,
     currency: "PKR",
     dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
-    note: `${p.label} plan — reactivation`,
-    items: [{ description: `Gateway ${p.label} subscription — ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
+    note: `${p.label} plan, reactivation`,
+    items: [{ description: `Gateway ${p.label} subscription, ${planTermLabel(sub.plan)} term`, unitPrice: sub.pricePkr }],
   });
   await notify({
     toUserId: sub.userId,
-    subject: `Subscription reactivated — ${p.label} plan payment needed`,
-    body: `Your ${p.label} plan (${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)}) is back on the books. A fresh invoice is on your billing page — the plan activates once payment is confirmed.`,
+    subject: `Subscription reactivated, ${p.label} plan payment needed`,
+    body: `Your ${p.label} plan (${pkr(sub.pricePkr)} · ${planTermLabel(sub.plan)}) is back on the books. A fresh invoice is on your billing page, the plan activates once payment is confirmed.`,
     href: sub.user.role === "PROVIDER" ? "/lab/billing" : sub.user.role === "SUPPLIER" ? "/supplier/billing" : "/dashboard/billing",
   });
   await audit(session.user.id, "SUBSCRIPTION_REACTIVATED", "Subscription", id, `${sub.plan} PKR ${sub.pricePkr}`);
@@ -384,7 +384,7 @@ export async function reactivateSubscription(id: string) {
   revalidatePath("/admin/finance");
 }
 
-// confirm a renewal payment — extends/activates the cycle and clears the request
+// confirm a renewal payment, extends/activates the cycle and clears the request
 export async function extendSubscription(id: string) {
   const session = await requireAdmin();
   const sub = await prisma.subscription.findUniqueOrThrow({ where: { id }, include: { user: { select: { role: true } } } });
@@ -392,7 +392,7 @@ export async function extendSubscription(id: string) {
   // a pending plan-change request is applied on renewal
   const effectivePlan = sub.requestedPlan && sub.requestedPlan in PLANS ? sub.requestedPlan : sub.plan;
   const plan = PLANS[effectivePlan as keyof typeof PLANS];
-  // renewals bill the plan's current price — a pending plan change adopts the new plan's price
+  // renewals bill the plan's current price, a pending plan change adopts the new plan's price
   const renewalPrice = sub.requestedPlan ? await getPlanPrice(effectivePlan as PlanKey) : sub.pricePkr;
   await prisma.subscription.update({
     where: { id },
@@ -414,8 +414,8 @@ export async function extendSubscription(id: string) {
     subscriptionId: id,
     currency: "PKR",
     dueAt: new Date(base.getTime() + planTermMs(effectivePlan as PlanKey)),
-    note: `${plan.label} plan — renewal`,
-    items: [{ description: `Gateway ${plan.label} subscription — renewal cycle`, unitPrice: renewalPrice }],
+    note: `${plan.label} plan, renewal`,
+    items: [{ description: `Gateway ${plan.label} subscription, renewal cycle`, unitPrice: renewalPrice }],
   });
   await audit(session.user.id, "SUBSCRIPTION_RENEWED", "Subscription", id, `${sub.plan} → ${effectivePlan}`);
   await notify({
@@ -430,7 +430,7 @@ export async function extendSubscription(id: string) {
 // ---------- feature add-ons (admin) ----------
 
 /**
- * Give a user the Analytics add-on at a custom price — PKR 0 grants it free
+ * Give a user the Analytics add-on at a custom price, PKR 0 grants it free
  * for a year; any positive price issues a PLATFORM invoice at that amount.
  * Used for negotiated deals that differ from the public add-on price.
  */
@@ -443,7 +443,7 @@ export async function adminSetAnalyticsAddOn(userId: string, formData: FormData)
     where: { userId, kind: "ANALYTICS", status: { in: ["PENDING_PAYMENT", "ACTIVE"] } },
     include: { invoice: { select: { id: true, status: true } } },
   });
-  if (existing?.status === "ACTIVE") throw new Error("User already has an active Analytics add-on — revoke it first");
+  if (existing?.status === "ACTIVE") throw new Error("User already has an active Analytics add-on, revoke it first");
   // re-issuing a pending purchase: void its invoice and drop the stale record
   if (existing) {
     if (existing.invoice && existing.invoice.status === "ISSUED") {
@@ -462,8 +462,8 @@ export async function adminSetAnalyticsAddOn(userId: string, formData: FormData)
       addOnId: addOn.id,
       currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
-      note: "Analytics add-on — custom pricing",
-      items: [{ description: "Gateway Analytics add-on — sample & report analysis dashboard (1 year, custom rate)", unitPrice: price }],
+      note: "Analytics add-on, custom pricing",
+      items: [{ description: "Gateway Analytics add-on, sample & report analysis dashboard (1 year, custom rate)", unitPrice: price }],
     });
   } else {
     await prisma.addOn.update({
@@ -473,7 +473,7 @@ export async function adminSetAnalyticsAddOn(userId: string, formData: FormData)
     await notify({
       toUserId: userId,
       subject: "Analytics add-on activated",
-      body: "The Gateway team activated Analytics on your account — your dashboard is unlocked for one year.",
+      body: "The Gateway team activated Analytics on your account, your dashboard is unlocked for one year.",
       href: target.role === "CUSTOMER" ? "/dashboard/analytics" : "/lab/analytics",
     });
   }
@@ -482,7 +482,7 @@ export async function adminSetAnalyticsAddOn(userId: string, formData: FormData)
   revalidatePath("/admin/finance");
 }
 
-/** Revoke a user's Analytics add-on (pending or active) — e.g. refund/negotiation cleanup. */
+/** Revoke a user's Analytics add-on (pending or active), e.g. refund/negotiation cleanup. */
 export async function adminRevokeAnalyticsAddOn(addOnId: string, formData: FormData) {
   const session = await requireAdmin();
   const addOn = await prisma.addOn.update({ where: { id: addOnId }, data: { status: "EXPIRED", expiresAt: new Date() } });
@@ -496,7 +496,7 @@ export async function adminRevokeAnalyticsAddOn(addOnId: string, formData: FormD
   revalidatePath("/admin/finance");
 }
 
-/** Reset a user's MFA (lockout recovery) — clears their TOTP secret + backup codes so they can re-enrol. */
+/** Reset a user's MFA (lockout recovery), clears their TOTP secret + backup codes so they can re-enrol. */
 export async function adminResetUserMfa(userId: string) {
   const session = await requireAdmin();
   const tf = await prisma.twoFactor.findFirst({ where: { userId } });

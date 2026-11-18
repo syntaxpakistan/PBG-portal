@@ -4,7 +4,7 @@ import path from "path";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
-const MAX_BYTES = 25 * 1024 * 1024; // 25MB — documents only
+const MAX_BYTES = 25 * 1024 * 1024; // 25MB, documents only
 const ALLOWED = [
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -21,7 +21,7 @@ const ALLOWED = [
   "image/webp",
 ];
 
-// positive extension allowlist — the browser's claimed MIME is not trusted on
+// positive extension allowlist, the browser's claimed MIME is not trusted on
 // its own; a renamed executable must fail on the extension too
 const ALLOWED_EXT = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".zip", ".csv", ".txt", ".html", ".htm", ".png", ".jpg", ".jpeg", ".webp"];
 
@@ -45,13 +45,13 @@ function checkName(name: string) {
   if ([".fastq", ".fq", ".bam", ".vcf", ".fasta", ".fa", ".sam", ".gz"].includes(ext))
     throw new Error("Raw genomic data is never hosted on the Gateway");
   if (!ALLOWED_EXT.includes(ext))
-    throw new Error("Unsupported file type — PDF, Office docs, CSV, TXT, HTML, ZIP or images only");
+    throw new Error("Unsupported file type, PDF, Office docs, CSV, TXT, HTML, ZIP or images only");
   return ext;
 }
 
 export async function saveUpload(file: File): Promise<{ key: string; size: number }> {
-  if (file.size > MAX_BYTES) throw new Error("Max 25MB — documents only");
-  if (!ALLOWED.includes(file.type)) throw new Error("PDF, Word, Excel, CSV, TXT, HTML, ZIP or images only — no raw genomic data");
+  if (file.size > MAX_BYTES) throw new Error("Max 25MB, documents only");
+  if (!ALLOWED.includes(file.type)) throw new Error("PDF, Word, Excel, CSV, TXT, HTML, ZIP or images only, no raw genomic data");
   const ext = checkName(file.name);
   return saveBuffer(`${Date.now()}-${randomBytes(8).toString("hex")}${ext}`, Buffer.from(await file.arrayBuffer()), file.type);
 }

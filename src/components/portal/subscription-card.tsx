@@ -45,7 +45,7 @@ export function SubscriptionCard({ sub, isSupplier }: { sub: Subscription | null
         )}
         {sub.renewRequestedAt ? (
           <p className="mt-3 rounded-lg border border-(--st-blue-bd) bg-(--st-blue-bg) px-3.5 py-2.5 text-[12px] text-(--st-blue-fg)">
-            Renewal requested on {sub.renewRequestedAt.toLocaleDateString()} — Syntax will confirm once payment clears.
+            Renewal requested on {sub.renewRequestedAt.toLocaleDateString()}, Syntax will confirm once payment clears.
           </p>
         ) : (sub.status === "ACTIVE" || sub.status === "EXPIRED") && (
           <form action={requestRenewal} className="mt-4">

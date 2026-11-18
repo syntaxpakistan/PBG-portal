@@ -37,7 +37,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
   const declinedIds = new Set(profile.declines.map((d) => d.rfqId));
   const invitedIds = new Set(profile.invites.map((i) => i.rfqId));
   // routing: open RFQs this lab hasn't quoted or declined, matching its categories if declared.
-  // unapproved board posts stay hidden — except to labs the customer explicitly invited
+  // unapproved board posts stay hidden, except to labs the customer explicitly invited
   const openRfqs = await prisma.rfq.findMany({
     where: {
       status: "OPEN",
@@ -60,14 +60,14 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
     : openRfqs;
   const inbox = (routed.length ? routed : openRfqs).filter((r) => !invited || invitedIds.has(r.id));
 
-  // complaints filed against this lab's projects — transparency for the provider
+  // complaints filed against this lab's projects, transparency for the provider
   const complaints = await prisma.complaint.findMany({
     where: { project: { providerId: profile.id } },
     include: { project: { select: { id: true, refNo: true } }, filedBy: { select: { name: true } } },
     orderBy: { createdAt: "desc" },
   });
 
-  // per-category quote outcomes — which service lines convert
+  // per-category quote outcomes, which service lines convert
   const byCategory = new Map<string, { won: number; lost: number; pending: number }>();
   for (const q of profile.quotes) {
     const cat = q.rfq.serviceCategory;
@@ -79,7 +79,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
   }
   const catRows = [...byCategory.entries()].map(([cat, e]) => ({ cat, ...e, total: e.won + e.lost + e.pending })).sort((a, b) => b.total - a.total);
 
-  // analytics — wins, win rate, awarded value, rating (Pro-tier insights)
+  // analytics, wins, win rate, awarded value, rating (Pro-tier insights)
   const decided = profile.quotes.filter((q) => q.status === "SELECTED" || q.status === "DECLINED");
   const wins = profile.quotes.filter((q) => q.status === "SELECTED").length;
   const winRate = decided.length ? Math.round((wins / decided.length) * 100) : null;
@@ -90,7 +90,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
     ? (profile.reviews.reduce((n, r) => n + r.rating, 0) / profile.reviews.length).toFixed(1)
     : null;
 
-  // workload pipeline — what needs bench attention now
+  // workload pipeline, what needs bench attention now
   const awaitingDecision = profile.projects.filter((p) => p.status === "OFFER_SELECTED" && !p.acceptedAt);
   const awaitingSamples = profile.projects.filter((p) => p.status === "SAMPLE_AWAITED");
   const inLab = profile.projects.filter((p) => p.status === "SAMPLE_RECEIVED" || p.status === "WORK_IN_PROGRESS");
@@ -103,12 +103,12 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
   const completedAt = (p: (typeof profile.projects)[number]) => p.history[0]?.createdAt ?? p.updatedAt;
   const tats = completed.map((p) => (completedAt(p).getTime() - p.acceptedAt!.getTime()) / 864e5);
   const medianTat = tats.length ? Math.round(tats.sort((a, b) => a - b)[Math.floor(tats.length / 2)]) : null;
-  // TAT vs promised — median actual vs median guaranteed across completed work
+  // TAT vs promised, median actual vs median guaranteed across completed work
   const promised = completed.map((p) => p.quote.turnaroundDays).sort((a, b) => a - b);
   const medianPromised = promised.length ? promised[Math.floor(promised.length / 2)] : null;
   const tatDelta = medianTat != null && medianPromised != null ? medianTat - medianPromised : null;
 
-  // SLA compliance score — % of due-dated projects delivered (or still) on time
+  // SLA compliance score, % of due-dated projects delivered (or still) on time
   const dueDated = profile.projects.filter((p) => p.dueAt && p.status !== "CANCELLED");
   const onTime = dueDated.filter((p) => {
     if (p.status === "COMPLETED") return completedAt(p) <= p.dueAt!;
@@ -117,14 +117,14 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
   });
   const slaScore = dueDated.length ? Math.round((onTime.length / dueDated.length) * 100) : null;
 
-  // quote funnel — submitted → selected → lost
+  // quote funnel, submitted → selected → lost
   const funnel = {
     submitted: profile.quotes.length,
     selected: wins,
     lost: profile.quotes.filter((q) => q.status === "DECLINED" || q.status === "WITHDRAWN").length,
   };
 
-  // backlog by in-lab stage — which bench step is loaded right now
+  // backlog by in-lab stage, which bench step is loaded right now
   const stageBacklog = await prisma.workStage.groupBy({
     by: ["key"],
     where: { status: "ACTIVE", project: { providerId: profile.id } },
@@ -142,7 +142,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
 
       {profile.status === "PENDING" && (
         <Banner icon={<Clock3 className="size-4" />} tone="yellow"
-          text="Verification in progress — the Gateway team reviews your credentials before RFQs route to you. You'll be notified on approval." />
+          text="Verification in progress, the Gateway team reviews your credentials before RFQs route to you. You'll be notified on approval." />
       )}
       {profile.status === "REJECTED" && (
         <Banner icon={<AlertTriangle className="size-4" />} tone="red"
@@ -153,7 +153,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
           text={`Account suspended${profile.statusNote ? `: ${profile.statusNote}` : ""}. Contact admin@syntaxlife.pk.`} />
       )}
 
-      {/* workload pipeline — LIMS-style */}
+      {/* workload pipeline, LIMS-style */}
       {(awaitingDecision.length > 0 || awaitingSamples.length > 0 || inLab.length > 0 || overdue.length > 0) && (
         <div className="mb-8 grid gap-3 sm:grid-cols-4">
           <PipelineCard n={awaitingDecision.length} label="Awaiting your decision" tone="blue" />
@@ -164,12 +164,12 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       )}
       {awaitingDecision.length > 0 && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-blue-bd) bg-(--st-blue-bg) px-4 py-3 text-[13px] font-medium text-(--st-blue-fg)">
-          {awaitingDecision.length} award{awaitingDecision.length === 1 ? "" : "s"} waiting for your accept/decline — open the project to decide.
+          {awaitingDecision.length} award{awaitingDecision.length === 1 ? "" : "s"} waiting for your accept/decline, open the project to decide.
         </div>
       )}
       {overdue.length > 0 && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
-          <AlertTriangle className="size-4" /> {overdue.length} project{overdue.length === 1 ? " is" : "s are"} past the quoted turnaround — update status or message the customer.
+          <AlertTriangle className="size-4" /> {overdue.length} project{overdue.length === 1 ? " is" : "s are"} past the quoted turnaround, update status or message the customer.
         </div>
       )}
 
@@ -182,7 +182,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
         <StatCard label="Rating" value={avgRating ? `${avgRating} ★` : "—"} sub={`${profile.reviews.length} reviews`} icon={<Star className="size-4" />} />
       </div>
 
-      {/* performance — SLA score, funnel, bench backlog */}
+      {/* performance, SLA score, funnel, bench backlog */}
       <div className="mb-8 grid gap-4 lg:grid-cols-3">
         <div className="card flex items-center gap-5 p-5">
           <SlaScore pct={slaScore} />
@@ -266,7 +266,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
 
       {complaints.some((c) => c.status !== "RESOLVED" && c.status !== "DISMISSED") && (
         <div className="mb-6 flex items-center gap-2.5 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
-          <AlertTriangle className="size-4" /> A customer complaint on one of your projects is under Gateway review — see below.
+          <AlertTriangle className="size-4" /> A customer complaint on one of your projects is under Gateway review, see below.
         </div>
       )}
 
@@ -281,7 +281,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       <div className="card mb-8 overflow-hidden">
         <div className="divide-y divide-line">
           {!approved && <p className="px-5 py-8 text-center text-[13px] text-muted">RFQs appear here once you&rsquo;re verified.</p>}
-          {approved && inbox.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No open RFQs right now — you&rsquo;ll be emailed when one routes to you.</p>}
+          {approved && inbox.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No open RFQs right now, you&rsquo;ll be emailed when one routes to you.</p>}
           {approved && inbox.map((r) => (
             <Link key={r.id} href={`/lab/rfqs/${r.id}`} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-paper-2">
               <div>
@@ -309,7 +309,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
             {profile.quotes.map((q) => (
               <div key={q.id} className="flex items-center justify-between px-5 py-3">
                 <div>
-                  <div className="text-[13px] font-medium text-ink">{q.rfq.refNo} — {q.rfq.title}</div>
+                  <div className="text-[13px] font-medium text-ink">{q.rfq.refNo}, {q.rfq.title}</div>
                   <div className="text-[11.5px] text-muted">{pkr(q.price + q.taxAmount)} · {q.turnaroundDays} days</div>
                 </div>
                 <StatusBadge status={q.status} />
@@ -329,7 +329,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
               return (
               <Link key={p.id} href={`/lab/projects/${p.id}`} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-paper-2">
                 <div>
-                  <div className="text-[13px] font-medium text-ink">{p.refNo} — {p.rfq.title}</div>
+                  <div className="text-[13px] font-medium text-ink">{p.refNo}, {p.rfq.title}</div>
                   <div className="text-[11.5px] text-muted">
                     {p.resultFiles.length} deliverable{p.resultFiles.length === 1 ? "" : "s"}
                     {sla && (sla.paused

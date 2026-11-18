@@ -20,15 +20,15 @@ export function SecurityCard({ enabled, required, returnTo }: { enabled: boolean
             <h2 className="text-[15px] font-semibold text-ink">Two-factor authentication (TOTP)</h2>
             <p className="text-[12.5px] text-body">
               {enabled
-                ? "Enabled — your account requires an authenticator code at sign-in."
-                : required ? "Not enabled — required before full portal access." : "Not enabled — recommended for all accounts."}
+                ? "Enabled, your account requires an authenticator code at sign-in."
+                : required ? "Not enabled, required before full portal access." : "Not enabled, recommended for all accounts."}
             </p>
           </div>
         </div>
         {enabled ? <MfaManage /> : <MfaSetup returnTo={returnTo} />}
       </div>
       <p className="mt-4 text-[12.5px] text-body">
-        Lost your authenticator and backup codes? Contact an administrator — they can reset MFA on your account from Users &amp; orgs.
+        Lost your authenticator and backup codes? Contact an administrator, they can reset MFA on your account from Users &amp; orgs.
       </p>
     </div>
   );

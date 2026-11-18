@@ -49,7 +49,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <PageHead title="Marketplace" sub="Lab services from verified providers + indigenous supplies. Compare labs side-by-side — quotes arrive sealed." />
+      <PageHead title="Marketplace" sub="Lab services from verified providers + indigenous supplies. Compare labs side-by-side, quotes arrive sealed." />
 
       {/* view tabs */}
       <div className="mb-6 inline-flex rounded-full border border-line bg-surface p-1">
@@ -74,7 +74,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           </div>
           <div className="pb-24">
             <ServiceGrid services={serviceCards} mode="customer" />
-            <p className="mt-6 text-[11.5px] text-muted">Tick <b>Compare</b> on services to send one request to several labs — quotes arrive sealed. Starting prices are indicative; final pricing is quoted per-RFQ.</p>
+            <p className="mt-6 text-[11.5px] text-muted">Tick <b>Compare</b> on services to send one request to several labs, quotes arrive sealed. Starting prices are indicative; final pricing is quoted per-RFQ.</p>
           </div>
         </>
       ) : (

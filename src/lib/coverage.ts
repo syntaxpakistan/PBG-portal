@@ -1,9 +1,9 @@
-// Sequencing coverage estimator — mirrors the Illumina coverage calculator
+// Sequencing coverage estimator, mirrors the Illumina coverage calculator
 // (customprotocolselector.illumina.com/covcalc) with its real kit/instrument
 // data, plus PBG extensions (long-read platforms, RFQ handoff).
 // Formulas: Lander & Waterman (1988); Illumina wgs_enr_*_explain.htm.
 // Data sources: wgs_enr_Data.txt, wgs_enr_DNA_Kits.txt, wgs_enr_RNA_Kits.txt,
-// wgs_enr_DNARNA_Kits.txt — see FLOWS/coverage-calculator-research.md
+// wgs_enr_DNARNA_Kits.txt, see FLOWS/coverage-calculator-research.md
 
 export type AppType = "dna" | "rna" | "dnarna";
 export type KitMethod = "coverage" | "minreads" | "samples";
@@ -103,9 +103,9 @@ export const GROUP_LABELS: Record<Instrument["group"], string> = {
 
 /* --------------------------------- kits --------------------------------- */
 // method (Illumina "Calculation method"):
-//   coverage — user enters coverage; required output = region×cov / ((1−dup)·onT)
-//   minreads — recommended clusters/sample, corrected by on-target %
-//   samples  — fixed samples-per-unit lookup per instrument/run type
+//   coverage, user enters coverage; required output = region×cov / ((1−dup)·onT)
+//   minreads, recommended clusters/sample, corrected by on-target %
+//   samples , fixed samples-per-unit lookup per instrument/run type
 // open = coverage-method kits whose defaults stay editable (gray = locked).
 // compat = instrument codes; instrKit = run-kit codes (takes precedence).
 // fixed maps kitCode / instrument code / "all" → max samples per unit.
@@ -166,7 +166,7 @@ export function resolveKit(k: Kit, panelId?: string): Resolved {
     };
   }
   return {
-    method: "samples", label: `${k.label} — ${p.label}`,
+    method: "samples", label: `${k.label}, ${p.label}`,
     regionMb: p.regionMb, onTargetPct: p.onTargetPct, readCycles: p.readCycles,
     minClustersM: p.minClustersM, fixed: p.fixed,
     compat: p.compat, instrKit: p.instrKit, note: p.note,
@@ -189,7 +189,7 @@ export const KITS: Kit[] = [
   { id: "truseq-neuro", label: "TruSeq Neurodegeneration Sequencing Panel", type: "dna", method: "coverage", open: true,
     regionMb: 8.7, onTargetPct: 80, duplicatesPct: 0, readCycles: 300, fixed: { all: 96 } },
   { id: "dna-enrichment", label: "Illumina DNA Prep with Enrichment", type: "dna", method: "samples",
-    duplicatesPct: 0, note: "Select the enrichment panel — sample capacity depends on panel size.",
+    duplicatesPct: 0, note: "Select the enrichment panel, sample capacity depends on panel size.",
     panels: [
       { id: "il-exome", label: "Illumina Exome", regionMb: 45, onTargetPct: 85, readCycles: 200,
         compat: ["HS2500RR", "HS2500HO", "NS", "HS4000", "NoS", "NS2000", "NS1000"],
@@ -206,11 +206,11 @@ export const KITS: Kit[] = [
       { id: "tsone", label: "TruSight One", regionMb: 12, readCycles: 200, minClustersM: 8,
         compat: ["MS", "NS"], instrKit: ["MSv3", "NSmo", "NSho"],
         fixed: { MSv3: 3, NSmo: 12, NSho: 36 },
-        note: "Germline workflow recommendations — somatic needs higher coverage for low-VAF variants." },
+        note: "Germline workflow recommendations, somatic needs higher coverage for low-VAF variants." },
       { id: "tsone-exp", label: "TruSight One Expanded", regionMb: 16.5, readCycles: 200,
         compat: ["HS2500RR", "HS2500HO", "NS", "NoS"], instrKit: ["NSho", "2500rrv2cBot", "2500hov4", "NoSS1"],
         fixed: { NSho: 24, "2500rrv2cBot": 18, "2500hov4": 95, NoSS1: 96 },
-        note: "Germline workflow recommendations — somatic needs higher coverage for low-VAF variants." },
+        note: "Germline workflow recommendations, somatic needs higher coverage for low-VAF variants." },
       { id: "flex-tc", label: "TruSight Cancer", regionMb: 0.3, readCycles: 200, minClustersM: 0.625,
         compat: ["IS", "MN", "MS", "NS", "NS2000", "NS1000"],
         instrKit: ["ISi1", "MNmo", "MNho", "MSv2", "MSv2nano", "MSv2micro", "MSv3", "NSmo", "NSho", "NS2000p1", "NS1000p1", "NS2000p2", "NS1000p2", "NS2000p3"],
@@ -223,21 +223,21 @@ export const KITS: Kit[] = [
         compat: ["IS", "MN", "MS", "NS", "NS2000", "NS1000"],
         instrKit: ["ISi1", "MNmo", "MNho", "MSv2", "MSv2nano", "MSv2micro", "MSv3", "NSmo", "NSho", "NS2000p1", "NS1000p1", "NS2000p2", "NS1000p2", "NS2000p3"],
         fixed: { ISi1: 4, MNmo: 8, MNho: 24, MSv2: 12, MSv2nano: 1, MSv2micro: 4, MSv3: 24, NSmo: 96, NSho: 384, NS2000p1: 96, NS1000p1: 96, NS2000p2: 384, NS1000p2: 384, NS2000p3: 384 } },
-      { id: "custom-2k", label: "Custom panel — 2000 probes", regionMb: 0.15, readCycles: 200,
+      { id: "custom-2k", label: "Custom panel, 2000 probes", regionMb: 0.15, readCycles: 200,
         compat: ["IS", "MN", "MS", "NS", "NS2000", "NS1000"],
         instrKit: ["ISi1", "MNmo", "MNho", "MSv2", "MSv2nano", "MSv2micro", "MSv3", "NSmo", "NSho", "NS2000p1", "NS1000p1", "NS2000p2", "NS1000p2", "NS2000p3"],
         fixed: { ISi1: 8, MNmo: 16, MNho: 50, MSv2: 30, MSv2nano: 2, MSv2micro: 8, MSv3: 50, NSmo: 260, NSho: 384, NS2000p1: 96, NS1000p1: 96, NS2000p2: 384, NS1000p2: 384, NS2000p3: 384 } },
-      { id: "custom-5k", label: "Custom panel — 5000 probes", regionMb: 0.4, readCycles: 200,
+      { id: "custom-5k", label: "Custom panel, 5000 probes", regionMb: 0.4, readCycles: 200,
         compat: ["IS", "MN", "MS", "NS", "NS2000", "NS1000"],
         instrKit: ["ISi1", "MNmo", "MNho", "MSv2", "MSv2nano", "MSv2micro", "MSv3", "NSmo", "NSho", "NS2000p1", "NS1000p1", "NS2000p2", "NS1000p2", "NS2000p3"],
         fixed: { ISi1: 2, MNmo: 4, MNho: 12, MSv2: 8, MSv2nano: 1, MSv2micro: 2, MSv3: 12, NSmo: 65, NSho: 200, NS2000p1: 50, NS1000p1: 50, NS2000p2: 200, NS1000p2: 200, NS2000p3: 384 } },
-      { id: "custom-10k", label: "Custom panel — 10,000 probes", regionMb: 0.8, readCycles: 200,
+      { id: "custom-10k", label: "Custom panel, 10,000 probes", regionMb: 0.8, readCycles: 200,
         compat: ["IS", "MN", "MS", "NS", "NS2000", "NS1000"],
         instrKit: ["ISi1", "MNmo", "MNho", "MSv2", "MSv2nano", "MSv2micro", "MSv3", "NSmo", "NSho", "NS2000p1", "NS1000p1", "NS2000p2", "NS1000p2", "NS2000p3"],
         fixed: { ISi1: 1, MNmo: 2, MNho: 6, MSv2: 4, MSv2nano: 0, MSv2micro: 1, MSv3: 6, NSmo: 33, NSho: 100, NS2000p1: 25, NS1000p1: 25, NS2000p2: 100, NS1000p2: 100, NS2000p3: 300 } },
     ] },
   { id: "cfdna-enrichment", label: "Illumina cfDNA Prep with Enrichment", type: "dna", method: "samples",
-    duplicatesPct: 0, note: "Select the cfDNA enrichment panel — capacity is read-driven.",
+    duplicatesPct: 0, note: "Select the cfDNA enrichment panel, capacity is read-driven.",
     panels: [
       { id: "cf-2k-v1", label: "2000 probes v1", regionMb: 0.16, readCycles: 300, minClustersM: 28,
         compat: ["NS", "NoS", "NS2000", "NS1000"],
@@ -417,7 +417,7 @@ export interface EstInput {
   regionMb: number;
   readCycles: number;       // 0 = blank (user must enter, like Illumina)
   onTargetPct: number;
-  instrumentIds: string[];  // checked instruments — expanded to run types
+  instrumentIds: string[];  // checked instruments, expanded to run types
 }
 
 export interface EstRow {
@@ -507,7 +507,7 @@ export function estimate(inp: EstInput): EstResult {
         continue;
       }
 
-      // samples method — fixed lookup (+ cluster floor when minClusters known)
+      // samples method, fixed lookup (+ cluster floor when minClusters known)
       const cap = fixedCap(rk, inst, run);
       let samples = cap;
       if (requiredClustersM != null && run.clustersM != null) {
@@ -540,7 +540,7 @@ export function visibleFields(k: Kit, panelId?: string): Set<string> {
   return s;
 }
 
-/** Which visible fields are locked (grayed) — open kits keep defaults editable. */
+/** Which visible fields are locked (grayed), open kits keep defaults editable. */
 export function lockedFields(k: Kit, panelId?: string): Set<string> {
   const rk = resolveKit(k, panelId);
   const s = new Set<string>();

@@ -71,7 +71,7 @@ export default async function AdminComplaintPage({ params }: { params: Promise<{
     <>
       <PageHead
         title={`${complaint.ticketNo}: ${complaint.subject}`}
-        sub="Private channels — the parties never see each other's side."
+        sub="Private channels, the parties never see each other's side."
       />
 
       <div className="card mb-6 p-5">

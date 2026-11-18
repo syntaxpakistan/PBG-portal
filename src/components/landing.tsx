@@ -18,7 +18,7 @@ import { LeadForm } from "@/components/lead-form";
 const HOW = [
   {
     icon: FileText, step: "01", title: "Post your request",
-    desc: "Describe your project once — organism, sample count, analysis type, deadline and budget hint. Your RFQ is routed to providers whose declared capabilities match.",
+    desc: "Describe your project once, organism, sample count, analysis type, deadline and budget hint. Your RFQ is routed to providers whose declared capabilities match.",
   },
   {
     icon: Eye, step: "02", title: "Receive and compare quotes",
@@ -30,7 +30,7 @@ const HOW = [
   },
   {
     icon: PackageCheck, step: "04", title: "Results delivered",
-    desc: "Track the project live, message the lab, exchange documents and receive staged deliverables — reports, figures and metadata — in one place.",
+    desc: "Track the project live, message the lab, exchange documents and receive staged deliverables, reports, figures and metadata, in one place.",
   },
 ];
 
@@ -47,7 +47,7 @@ const WHO = [
   },
   {
     icon: Boxes, title: "Indigenous suppliers",
-    desc: "Put reagents, kits, consumables and equipment in front of the entire national research community — receive enquiries and supply orders directly.",
+    desc: "Put reagents, kits, consumables and equipment in front of the entire national research community, receive enquiries and supply orders directly.",
     list: ["Product & service catalogue", "Direct buyer enquiries", "Invoice & payout tracking"],
   },
   {
@@ -60,11 +60,11 @@ const WHO = [
 const WHY = [
   {
     icon: Eye, title: "Blind quoting",
-    desc: "Competing laboratories never see each other's prices or quote details — every provider bids on merit, not on undercutting.",
+    desc: "Competing laboratories never see each other's prices or quote details, every provider bids on merit, not on undercutting.",
   },
   {
     icon: BadgeCheck, title: "Verified providers",
-    desc: "Every lab and supplier passes an admin review of declared capabilities before they can quote or sell — the registry stays honest.",
+    desc: "Every lab and supplier passes an admin review of declared capabilities before they can quote or sell, the registry stays honest.",
   },
   {
     icon: Landmark, title: "Escrow-protected payments",
@@ -72,15 +72,15 @@ const WHY = [
   },
   {
     icon: Workflow, title: "Structured delivery",
-    desc: "Milestones, messaging, file exchange and staged result delivery are built into the project room — no scattered email threads.",
+    desc: "Milestones, messaging, file exchange and staged result delivery are built into the project room, no scattered email threads.",
   },
   {
     icon: Lock, title: "Privacy by design",
-    desc: "Raw genomic data (FASTQ/BAM/VCF) never lives on the platform — only documents and metadata. Samples and data move directly between parties.",
+    desc: "Raw genomic data (FASTQ/BAM/VCF) never lives on the platform, only documents and metadata. Samples and data move directly between parties.",
   },
   {
     icon: ShieldCheck, title: "Administered & auditable",
-    desc: "The Gateway team governs verification, moderation and disputes — with a full audit trail — while providers stay independent businesses.",
+    desc: "The Gateway team governs verification, moderation and disputes, with a full audit trail, while providers stay independent businesses.",
   },
 ];
 
@@ -94,7 +94,7 @@ type ExchangeCard = {
 };
 
 const EXCHANGE: ExchangeCard[] = [
-  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger — matched to declared instrument capacity.", img: "/media/seq-real.webp", href: "/services/sequencing", cta: "Explore sequencing" },
+  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger, matched to declared instrument capacity.", img: "/media/seq-real.webp", href: "/services/sequencing", cta: "Explore sequencing" },
   { icon: Cpu, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", img: "/media/bioinfo-real.webp", href: "/services/bioinformatics", cta: "Explore bioinformatics" },
   { icon: FlaskConical, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", img: "/media/supplies-real.webp", href: "/marketplace", cta: "Browse supplies" },
   { icon: Building2, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", img: "/media/registry-real.webp", href: "/registry", cta: "Open the registry" },
@@ -111,7 +111,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
       key: "CUSTOMER", icon: Users, label: "Customer", tagline: "For researchers, universities, hospitals & industry",
       price: 0, popular: false,
       features: [
-        "Submit unlimited RFQs — free",
+        "Submit unlimited RFQs, free",
         "Compare sealed quotes side-by-side",
         "Escrow-protected award & milestones",
         "Track delivery in one workspace",
@@ -160,7 +160,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-[#c5d2e1] sm:text-[17.5px]">
                 The <strong className="font-semibold text-white">Pakistan Biotechnology Gateway</strong> connects
                 researchers, universities, hospitals and the agriculture sector with verified sequencing
-                laboratories, bioinformatics providers and indigenous biotech suppliers — on a single,
+                laboratories, bioinformatics providers and indigenous biotech suppliers, on a single,
                 fairly-governed marketplace.
               </p>
               <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
@@ -296,7 +296,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
             <div className="mx-auto max-w-2xl text-center">
               <p className="eyebrow on-dark justify-center">The exchange</p>
               <h2 className="h-section on-dark mt-4">
-                Services and supplies — <em className="grad-text">one marketplace.</em>
+                Services and supplies in <em className="grad-text">one marketplace.</em>
               </h2>
               <p className="mt-5 text-[15px] leading-relaxed text-[#a2c1d7]">
                 Sequencing runs and bioinformatics pipelines on one side; reagents, kits, consumables
@@ -346,7 +346,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               <p className="eyebrow justify-center">Pricing</p>
               <h2 className="h-section mt-4">Simple plans <em className="grad-text">free to buy, fair to sell.</em></h2>
               <p className="mt-5 text-[15px] leading-relaxed text-body">
-                Customers always join free. Laboratories and suppliers choose a 1, 3 or 5 year term —
+                Customers always join free. Laboratories and suppliers choose a 1, 3 or 5 year term,
                 billed once per term in PKR after the Gateway team verifies your organization. No card needed to sign up.
               </p>
             </div>
@@ -356,7 +356,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               <div>
                 <p className="text-[15px] font-semibold text-white">For Partner Labs</p>
                 <p className="mt-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">
-                  Offer 50% discount on each category — choose a 1, 3 or 5 year commitment.
+                  Offer 50% discount on each category, choose a 1, 3 or 5 year commitment.
                 </p>
               </div>
               <div className="flex gap-2.5">
@@ -439,7 +439,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Stagger>
           <Reveal className="mt-8">
             <p className="text-center text-[12.5px] text-muted">
-              A small platform fee applies to awarded projects — shown transparently on every invoice.
+              A small platform fee applies to awarded projects, shown transparently on every invoice.
             </p>
           </Reveal>
         </div>
@@ -455,10 +455,10 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                 <div className="min-w-0 flex-1">
                   <h3 className="text-[17px] font-semibold text-ink">Independently operated, fairly governed</h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-body">
-                    The Gateway is administered by <strong className="text-ink">Syntax of Life Private Limited</strong> —
-                    a private, non-governmental operator. We verify providers, moderate listings, govern
+                    The Gateway is administered by <strong className="text-ink">Syntax of Life Private Limited</strong>,
+                    a non-governmental operator. We verify providers, moderate listings, govern
                     disputes and keep a full audit trail. We do not perform sequencing ourselves, and we do
-                    not set provider prices — laboratories remain independent businesses in full control of
+                    not set provider prices. Laboratories remain independent businesses in full control of
                     their work.
                   </p>
                   <p className="mt-3 flex items-center gap-2 text-[12.5px] text-muted">
@@ -481,11 +481,11 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                 <h2 className="h-section mt-4">Talk to <em className="grad-text">the team.</em></h2>
                 <p className="mt-4 text-[14px] leading-relaxed text-body">
                   Planning a sequencing run, sourcing reagents, or listing your facility?
-                  Send us a note — quotes and onboarding questions land directly with the team.
+                  Send us a note. Quotes and onboarding questions land directly with the team.
                 </p>
                 <div className="mt-5 space-y-1.5 text-[13px] text-body">
-                  <p>Quotes — <a href="mailto:info@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">info@biotechnologygateway.com</a></p>
-                  <p>General — <a href="mailto:contact@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">contact@biotechnologygateway.com</a></p>
+                  <p>Quotes: <a href="mailto:info@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">info@biotechnologygateway.com</a></p>
+                  <p>General: <a href="mailto:contact@biotechnologygateway.com" className="font-medium text-blue hover:text-ink">contact@biotechnologygateway.com</a></p>
                 </div>
               </div>
               <div className="card p-6 sm:p-7">
@@ -508,7 +508,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
               </h2>
               <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-[#a2c1d7]">
                 Whether you run a sequencing lab, supply reagents, or need analysis for your next
-                project — the Gateway is where Pakistan&apos;s biotech community meets.
+                project, the Gateway is where Pakistan&apos;s biotech community meets.
               </p>
               <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
                 <span className="btn-wrap">

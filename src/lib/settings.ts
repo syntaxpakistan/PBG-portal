@@ -18,7 +18,7 @@ export async function getFeePercent(): Promise<number> {
 
 // ---------- commercial ----------
 
-/** editable plan prices — overrides live in PlatformSetting, PLANS.price is the default */
+/** editable plan prices, overrides live in PlatformSetting, PLANS.price is the default */
 export async function getPlanPrice(plan: PlanKey): Promise<number> {
   return getNumberSetting(`plan_price_${plan.toLowerCase()}`, PLANS[plan].price);
 }
@@ -30,7 +30,7 @@ export async function getPlanPrices(): Promise<Record<PlanKey, number>> {
   return { BASIC: basic, PRO: pro, CUSTOM: custom };
 }
 
-/** Analytics add-on — yearly price for customers / Basic-tier partners (PKR) */
+/** Analytics add-on, yearly price for customers / Basic-tier partners (PKR) */
 export async function getAnalyticsAddonPrice(): Promise<number> {
   return getNumberSetting("addon_analytics_price", 25000);
 }
