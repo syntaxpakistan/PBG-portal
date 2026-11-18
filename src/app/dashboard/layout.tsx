@@ -1,9 +1,11 @@
 export const instant = false
 
-import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3, Clock3, Calculator } from "lucide-react";
+import { LayoutDashboard, FileText, FilePlus2, FolderKanban, Package, UserRound, Flag, Wallet, BarChart3, Clock3, Calculator, KeyRound } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 const items = [
   { href: "/dashboard", label: "Overview", icon: <LayoutDashboard className="size-4" /> },
@@ -21,11 +23,18 @@ const items = [
   { href: "/dashboard/complaints", label: "Complaints", icon: <Flag className="size-4" /> },
   { href: "/dashboard/billing", label: "Billing", icon: <Wallet className="size-4" /> },
   { href: "/dashboard/profile", label: "Profile", icon: <UserRound className="size-4" /> },
+  { href: "/dashboard/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("CUSTOMER");
   const profile = await prisma.customerProfile.findUnique({ where: { userId: session.user.id }, select: { status: true, statusNote: true } });
+
+  if (process.env.MFA_REQUIRED === "true" && profile?.status === "APPROVED") {
+    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
+    const path = (await headers()).get("x-pathname") ?? "";
+    if (!mfa && !path.includes("/dashboard/security")) redirect("/dashboard/security");
+  }
 
   if (profile?.status !== "APPROVED") {
     return (

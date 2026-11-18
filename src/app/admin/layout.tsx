@@ -1,6 +1,6 @@
 export const instant = false
 
-import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, FolderKanban, ShieldCheck, Landmark, Inbox, BarChart3 } from "lucide-react";
+import { LayoutDashboard, BadgeCheck, Users, Receipt, Flag, ScrollText, Store, Settings, CreditCard, FileText, FolderKanban, ShieldCheck, Landmark, Inbox, BarChart3, KeyRound } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
@@ -21,6 +21,7 @@ const items = [
   { href: "/admin/complaints", label: "Complaints", icon: <Flag className="size-4" />, key: "complaints" },
   { href: "/admin/audit", label: "Audit log", icon: <ScrollText className="size-4" /> },
   { href: "/admin/settings", label: "Settings", icon: <Settings className="size-4" /> },
+  { href: "/admin/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
 
 import { redirect } from "next/navigation";
@@ -30,7 +31,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requireRole("ADMIN");
   // MFA enforcement — disabled during dev (no mail/authenticator testing yet).
   // Set ADMIN_MFA_REQUIRED=true to force TOTP enrollment before admin access.
-  if (process.env.ADMIN_MFA_REQUIRED === "true") {
+  if (process.env.MFA_REQUIRED === "true" || process.env.ADMIN_MFA_REQUIRED === "true") {
     const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
     const path = (await headers()).get("x-pathname") ?? "";
     if (!mfa && !path.includes("/admin/security")) redirect("/admin/security");

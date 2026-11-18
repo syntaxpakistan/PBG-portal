@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, KeyRound, ShieldOff } from "lucide-react";
 import QRCode from "qrcode";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
-export function MfaSetup() {
+const input = "w-full rounded-lg border border-line px-3.5 py-2.5 text-[14px] outline-none focus:border-navy-3";
+
+export function MfaSetup({ returnTo = "/" }: { returnTo?: string }) {
   const router = useRouter();
   const [step, setStep] = useState<"start" | "scan" | "backup">("start");
   const [password, setPassword] = useState("");
@@ -38,8 +40,6 @@ export function MfaSetup() {
     setStep("backup");
     router.refresh();
   }
-
-  const input = "w-full rounded-lg border border-line px-3.5 py-2.5 text-[14px] outline-none focus:border-navy-3";
 
   if (step === "start") {
     return (
@@ -78,7 +78,67 @@ export function MfaSetup() {
       <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-paper-2 p-4 font-mono text-[12.5px]">
         {backupCodes.map((c) => <code key={c}>{c}</code>)}
       </div>
-      <button onClick={() => router.push("/admin")} className="btn-primary mt-4 !py-2.5">Done — go to admin</button>
+      <button onClick={() => router.push(returnTo)} className="btn-primary mt-4 !py-2.5">Done — back to portal</button>
+    </div>
+  );
+}
+
+export function MfaManage() {
+  const router = useRouter();
+  const [action, setAction] = useState<"none" | "codes" | "disable">("none");
+  const [password, setPassword] = useState("");
+  const [codes, setCodes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    if (action === "codes") {
+      const { data, error } = await authClient.twoFactor.generateBackupCodes({ password });
+      setLoading(false);
+      if (error) { toast.error(error.message ?? "Wrong password"); return; }
+      setCodes(data?.backupCodes ?? []);
+      setPassword("");
+      toast.success("New backup codes generated — old ones are invalid now.");
+    } else {
+      const { error } = await authClient.twoFactor.disable({ password });
+      setLoading(false);
+      if (error) { toast.error(error.message ?? "Wrong password"); return; }
+      toast.success("MFA disabled.");
+      setAction("none");
+      router.refresh();
+    }
+  }
+
+  if (action === "none") {
+    return (
+      <div className="mt-6 flex flex-wrap gap-3 border-t border-line pt-5">
+        <button onClick={() => setAction("codes")} className="btn-secondary inline-flex items-center gap-2 !py-2.5">
+          <KeyRound className="size-4" /> Regenerate backup codes
+        </button>
+        <button onClick={() => setAction("disable")} className="inline-flex items-center gap-2 rounded-full border border-(--st-red-bd) px-5 py-2.5 text-[13px] font-semibold text-(--st-red-fg) hover:bg-(--st-red-bg)">
+          <ShieldOff className="size-4" /> Disable MFA
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-6 border-t border-line pt-5">
+      <form onSubmit={submit} className="flex gap-3">
+        <input type="password" required autoFocus value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder="Confirm your password" />
+        <button type="submit" disabled={loading} className="btn-secondary shrink-0 !py-2.5">
+          {loading ? <Loader2 className="size-4 animate-spin" /> : action === "codes" ? "Generate" : "Disable"}
+        </button>
+        <button type="button" onClick={() => { setAction("none"); setCodes([]); }} className="text-[13px] text-muted hover:text-ink">Cancel</button>
+      </form>
+      {codes.length > 0 && (
+        <div className="mt-4">
+          <p className="text-[12.5px] text-body">New backup codes — each works once. Store them safely:</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-paper-2 p-4 font-mono text-[12.5px]">
+            {codes.map((c) => <code key={c}>{c}</code>)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

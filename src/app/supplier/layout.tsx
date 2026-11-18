@@ -1,8 +1,10 @@
 export const instant = false
 
-import { LayoutDashboard, Wallet, BarChart3, MessageSquareWarning, Package, Inbox, Building2, Truck } from "lucide-react";
+import { LayoutDashboard, Wallet, BarChart3, MessageSquareWarning, Package, Inbox, Building2, Truck, KeyRound } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 const items = [
   { href: "/supplier", label: "Overview", icon: <LayoutDashboard className="size-4" /> },
@@ -13,9 +15,15 @@ const items = [
   { href: "/supplier/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/supplier/complaints", label: "Complaints", icon: <MessageSquareWarning className="size-4" /> },
   { href: "/supplier/billing", label: "Billing", icon: <Wallet className="size-4" /> },
+  { href: "/supplier/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
 
 export default async function SupplierLayout({ children }: { children: React.ReactNode }) {
-  await requireRole("SUPPLIER");
+  const session = await requireRole("SUPPLIER");
+  if (process.env.MFA_REQUIRED === "true") {
+    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
+    const path = (await headers()).get("x-pathname") ?? "";
+    if (!mfa && !path.includes("/supplier/security")) redirect("/supplier/security");
+  }
   return <PortalShell title="Supplier portal" items={items}>{children}</PortalShell>;
 }

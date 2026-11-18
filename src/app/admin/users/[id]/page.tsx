@@ -9,7 +9,7 @@ import { pkr } from "@/lib/constants";
 import { PLANS, planTermLabel } from "@/lib/plans";
 import { getAnalyticsAddOnState } from "@/lib/entitlements";
 import { getAnalyticsAddonPrice } from "@/lib/settings";
-import { adminSetAnalyticsAddOn, adminRevokeAnalyticsAddOn } from "@/lib/actions/admin";
+import { adminSetAnalyticsAddOn, adminRevokeAnalyticsAddOn, adminResetUserMfa } from "@/lib/actions/admin";
 import { SubmitButton } from "@/components/portal/submit-button";
 
 export default async function AdminUserPage({ params }: { params: Promise<{ id: string }> }) {
@@ -98,7 +98,14 @@ export default async function AdminUserPage({ params }: { params: Promise<{ id: 
               )}
               <Row k="Role" v={user.role} />
               <Row k="Email verified" v={user.emailVerified ? "Yes" : "No"} />
+              <Row k="MFA" v={user.twoFactorEnabled ? "Enabled" : "Not enrolled"} />
             </dl>
+            {user.twoFactorEnabled && (
+              <form action={adminResetUserMfa.bind(null, user.id)} className="mt-4 border-t border-line pt-4">
+                <SubmitButton className="rounded-full border border-(--st-red-bd) px-4 py-2 text-[12.5px] font-semibold text-(--st-red-fg) hover:bg-(--st-red-bg)">Reset MFA (lockout recovery)</SubmitButton>
+                <p className="mt-2 text-[12px] text-muted">Clears their authenticator + revokes sessions so they can sign in and re-enrol.</p>
+              </form>
+            )}
           </div>
         </div>
 

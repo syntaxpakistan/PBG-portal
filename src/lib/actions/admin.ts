@@ -495,3 +495,23 @@ export async function adminRevokeAnalyticsAddOn(addOnId: string, formData: FormD
   revalidatePath(`/admin/users/${addOn.userId}`);
   revalidatePath("/admin/finance");
 }
+
+/** Reset a user's MFA (lockout recovery) — clears their TOTP secret + backup codes so they can re-enrol. */
+export async function adminResetUserMfa(userId: string) {
+  const session = await requireAdmin();
+  const tf = await prisma.twoFactor.findFirst({ where: { userId } });
+  if (!tf) throw new Error("No MFA enrolled on this account");
+  await prisma.$transaction([
+    prisma.twoFactor.deleteMany({ where: { userId } }),
+    prisma.user.update({ where: { id: userId }, data: { twoFactorEnabled: false } }),
+    prisma.session.deleteMany({ where: { userId } }),
+  ]);
+  await audit(session.user.id, "USER_MFA_RESET", "User", userId, "TOTP cleared + sessions revoked (lockout recovery)");
+  await notify({
+    toUserId: userId,
+    subject: "Two-factor authentication reset",
+    body: "An administrator reset MFA on your account after a lockout. Sign in and re-enrol an authenticator from your Security page.",
+    href: "/",
+  });
+  revalidatePath(`/admin/users/${userId}`);
+}
