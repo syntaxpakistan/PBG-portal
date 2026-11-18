@@ -19,7 +19,6 @@ const PORTAL_HREF: Record<string, string> = {
 const LINKS = [
   { label: "Services", href: "/services" },
   { label: "Marketplace", href: "/marketplace" },
-  { label: "Seq Calculator", href: "/seq-calculator" },
   { label: "Partners", href: "/partners" },
   { label: "Pricing", href: "/#pricing" },
   { label: "Verified network", href: "/registry" },
@@ -80,7 +79,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   // mounted-gated so the bar can't flash for users who dismissed it
   const [promo, setPromo] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const portal = session ? PORTAL_HREF[(session.user as { role?: string }).role ?? "CUSTOMER"] ?? "/dashboard" : null;
 
   useEffect(() => {
@@ -170,7 +169,9 @@ export function Navbar() {
 
           <div className="flex items-center gap-2.5">
             <ThemeToggle onDark />
-            {portal ? (
+            {isPending ? (
+              <span className="hidden h-9 w-24 rounded-full sm:inline-flex" aria-hidden />
+            ) : portal ? (
               <Link href={portal} className="btn-secondary hidden !px-4 !py-2 text-[12.5px] sm:inline-flex">
                 Open portal
               </Link>
@@ -229,7 +230,9 @@ export function Navbar() {
                   </div>
                 ))}
                 <div className="mt-2 flex gap-2.5 border-t border-line pt-3">
-                  {portal ? (
+                  {isPending ? (
+                    <span className="h-10 flex-1" aria-hidden />
+                  ) : portal ? (
                     <Link href={portal} onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
                       Open portal
                     </Link>

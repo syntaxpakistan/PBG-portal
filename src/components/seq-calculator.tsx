@@ -72,7 +72,7 @@ export function SeqCalculator({ initial, cta }: { initial: EstInput; cta?: "rfq"
   };
 
   const shareUrl = () => {
-    const url = `${window.location.origin}/seq-calculator${encodeEst(inp)}`;
+    const url = `${window.location.origin}${window.location.pathname}${encodeEst(inp)}`;
     navigator.clipboard.writeText(url);
     window.history.replaceState(null, "", encodeEst(inp));
     setCopied(true);
