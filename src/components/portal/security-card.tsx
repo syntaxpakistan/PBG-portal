@@ -1,6 +1,6 @@
 import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { PageHead } from "@/components/portal/ui";
-import { MfaSetup, MfaManage } from "@/components/portal/mfa";
+import { MfaSetup, MfaManage, ChangePassword } from "@/components/portal/mfa";
 
 export function SecurityCard({ enabled, required, returnTo }: { enabled: boolean; required: boolean; returnTo: string }) {
   return (
@@ -27,6 +27,7 @@ export function SecurityCard({ enabled, required, returnTo }: { enabled: boolean
         </div>
         {enabled ? <MfaManage /> : <MfaSetup returnTo={returnTo} />}
       </div>
+      <ChangePassword />
       <p className="mt-4 text-[12.5px] text-body">
         Lost your authenticator and backup codes? Contact an administrator, they can reset MFA on your account from Users &amp; orgs.
       </p>

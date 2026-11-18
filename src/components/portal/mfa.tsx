@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, KeyRound, ShieldOff } from "lucide-react";
+import { Loader2, KeyRound, ShieldOff, LockKeyhole } from "lucide-react";
 import QRCode from "qrcode";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -139,6 +139,51 @@ export function MfaManage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function ChangePassword() {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (next.length < 12) { toast.error("New password must be at least 12 characters"); return; }
+    if (next !== confirm) { toast.error("New passwords don't match"); return; }
+    setLoading(true);
+    const { error } = await authClient.changePassword({
+      newPassword: next,
+      currentPassword: current,
+      revokeOtherSessions: true,
+    });
+    setLoading(false);
+    if (error) { toast.error(error.message ?? "Could not change password"); return; }
+    toast.success("Password updated. Other sessions were signed out.");
+    setCurrent(""); setNext(""); setConfirm("");
+  }
+
+  return (
+    <div className="card mt-6 p-6">
+      <div className="flex items-center gap-3">
+        <span className="grid size-10 place-items-center rounded-full bg-(--st-blue-bg,#eef3fb) text-blue"><LockKeyhole className="size-5" /></span>
+        <div>
+          <h2 className="text-[15px] font-semibold text-ink">Change password</h2>
+          <p className="text-[12.5px] text-body">Minimum 12 characters. Other sessions are signed out after a change.</p>
+        </div>
+      </div>
+      <form onSubmit={submit} className="mt-5 space-y-3 border-t border-line pt-5">
+        <input type="password" required autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} className={input} placeholder="Current password" />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input type="password" required minLength={12} autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} className={input} placeholder="New password (12+ characters)" />
+          <input type="password" required minLength={12} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={input} placeholder="Repeat new password" />
+        </div>
+        <button type="submit" disabled={loading} className="btn-secondary inline-flex items-center gap-2 !py-2.5">
+          {loading ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />} Update password
+        </button>
+      </form>
     </div>
   );
 }
