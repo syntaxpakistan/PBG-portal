@@ -3,6 +3,15 @@ import { hashPassword } from "better-auth/crypto";
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 
+// Demo-data seeder — creates users with well-known passwords (incl. an admin).
+// Local/dev only: refuses to run against a non-localhost database unless
+// SEED_PROD=1 is set explicitly.
+const dbUrl = process.env.DATABASE_URL ?? "";
+if (!/localhost|127\.0\.0\.1/.test(dbUrl) && process.env.SEED_PROD !== "1") {
+  console.error("Refusing to seed a non-local database (demo users carry known passwords). Set SEED_PROD=1 to override.");
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
 
 // human-readable refs via the shared RefSequence counter (mirrors src/lib/refs.ts)
