@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import {
-  ArrowRight, BadgeCheck, Boxes, Building2, CircleCheck, Cpu, Dna, Eye, FileText,
-  FlaskConical, GraduationCap, Handshake, Landmark, Lock, MessagesSquare, Microscope,
+  ArrowRight, BadgeCheck, Boxes, Building2, CircleCheck, Cpu, Crown, Dna, Eye, FileText,
+  FlaskConical, GraduationCap, Handshake, Landmark, Lock, MessagesSquare, Rocket, Sprout,
   PackageCheck, Search, ShieldCheck, Stethoscope, TestTubes, Timer, Users, Workflow,
 } from "lucide-react";
 import { PLANS, type PlanKey } from "@/lib/plans";
@@ -119,7 +119,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
       cta: "Join as a customer",
     },
     ...(["BASIC", "PRO", "CUSTOM"] as const).map((key) => ({
-      key, icon: key === "CUSTOM" ? Landmark : key === "PRO" ? Microscope : FlaskConical,
+      key, icon: key === "CUSTOM" ? Crown : key === "PRO" ? Rocket : Sprout,
       label: PLANS[key].label, tagline: PLANS[key].tagline,
       price: prices[key], popular: key === "PRO",
       duration: key === "BASIC" ? "1 year" : key === "PRO" ? "3 years" : "5 years",
@@ -393,15 +393,19 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                 </motion.div>
               );
             })()}
-            <motion.div variants={fadeUp} className="card overflow-hidden p-0">
-              <div className="grid divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <motion.div variants={fadeUp} className="flex flex-col rounded-2xl border border-navy/15 bg-navy p-4 sm:p-5">
+              <div className="flex items-center justify-between px-2 pb-4 pt-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">For partner labs &amp; suppliers</p>
+                <p className="text-[11px] font-medium text-yellow">50% launch discount applied</p>
+              </div>
+              <div className="grid flex-1 gap-4 sm:grid-cols-3">
                 {TIERS.slice(1).map((t) => (
                   <div
                     key={t.key}
-                    className={`relative flex flex-col p-7 ${t.popular ? "bg-blue/[0.04]" : ""}`}
+                    className={`card relative flex flex-col p-6 ${t.popular ? "ring-2 ring-yellow" : ""}`}
                   >
                     {t.popular && (
-                      <span className="absolute -top-0 left-6 rounded-b-lg bg-blue px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">
+                      <span className="absolute -top-2.5 left-5 rounded-full bg-yellow px-3 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-navy">
                         Most popular
                       </span>
                     )}
