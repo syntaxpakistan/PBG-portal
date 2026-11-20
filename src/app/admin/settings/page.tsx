@@ -172,6 +172,27 @@ export default async function SettingsPage() {
             .filter((g) => g.rows.length > 0);
           const rest = settings.filter((s) => !seen.has(s.key));
           if (rest.length) grouped.push({ title: "Other", match: () => true, rows: rest });
+          const planLabel: Record<string, string> = { basic: PLANS.BASIC.label, pro: PLANS.PRO.label, custom: PLANS.CUSTOM.label };
+          const labelFor = (k: string) => {
+            if (k.startsWith("plan_price_") || k.startsWith("plan_discount_")) {
+              const t = k.split("_").pop()!;
+              return planLabel[t] ? `${planLabel[t]} plan` : k;
+            }
+            const labels: Record<string, string> = {
+              payment_account_title: "Account title",
+              payment_bank_name: "Bank name",
+              payment_iban: "IBAN / account no.",
+              payment_instructions: "Payment instructions",
+              platform_fee_percent: "Fee percent",
+              grace_days: "Grace period (days)",
+              invoice_due_days: "Invoice due window (days)",
+              addon_analytics_price: "Analytics add-on price",
+              addon_analytics_discount: "Analytics add-on discount",
+              rfq_rate_limit: "RFQ rate limit",
+              enquiry_rate_limit: "Enquiry rate limit",
+            };
+            return labels[k] ?? k;
+          };
           const cols: typeof grouped[] = [[], []];
           grouped.forEach((g, i) => cols[i % 2].push(g));
           return (
@@ -186,7 +207,7 @@ export default async function SettingsPage() {
                         <div>
                           {g.rows.map((s) => (
                             <div key={s.key} className="flex justify-between gap-3 border-b border-line py-2 text-[12.5px] last:border-0">
-                              <code className="truncate text-muted">{s.key}</code>
+                              <span className="truncate text-muted" title={s.key}>{labelFor(s.key)}</span>
                               <span className="shrink-0 font-medium text-ink">{s.value || "—"}</span>
                             </div>
                           ))}
