@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { PromoPopup } from "@/components/promo-popup";
 import "./globals.css";
 
 const helixa = Inter({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-paper text-body">
         <Providers>{children}</Providers>
+        <PromoPopup />
       </body>
     </html>
   );
