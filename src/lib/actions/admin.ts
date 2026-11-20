@@ -174,6 +174,9 @@ export async function setPlatformSetting(key: string, value: string) {
   });
   await audit(session.user.id, "SETTING_UPDATED", "PlatformSetting", key, `${num}${def.suffix ? ` ${def.suffix}` : ""}`);
   revalidatePath("/admin/settings");
+  // pricing/discount/fee changes must show on the prerendered marketing pages too
+  revalidatePath("/");
+  revalidatePath("/biogateway");
 }
 
 // free-text settings, payment instructions shown on every invoice
