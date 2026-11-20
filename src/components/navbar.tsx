@@ -85,7 +85,9 @@ export function Navbar() {
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
-      if (localStorage.getItem(PROMO_KEY) !== "1") setPromo(true);
+      try {
+        if (localStorage.getItem(PROMO_KEY) !== "1") setPromo(true);
+      } catch {}
     });
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -101,7 +103,7 @@ export function Navbar() {
       {promo && (
         <PromoBar
           onDismiss={() => {
-            localStorage.setItem(PROMO_KEY, "1");
+            try { localStorage.setItem(PROMO_KEY, "1"); } catch {}
             setPromo(false);
           }}
         />

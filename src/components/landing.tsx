@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "motion/react";
+
 import {
   ArrowRight, BadgeCheck, Boxes, Building2, CircleCheck, Cpu, Crown, Dna, Eye, FileText,
   FlaskConical, GraduationCap, Handshake, Landmark, Lock, MessagesSquare, Rocket, Sprout,
@@ -11,7 +11,7 @@ import {
 import { PLANS, type PlanKey } from "@/lib/plans";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
-import { Reveal, Stagger, fadeUp } from "@/components/motion-primitives";
+import { Reveal, Stagger } from "@/components/motion-primitives";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { LeadForm } from "@/components/lead-form";
 
@@ -227,14 +227,14 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {HOW.map((s) => (
-              <motion.div key={s.step} variants={fadeUp} className="card-dark p-7">
+              <div key={s.step} className="card-dark p-7">
                 <div className="flex items-center justify-between">
                   <s.icon className="size-6 text-mint" />
                   <span className="font-mono text-[12px] text-[#5c7391]">{s.step}</span>
                 </div>
                 <h3 className="mt-5 text-[16px] font-semibold text-white">{s.title}</h3>
                 <p className="mt-2.5 text-[13.5px] leading-relaxed text-[#a2c1d7]">{s.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </Stagger>
         </div>
@@ -251,7 +251,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-5 md:grid-cols-2">
             {WHO.map((w) => (
-              <motion.div key={w.title} variants={fadeUp} className="card card-hover p-8">
+              <div key={w.title} className="card card-hover p-8">
                 <w.icon className="size-7 text-blue" />
                 <h3 className="mt-5 text-[18px] font-semibold text-ink">{w.title}</h3>
                 <p className="mt-2.5 text-[14px] leading-relaxed text-body">{w.desc}</p>
@@ -262,7 +262,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </div>
             ))}
           </Stagger>
         </div>
@@ -279,11 +279,11 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {WHY.map((f) => (
-              <motion.div key={f.title} variants={fadeUp} className="card card-hover p-7">
+              <div key={f.title} className="card card-hover p-7">
                 <f.icon className="size-6 text-blue" />
                 <h3 className="mt-4 text-[15.5px] font-semibold text-ink">{f.title}</h3>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-body">{f.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </Stagger>
         </div>
@@ -315,7 +315,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
           </Reveal>
           <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...EXCHANGE, ...EXCHANGE_EXTRA].map((c) => (
-              <motion.div key={c.title} variants={fadeUp} className="card-dark group flex flex-col overflow-hidden p-0 transition-colors hover:border-white/25">
+              <div key={c.title} className="card-dark group flex flex-col overflow-hidden p-0 transition-colors hover:border-white/25">
                 <Link href={c.href ?? "/marketplace"} className="flex flex-1 flex-col">
                   <div className="relative h-36 w-full">
                     <Image src={c.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
@@ -332,7 +332,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                     )}
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </Stagger>
         </div>
@@ -370,7 +370,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
             {(() => {
               const t = TIERS[0];
               return (
-                <motion.div key={t.key} variants={fadeUp} className="card card-hover relative flex flex-col p-7">
+                <div key={t.key} className="card card-hover relative flex flex-col p-7">
                   <t.icon className="size-7 text-blue" />
                   <h3 className="mt-3 text-[17px] font-semibold text-ink">{t.label}</h3>
                   <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
@@ -390,10 +390,10 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                   >
                     {t.cta}
                   </Link>
-                </motion.div>
+                </div>
               );
             })()}
-            <motion.div variants={fadeUp} className="flex flex-col rounded-2xl border border-navy/15 bg-navy p-4 sm:p-5">
+            <div className="flex flex-col rounded-2xl border border-navy/15 bg-navy p-4 sm:p-5">
               <div className="flex items-center justify-between px-2 pb-4 pt-1">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a2c1d7]">For partner labs &amp; suppliers</p>
                 <p className="text-[11px] font-medium text-yellow">50% launch discount applied</p>
@@ -439,7 +439,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </Stagger>
           <Reveal className="mt-8">
             <p className="text-center text-[12.5px] text-muted">

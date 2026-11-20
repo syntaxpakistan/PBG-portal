@@ -1,18 +1,29 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView, type Variants } from "motion/react";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { animate, motion, useInView, useMotionValue, useTransform } from "motion/react";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
-export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: easeOut, delay: i * 0.09 },
-  }),
-};
+// SSR-safe reveal: the hidden state (.rv) is only ever added by this component
+// after hydration, so pre-JS / no-JS / crashed-JS renders always show content.
+function observeAndReveal(el: HTMLElement, targets: HTMLElement[], margin: string) {
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach((t) => t.classList.remove("rv"));
+    return () => {};
+  }
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        targets.forEach((t) => t.classList.add("in"));
+        io.disconnect();
+      }
+    },
+    { rootMargin: margin, threshold: 0.01 }
+  );
+  io.observe(el);
+  return () => io.disconnect();
+}
 
 export function Reveal({
   children,
@@ -23,17 +34,20 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transitionDelay = `${delay * 90}ms`;
+    el.classList.add("rv");
+    return observeAndReveal(el, [el], "0px 0px -80px 0px");
+  }, [delay]);
+
   return (
-    <motion.div
-      className={className}
-      variants={fadeUp}
-      custom={delay}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -44,16 +58,23 @@ export function Stagger({
   children: React.ReactNode;
   className?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const kids = Array.from(el.children) as HTMLElement[];
+    kids.forEach((k, i) => {
+      k.style.transitionDelay = `${i * 90}ms`;
+      k.classList.add("rv");
+    });
+    return observeAndReveal(el, kids, "0px 0px -60px 0px");
+  }, []);
+
   return (
-    <motion.div
-      className={className}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ staggerChildren: 0.09 }}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -80,15 +101,12 @@ export function AnimatedCounter({
           <CounterInner target={value} />
         </motion.span>
       ) : (
-        <span>0</span>
+        <span>{value.toLocaleString()}</span>
       )}
       {suffix}
     </span>
   );
 }
-
-import { animate, useMotionValue, useTransform } from "motion/react";
-import { useEffect } from "react";
 
 function CounterInner({ target }: { target: number }) {
   const mv = useMotionValue(0);

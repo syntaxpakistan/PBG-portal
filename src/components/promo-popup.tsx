@@ -8,6 +8,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { X, ArrowRight } from "lucide-react";
 
 const SEEN_KEY = "pbg-launch-promo-seen";
+const store = {
+  get: () => { try { return sessionStorage.getItem(SEEN_KEY); } catch { return null; } },
+  set: () => { try { sessionStorage.setItem(SEEN_KEY, "1"); } catch {} },
+};
 const PUBLIC_ROUTES = new Set([
   "/",
   "/services",
@@ -25,7 +29,7 @@ export function PromoPopup() {
 
   useEffect(() => {
     if (!PUBLIC_ROUTES.has(pathname)) return;
-    if (sessionStorage.getItem(SEEN_KEY)) return;
+    if (store.get()) return;
     const t = setTimeout(() => setOpen(true), 1200);
     return () => clearTimeout(t);
   }, [pathname]);
@@ -42,7 +46,7 @@ export function PromoPopup() {
   }, [open]);
 
   const close = () => {
-    sessionStorage.setItem(SEEN_KEY, "1");
+    store.set();
     setOpen(false);
   };
 
