@@ -89,6 +89,30 @@ body {
   overflow-x: clip;
 }
 
+/* JS-free mobile menu: the checkbox toggle works even where the JS bundle
+   can't run (e.g. iOS <16.4 Safari, which can't parse class static blocks) */
+.mnav-sheet,
+.mnav-backdrop,
+.mnav-x {
+  display: none;
+}
+#mnav:checked ~ nav .mnav-x {
+  display: block;
+}
+#mnav:checked ~ nav .mnav-burger {
+  display: none;
+}
+#mnav:checked ~ .mnav-backdrop,
+#mnav:checked ~ .mnav-sheet {
+  display: block;
+}
+#mnav:checked ~ nav .mnav-bg {
+  background: color-mix(in srgb, var(--color-navy) 95%, transparent);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 40px -18px rgba(1, 33, 60, 0.35);
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-body);

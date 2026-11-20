@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
+
 import { ArrowRight, ChevronDown, Cpu, Dna, Menu, TestTubes, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -74,20 +74,18 @@ function PromoBar({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+const closeMobileMenu = () => {
+  const c = document.getElementById("mnav") as HTMLInputElement | null;
+  if (c) c.checked = false;
+};
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   // mounted-gated so the bar can't flash for users who dismissed it
   const [promo, setPromo] = useState(false);
   const { data: session, isPending, error } = useSession();
   const sessionReady = !isPending || !!error;
   const portal = session ? PORTAL_HREF[(session.user as { role?: string }).role ?? "CUSTOMER"] ?? "/dashboard" : null;
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
@@ -115,14 +113,17 @@ export function Navbar() {
         />
       )}
       <div className={cn("container-x pt-3 transition-all duration-500", scrolled ? "max-w-[1100px]" : "max-w-[1200px]")}>
+        {/* checkbox hack: the mobile menu toggles with zero JS, so it works
+            even where the bundle can't run (iOS <16.4 Safari) */}
+        <input type="checkbox" id="mnav" className="hidden" aria-hidden="true" />
         <nav className="relative flex h-[68px] items-center justify-between gap-4 rounded-full px-5">
           {/* backdrop blur lives on a non-interactive layer — iOS Safari can
               drop taps on children of a backdrop-filter element */}
           <div
             aria-hidden
             className={cn(
-              "absolute inset-0 rounded-full transition-all duration-500",
-              scrolled || mobileOpen ? "bg-navy/95 shadow-xl shadow-navy/20 backdrop-blur-xl" : "bg-navy-2/40 backdrop-blur-md"
+              "mnav-bg absolute inset-0 rounded-full transition-all duration-500",
+              scrolled ? "bg-navy/95 shadow-xl shadow-navy/20 backdrop-blur-xl" : "bg-navy-2/40 backdrop-blur-md"
             )}
           />
           <Link href="/" className="relative z-10 flex items-center" aria-label="Pakistan Biotechnology Gateway home">
@@ -198,79 +199,63 @@ export function Navbar() {
                 </Link>
               </>
             )}
-            <button
-              type="button"
-              onClick={() => setMobileOpen((o) => !o)}
+            <label
+              htmlFor="mnav"
               aria-label="Toggle menu"
-              aria-expanded={mobileOpen}
-              className="relative z-10 grid size-9 touch-manipulation place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white xl:hidden"
+              className="relative z-10 grid size-9 cursor-pointer touch-manipulation place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white xl:hidden"
             >
-              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-            </button>
+              <Menu className="mnav-burger size-5" />
+              <X className="mnav-x size-5" />
+            </label>
           </div>
         </nav>
 
-        <AnimatePresence>
-          {mobileOpen && (
-            <>
-            {/* iOS Safari can drop taps inside backdrop-filter containers —
-                render the sheet outside the blurred nav, above the hero */}
-            <div className="fixed inset-0 z-[55] bg-navy/60 xl:hidden" onClick={() => setMobileOpen(false)} />
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-4 top-[108px] z-[60] mt-2 overflow-hidden xl:hidden"
-            >
-              <div className="rounded-2xl border border-line bg-surface p-3 shadow-2xl shadow-navy/25">
-                {LINKS.map((l) => (
-                  <div key={l.href}>
+        {/* tapping the backdrop label unchecks #mnav — no JS needed */}
+        <label htmlFor="mnav" className="mnav-backdrop fixed inset-0 z-[55] bg-navy/60 xl:hidden" aria-hidden="true" />
+        <div className="mnav-sheet fixed inset-x-4 top-[108px] z-[60] mt-2 xl:hidden">
+          <div className="rounded-2xl border border-line bg-surface p-3 shadow-2xl shadow-navy/25">
+            {LINKS.map((l) => (
+              <div key={l.href}>
+                <Link
+                  href={l.href}
+                  onClick={closeMobileMenu}
+                  className="flex items-center justify-between rounded-lg px-3 py-3 text-[14.5px] font-medium text-ink hover:bg-paper-2"
+                >
+                  {l.label}
+                  <ArrowRight className="size-4 text-muted" />
+                </Link>
+                {l.label === "Services" &&
+                  SERVICE_SUBLINKS.map((s) => (
                     <Link
-                      href={l.href}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-between rounded-lg px-3 py-3 text-[14.5px] font-medium text-ink hover:bg-paper-2"
+                      key={s.href}
+                      href={s.href}
+                      onClick={closeMobileMenu}
+                      className="flex items-center justify-between rounded-lg py-2.5 pl-8 pr-3 text-[13px] font-medium text-body hover:bg-paper-2"
                     >
-                      {l.label}
-                      <ArrowRight className="size-4 text-muted" />
+                      {s.label}
+                      <ArrowRight className="size-3.5 text-muted" />
                     </Link>
-                    {l.label === "Services" &&
-                      SERVICE_SUBLINKS.map((s) => (
-                        <Link
-                          key={s.href}
-                          href={s.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="flex items-center justify-between rounded-lg py-2.5 pl-8 pr-3 text-[13px] font-medium text-body hover:bg-paper-2"
-                        >
-                          {s.label}
-                          <ArrowRight className="size-3.5 text-muted" />
-                        </Link>
-                      ))}
-                  </div>
-                ))}
-                <div className="mt-2 flex gap-2.5 border-t border-line pt-3">
-                  {!sessionReady ? (
-                    <span className="h-10 flex-1" aria-hidden />
-                  ) : portal ? (
-                    <Link href={portal} onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
-                      Open portal
-                    </Link>
-                  ) : (
-                    <>
-                      <Link href="/login" onClick={() => setMobileOpen(false)} className="btn-ghost flex-1 justify-center !py-2.5">
-                        Sign in
-                      </Link>
-                      <Link href="/biogateway" onClick={() => setMobileOpen(false)} className="btn-secondary flex-1 justify-center !py-2.5">
-                        Join the Gateway
-                      </Link>
-                    </>
-                  )}
-                </div>
+                  ))}
               </div>
-            </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+            ))}
+            <div className="mt-2 flex gap-2.5 border-t border-line pt-3">
+              {portal ? (
+                <Link href={portal} onClick={closeMobileMenu} className="btn-secondary flex-1 justify-center !py-2.5">
+                  Open portal
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" onClick={closeMobileMenu} className="btn-ghost flex-1 justify-center !py-2.5">
+                    Sign in
+                  </Link>
+                  <Link href="/biogateway" onClick={closeMobileMenu} className="btn-secondary flex-1 justify-center !py-2.5">
+                    Join the Gateway
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
