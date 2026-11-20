@@ -156,19 +156,49 @@ export default async function SettingsPage() {
 
         </div>
 
-        {settings.length > 0 && (
-          <div className="card p-5 md:col-span-2">
-            <h3 className="mb-3 text-[13px] font-semibold text-ink">All settings</h3>
-            <div className="grid gap-x-8 sm:grid-cols-2">
-              {settings.map((s) => (
-                <div key={s.key} className="flex justify-between gap-3 border-b border-line py-2 text-[12.5px] last:border-0">
-                  <code className="truncate text-muted">{s.key}</code>
-                  <span className="shrink-0 font-medium text-ink">{s.value}</span>
-                </div>
-              ))}
+        {settings.length > 0 && (() => {
+          const groups: { title: string; match: (k: string) => boolean }[] = [
+            { title: "Bank & payment details", match: (k) => k.startsWith("payment_") },
+            { title: "Plan prices", match: (k) => k.startsWith("plan_price_") },
+            { title: "Plan discounts", match: (k) => k.startsWith("plan_discount_") },
+            { title: "Add-ons", match: (k) => k.startsWith("addon_") },
+            { title: "Platform fee", match: (k) => k.startsWith("platform_fee") },
+            { title: "Billing terms", match: (k) => k === "grace_days" || k === "invoice_due_days" },
+            { title: "Rate limits", match: (k) => k.includes("rate_limit") },
+          ];
+          const seen = new Set<string>();
+          const grouped = groups
+            .map((g) => ({ ...g, rows: settings.filter((s) => g.match(s.key) && !seen.has(s.key) && seen.add(s.key)) }))
+            .filter((g) => g.rows.length > 0);
+          const rest = settings.filter((s) => !seen.has(s.key));
+          if (rest.length) grouped.push({ title: "Other", match: () => true, rows: rest });
+          const cols: typeof grouped[] = [[], []];
+          grouped.forEach((g, i) => cols[i % 2].push(g));
+          return (
+            <div className="card p-5 md:col-span-2">
+              <h3 className="mb-4 text-[13px] font-semibold text-ink">All settings</h3>
+              <div className="grid items-start gap-x-8 gap-y-5 sm:grid-cols-2">
+                {cols.map((col, ci) => (
+                  <div key={ci} className="space-y-5">
+                    {col.map((g) => (
+                      <div key={g.title}>
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">{g.title}</div>
+                        <div>
+                          {g.rows.map((s) => (
+                            <div key={s.key} className="flex justify-between gap-3 border-b border-line py-2 text-[12.5px] last:border-0">
+                              <code className="truncate text-muted">{s.key}</code>
+                              <span className="shrink-0 font-medium text-ink">{s.value || "—"}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
