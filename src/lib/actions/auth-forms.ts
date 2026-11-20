@@ -4,6 +4,8 @@ import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { PLANS } from "@/lib/plans";
+import { getSession } from "@/lib/session";
+import { grantReauth } from "@/lib/reauth";
 import { createOrgProfileFor } from "./onboarding";
 
 const DEST: Record<string, string> = {
@@ -124,6 +126,28 @@ export async function loginAction(formData: FormData) {
   const resp = res.response as { twoFactorRedirect?: boolean; user?: { role?: string } };
   if (resp.twoFactorRedirect) redirect("/verify-2fa");
   redirect(DEST[resp.user?.role ?? "CUSTOMER"] ?? "/dashboard");
+}
+
+/** Password re-confirmation before opening sensitive settings pages.
+    Issues a short-lived signed cookie; the page checks it server-side. */
+export async function reauthAction(formData: FormData) {
+  const raw = String(formData.get("returnTo") ?? "/");
+  const safe = raw.startsWith("/") && !raw.startsWith("//") ? raw.split("?")[0] : "/";
+  const password = String(formData.get("password") ?? "");
+
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  try {
+    await auth.api.signInEmail({
+      body: { email: session.user.email, password },
+      headers: await headers(),
+    });
+  } catch {
+    redirect(`${safe}?reauth=wrong`);
+  }
+  await grantReauth(session.user.id);
+  redirect(safe);
 }
 
 export async function forgotAction(formData: FormData) {

@@ -6,10 +6,18 @@ import { SettingForm } from "./setting-form";
 import { TextSettingForm } from "./text-setting-form";
 import { getFeePercent, getAllPlanPricing, getAnalyticsAddonPricing, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions } from "@/lib/settings";
 import { PLANS, type PlanKey } from "@/lib/plans";
+import { requireRole } from "@/lib/session";
+import { ReauthGate } from "@/components/portal/reauth-gate";
+import { hasFreshReauth } from "@/lib/reauth";
 
 const FEE_KEY = "platform_fee_percent";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ reauth?: string }> }) {
+  const session = await requireRole("ADMIN");
+  if (!(await hasFreshReauth(session.user.id))) {
+    const sp = await searchParams;
+    return <ReauthGate returnTo="/admin/settings" error={sp.reauth === "wrong"} />;
+  }
   const [fee, planPricing, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings, addonPricing] = await Promise.all([
     getFeePercent(),
     getAllPlanPricing(),
