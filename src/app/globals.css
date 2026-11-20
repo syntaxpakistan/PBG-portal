@@ -82,9 +82,11 @@
   --st-gold: #f0c94e;
 }
 
+/* clip, not hidden: overflow-x:hidden makes body a scroll container on iOS
+   Safari, desyncing tap hit-testing on fixed elements like the header */
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
