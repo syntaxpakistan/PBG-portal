@@ -9,14 +9,17 @@ const items = [
   { href: "/supplier/products", label: "Products", icon: <Package className="size-4" /> },
   { href: "/supplier/enquiries", label: "Enquiries", icon: <Inbox className="size-4" /> },
   { href: "/supplier/orders", label: "Orders", icon: <Truck className="size-4" /> },
-  { href: "/supplier/profile", label: "Profile", icon: <Building2 className="size-4" /> },
   { href: "/supplier/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/supplier/complaints", label: "Complaints", icon: <MessageSquareWarning className="size-4" /> },
   { href: "/supplier/billing", label: "Billing", icon: <Wallet className="size-4" /> },
+];
+
+const gearItems = [
+  { href: "/supplier/profile", label: "Profile", icon: <Building2 className="size-4" /> },
   { href: "/supplier/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
 
 export default async function SupplierLayout({ children }: { children: React.ReactNode }) {
   await requireRole("SUPPLIER");
-  return <PortalShell title="Supplier portal" items={items}>{children}</PortalShell>;
+  return <PortalShell title="Supplier portal" items={items} gearItems={gearItems}>{children}</PortalShell>;
 }

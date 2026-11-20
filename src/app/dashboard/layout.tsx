@@ -20,6 +20,9 @@ const items = [
   { href: "/dashboard/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/dashboard/complaints", label: "Complaints", icon: <Flag className="size-4" /> },
   { href: "/dashboard/billing", label: "Billing", icon: <Wallet className="size-4" /> },
+];
+
+const gearItems = [
   { href: "/dashboard/profile", label: "Profile", icon: <UserRound className="size-4" /> },
   { href: "/dashboard/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
@@ -30,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (profile?.status !== "APPROVED") {
     return (
-      <PortalShell title="Client portal" items={items}>
+      <PortalShell title="Client portal" items={items} gearItems={gearItems}>
         <div className="mx-auto mt-16 max-w-md">
           <div className="card p-8 text-center">
             <span className="mx-auto grid size-12 place-items-center rounded-full bg-(--st-amber-bg) text-(--st-amber-fg)"><Clock3 className="size-6" /></span>
@@ -50,5 +53,5 @@ export default async function DashboardLayout({ children }: { children: React.Re
     );
   }
 
-  return <PortalShell title="Client portal" items={items}>{children}</PortalShell>;
+  return <PortalShell title="Client portal" items={items} gearItems={gearItems}>{children}</PortalShell>;
 }

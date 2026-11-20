@@ -17,6 +17,9 @@ const items = [
   { href: "/lab/analytics", label: "Analytics", icon: <BarChart3 className="size-4" /> },
   { href: "/lab/complaints", label: "Complaints", icon: <Flag className="size-4" /> },
   { href: "/lab/billing", label: "Billing", icon: <Wallet className="size-4" /> },
+];
+
+const gearItems = [
   { href: "/lab/profile", label: "Profile", icon: <UserRound className="size-4" /> },
   { href: "/lab/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
@@ -27,7 +30,7 @@ export default async function LabLayout({ children }: { children: React.ReactNod
   const graceSetting = await getGraceDays();
   const graceDays = access.daysLeft != null ? Math.max(0, access.daysLeft + graceSetting) : 0;
   return (
-    <PortalShell title="Laboratory portal" items={items}>
+    <PortalShell title="Laboratory portal" items={items} gearItems={gearItems}>
       {!access.active && access.hasSubscription && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--st-red-bd) bg-(--st-red-bg) px-4 py-3 text-[13px] font-medium text-(--st-red-fg)">
           <span>
