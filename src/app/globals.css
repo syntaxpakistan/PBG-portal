@@ -113,6 +113,67 @@ body {
   box-shadow: 0 20px 40px -18px rgba(1, 33, 60, 0.35);
 }
 
+/* JS-free join form: hidden radios open matching sections via sibling rules.
+   (works on iOS <16.4 where the bundle can't run) */
+.jf-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.jf-plans,
+.jf-form,
+.jf-customer,
+.jf-provider,
+.jf-supplier,
+.jf-org-note,
+.jf-customer-note,
+.jf-check {
+  display: none;
+}
+.jf-radio#jf-r-customer:checked ~ .jf-form,
+.jf-radio#jf-r-provider:checked ~ .jf-form,
+.jf-radio#jf-r-supplier:checked ~ .jf-form,
+.jf-radio#jf-r-provider:checked ~ .jf-plans,
+.jf-radio#jf-r-supplier:checked ~ .jf-plans,
+.jf-radio#jf-r-customer:checked ~ .jf-form .jf-customer,
+.jf-radio#jf-r-customer:checked ~ .jf-form .jf-customer-note,
+.jf-radio#jf-r-provider:checked ~ .jf-form .jf-provider,
+.jf-radio#jf-r-supplier:checked ~ .jf-form .jf-supplier,
+.jf-radio#jf-r-provider:checked ~ .jf-form .jf-org-note,
+.jf-radio#jf-r-supplier:checked ~ .jf-form .jf-org-note {
+  display: block;
+}
+
+.jf-radio#jf-r-customer:checked ~ .jf-roles label[for="jf-r-customer"],
+.jf-radio#jf-r-provider:checked ~ .jf-roles label[for="jf-r-provider"],
+.jf-radio#jf-r-supplier:checked ~ .jf-roles label[for="jf-r-supplier"],
+.jf-radio#jf-p-basic:checked ~ .jf-plans label[for="jf-p-basic"],
+.jf-radio#jf-p-pro:checked ~ .jf-plans label[for="jf-p-pro"],
+.jf-radio#jf-p-custom:checked ~ .jf-plans label[for="jf-p-custom"] {
+  border-color: var(--color-navy);
+  box-shadow: 0 0 0 1px var(--color-navy), 0 14px 34px -14px rgba(4, 53, 97, 0.35);
+}
+.jf-radio#jf-r-customer:checked ~ .jf-roles label[for="jf-r-customer"] .jf-check,
+.jf-radio#jf-r-provider:checked ~ .jf-roles label[for="jf-r-provider"] .jf-check,
+.jf-radio#jf-r-supplier:checked ~ .jf-roles label[for="jf-r-supplier"] .jf-check,
+.jf-radio#jf-p-basic:checked ~ .jf-plans label[for="jf-p-basic"] .jf-check,
+.jf-radio#jf-p-pro:checked ~ .jf-plans label[for="jf-p-pro"] .jf-check,
+.jf-radio#jf-p-custom:checked ~ .jf-plans label[for="jf-p-custom"] .jf-check {
+  display: block;
+}
+.dark .jf-radio#jf-r-customer:checked ~ .jf-roles label[for="jf-r-customer"],
+.dark .jf-radio#jf-r-provider:checked ~ .jf-roles label[for="jf-r-provider"],
+.dark .jf-radio#jf-r-supplier:checked ~ .jf-roles label[for="jf-r-supplier"],
+.dark .jf-radio#jf-p-basic:checked ~ .jf-plans label[for="jf-p-basic"],
+.dark .jf-radio#jf-p-pro:checked ~ .jf-plans label[for="jf-p-pro"],
+.dark .jf-radio#jf-p-custom:checked ~ .jf-plans label[for="jf-p-custom"] {
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-body);

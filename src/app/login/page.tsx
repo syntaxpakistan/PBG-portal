@@ -1,46 +1,11 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { TriangleAlert } from "lucide-react";
+import { loginAction } from "@/lib/actions/auth-forms";
 import { GoogleButton } from "@/components/google-button";
-import { toast } from "sonner";
 
-const ROLE_DEST: Record<string, string> = {
-  ADMIN: "/admin",
-  PROVIDER: "/lab",
-  SUPPLIER: "/supplier",
-  CUSTOMER: "/dashboard",
-};
-
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { data, error } = await authClient.signIn.email({ email, password });
-    if (error) {
-      setLoading(false);
-      toast.error(error.message ?? "Invalid credentials");
-      return;
-    }
-    // admins with MFA enrolled get a 2FA redirect before a session exists
-    if ((data as { twoFactorRedirect?: boolean })?.twoFactorRedirect) {
-      router.push("/verify-2fa");
-      return;
-    }
-    setLoading(false);
-    const role = (data?.user as { role?: string })?.role ?? "CUSTOMER";
-    router.push(ROLE_DEST[role] ?? "/dashboard");
-    router.refresh();
-  }
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
 
   return (
     <main className="relative grid min-h-screen lg:grid-cols-2">
@@ -73,7 +38,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* right form */}
+      {/* right form — native POST to a server action, works without JS */}
       <div className="flex items-center justify-center bg-paper px-6 py-16">
         <div className="w-full max-w-sm">
           <Link href="/" className="mb-8 inline-block lg:hidden">
@@ -82,11 +47,17 @@ export default function LoginPage() {
           <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Sign in to your portal</h2>
           <p className="mt-2 text-[13.5px] text-body">Customer, lab or supplier, one account.</p>
 
-          <form onSubmit={onSubmit} className="mt-8 space-y-4">
+          {error && (
+            <p className="mt-4 flex items-start gap-2 rounded-lg border border-(--st-red-bd) bg-(--st-red-bg) px-3.5 py-2.5 text-[12.5px] text-(--st-red-fg)">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" /> {error}
+            </p>
+          )}
+
+          <form action={loginAction} className="mt-8 space-y-4">
             <div>
               <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Email</label>
               <input
-                type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                name="email" type="email" required autoComplete="email"
                 className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3"
                 placeholder="you@lab.edu.pk"
               />
@@ -97,14 +68,12 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className="mb-1.5 text-[12px] font-medium text-blue hover:text-ink">Forgot?</Link>
               </div>
               <input
-                type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
+                name="password" type="password" required autoComplete="current-password"
                 className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-[14px] text-ink outline-none transition-colors focus:border-navy-3"
                 placeholder="••••••••"
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-secondary w-full justify-center !py-3">
-              {loading ? <Loader2 className="size-4 animate-spin" /> : "Sign in"}
-            </button>
+            <button type="submit" className="btn-secondary w-full justify-center !py-3">Sign in</button>
           </form>
 
           <GoogleButton />
