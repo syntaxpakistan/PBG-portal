@@ -32,16 +32,16 @@ async function forwardCookies(resHeaders: Headers) {
   }
 }
 
-const err = (e: unknown, fallback: string) => {
-  const m = (e as { body?: { message?: string }; message?: string })?.body?.message ?? (e as Error)?.message ?? fallback;
-  return encodeURIComponent(m);
-};
+const err = (e: unknown, fallback: string) =>
+  (e as { body?: { message?: string }; message?: string })?.body?.message ?? (e as Error)?.message ?? fallback;
 
 export async function joinAction(formData: FormData) {
   const role = String(formData.get("role") ?? "");
-  if (!["CUSTOMER", "PROVIDER", "SUPPLIER"].includes(role)) redirect("/biogateway?error=Choose+how+you+will+use+the+Gateway");
   const plan = String(formData.get("plan") ?? "");
-  if (role !== "CUSTOMER" && !(plan in PLANS)) redirect("/biogateway?error=Please+choose+a+plan");
+  const backTo = (errMsg: string) =>
+    `/biogateway?role=${role}&plan=${plan}&error=${encodeURIComponent(errMsg)}`;
+  if (!["CUSTOMER", "PROVIDER", "SUPPLIER"].includes(role)) redirect("/biogateway?error=Choose+how+you+will+use+the+Gateway");
+  if (role !== "CUSTOMER" && !(plan in PLANS)) redirect(backTo("Please choose a plan"));
 
   const str = (k: string) => {
     const v = formData.get(k);
@@ -51,7 +51,7 @@ export async function joinAction(formData: FormData) {
   const email = str("email") ?? "";
   const password = str("password") ?? "";
   if (role !== "CUSTOMER" && (!str("orgName") || !str("city"))) {
-    redirect("/biogateway?error=Organization+name+and+city+are+required");
+    redirect(backTo("Organization name and city are required"));
   }
 
   let res;
@@ -62,7 +62,7 @@ export async function joinAction(formData: FormData) {
       returnHeaders: true,
     });
   } catch (e) {
-    redirect(`/biogateway?error=${err(e, "Could not create account")}`);
+    redirect(backTo(err(e, "Could not create account")));
   }
 
   const userId = (res.response as { user?: { id?: string } })?.user?.id;
@@ -90,7 +90,7 @@ export async function joinAction(formData: FormData) {
         plan: plan || undefined,
       });
     } catch (e) {
-      redirect(`/biogateway?error=${err(e, "Account created but profile setup failed, please sign in")}`);
+      redirect(backTo(err(e, "Account created but profile setup failed, please sign in")));
     }
   }
 
@@ -110,7 +110,7 @@ export async function loginAction(formData: FormData) {
       returnHeaders: true,
     });
   } catch (e) {
-    redirect(`/login?error=${err(e, "Invalid email or password")}`);
+    redirect(`/login?error=${encodeURIComponent(err(e, "Invalid email or password"))}`);
   }
 
   await forwardCookies(res.headers);
