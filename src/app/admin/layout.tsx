@@ -20,9 +20,6 @@ const items = [
   { href: "/admin/leads", label: "Leads", icon: <Inbox className="size-4" />, key: "leads" },
   { href: "/admin/complaints", label: "Complaints", icon: <Flag className="size-4" />, key: "complaints" },
   { href: "/admin/audit", label: "Audit log", icon: <ScrollText className="size-4" /> },
-];
-
-const gearItems = [
   { href: "/admin/settings", label: "Settings", icon: <Settings className="size-4" /> },
   { href: "/admin/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
@@ -41,5 +38,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     verify, moderation: modRfqs + modListings, finance: payments, leads, complaints,
   };
   const badgedItems = items.map((it) => ("key" in it ? { ...it, badge: badges[it.key as string] } : it));
-  return <PortalShell title="Gateway admin" items={badgedItems} gearItems={gearItems}>{children}</PortalShell>;
+  return <PortalShell title="Gateway admin" items={badgedItems}>{children}</PortalShell>;
 }

@@ -10,19 +10,16 @@ import { NotificationsBell } from "./notifications-bell";
 import { SideNav, type NavItem } from "./side-nav";
 import { SignOutButton } from "./signout";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { GearMenu } from "./gear-menu";
 
 export function PortalMobileNav({
   title,
   items,
-  gearItems,
   unread,
   name,
   email,
 }: {
   title: string;
   items: NavItem[];
-  gearItems?: NavItem[];
   unread: number;
   name?: string | null;
   email: string;
@@ -97,10 +94,7 @@ export function PortalMobileNav({
                 </div>
                 <div className="flex items-center justify-between">
                   <SignOutButton />
-                  <div className="flex items-center gap-1">
-                    {gearItems && gearItems.length > 0 && <GearMenu items={gearItems} />}
-                    <ThemeToggle onDark />
-                  </div>
+                  <ThemeToggle onDark />
                 </div>
               </div>
             </motion.aside>

@@ -35,6 +35,12 @@ export async function createOrgProfile(input: {
   if (!session || session.user.id !== input.userId || (session.user as { role?: string }).role !== input.role) {
     throw new Error("Unauthorized");
   }
+  return createOrgProfileFor(input);
+}
+
+/** Session-free core — joinAction calls this right after signUpEmail,
+    before the fresh session cookie is visible to getSession() */
+export async function createOrgProfileFor(input: Parameters<typeof createOrgProfile>[0]) {
   const planKey = (input.plan && input.plan in PLANS ? input.plan : "BASIC") as PlanKey;
   const pricing = await getPlanPricing(planKey);
   const planPrice = pricing.final;

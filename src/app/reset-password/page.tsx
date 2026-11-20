@@ -2,8 +2,8 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { BrandLogo } from "@/components/brand-logo";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-block">
-          <BrandLogo className="h-16 w-auto" />
+          <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
         </Link>
         <Suspense fallback={<div className="text-center text-[13px] text-muted">Loading…</div>}>
           <ResetForm />
