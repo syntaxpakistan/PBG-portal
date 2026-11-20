@@ -11,6 +11,7 @@ import {
 import { PLANS, type PlanKey } from "@/lib/plans";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { BgVideo } from "@/components/bg-video";
 import { Reveal, Stagger } from "@/components/motion-primitives";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { LeadForm } from "@/components/lead-form";
@@ -135,16 +136,11 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy pb-24 pt-40 sm:pt-44">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
+        <BgVideo
+          src="/media/hero-dna.mp4"
           poster="/media/hero-dna-poster.webp"
           className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
-        >
-          <source src="/media/hero-dna.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/75 via-navy/55 to-navy" />
         <div className="grid-lines on-dark absolute inset-0" />
         <div className="glow-orb right-[-120px] top-[-120px] size-[420px] bg-mint/15" />
