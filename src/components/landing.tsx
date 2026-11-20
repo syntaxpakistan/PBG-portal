@@ -137,7 +137,8 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-navy pb-24 pt-40 sm:pt-44">
         <BgVideo
-          src="/media/hero-dna-anim.webp"
+          src="/media/hero-dna.mp4"
+          poster="/media/hero-dna-poster.webp"
           className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/75 via-navy/55 to-navy" />
