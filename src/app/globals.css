@@ -241,6 +241,15 @@ body {
 .portal-content .card {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+/* iOS Safari only fires :active/:hover on elements it considers
+   tappable — cursor:pointer is the JS-free way to qualify */
+@media (hover: none) {
+  .card,
+  .card-hover,
+  .card-glow {
+    cursor: pointer;
+  }
+}
 .card-glow:hover,
 .portal-content .card:hover,
 .card-glow:active,

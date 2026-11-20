@@ -46,7 +46,7 @@ export function MfaSetup({ returnTo = "/" }: { returnTo?: string }) {
       <form onSubmit={enable} className="mt-6 border-t border-line pt-5">
         <label className="mb-1.5 block text-[12.5px] font-medium text-ink">Confirm your password to begin</label>
         <div className="flex gap-3">
-          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder="••••••••" />
+          <input type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder="••••••••" />
           <button type="submit" disabled={loading} className="btn-secondary shrink-0 !py-2.5">
             {loading ? <Loader2 className="size-4 animate-spin" /> : "Set up MFA"}
           </button>
@@ -125,7 +125,7 @@ export function MfaManage() {
   return (
     <div className="mt-6 border-t border-line pt-5">
       <form onSubmit={submit} className="flex gap-3">
-        <input type="password" required autoFocus value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder="Confirm your password" />
+        <input type="password" required autoFocus autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={input} placeholder="Confirm your password" />
         <button type="submit" disabled={loading} className="btn-secondary shrink-0 !py-2.5">
           {loading ? <Loader2 className="size-4 animate-spin" /> : action === "codes" ? "Generate" : "Disable"}
         </button>

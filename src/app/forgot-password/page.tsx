@@ -1,3 +1,5 @@
+export const instant = false
+
 import Link from "next/link";
 import Image from "next/image";
 import { forgotAction } from "@/lib/actions/auth-forms";
