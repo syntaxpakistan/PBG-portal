@@ -3,8 +3,6 @@ export const instant = false
 import { LayoutDashboard, Inbox, FolderKanban, UserRound, TestTubes, Boxes, Wallet, BarChart3, Calculator, Flag, KeyRound } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { getPartnerAccess } from "@/lib/entitlements";
 import { getGraceDays } from "@/lib/settings";
 import Link from "next/link";
@@ -25,11 +23,6 @@ const items = [
 
 export default async function LabLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("PROVIDER");
-  if (process.env.MFA_REQUIRED === "true") {
-    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
-    const path = (await headers()).get("x-pathname") ?? "";
-    if (!mfa && !path.includes("/lab/security")) redirect("/lab/security");
-  }
   const access = await getPartnerAccess(session.user.id);
   const graceSetting = await getGraceDays();
   const graceDays = access.daysLeft != null ? Math.max(0, access.daysLeft + graceSetting) : 0;

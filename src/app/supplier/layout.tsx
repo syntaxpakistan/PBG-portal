@@ -3,8 +3,6 @@ export const instant = false
 import { LayoutDashboard, Wallet, BarChart3, MessageSquareWarning, Package, Inbox, Building2, Truck, KeyRound } from "lucide-react";
 import { PortalShell } from "@/components/portal/shell";
 import { requireRole } from "@/lib/session";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 const items = [
   { href: "/supplier", label: "Overview", icon: <LayoutDashboard className="size-4" /> },
@@ -19,11 +17,6 @@ const items = [
 ];
 
 export default async function SupplierLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireRole("SUPPLIER");
-  if (process.env.MFA_REQUIRED === "true") {
-    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
-    const path = (await headers()).get("x-pathname") ?? "";
-    if (!mfa && !path.includes("/supplier/security")) redirect("/supplier/security");
-  }
+  await requireRole("SUPPLIER");
   return <PortalShell title="Supplier portal" items={items}>{children}</PortalShell>;
 }

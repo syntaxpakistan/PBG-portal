@@ -36,7 +36,7 @@ function NavGroup({ item, pathname, best }: { item: NavItem; pathname: string; b
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
+          "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] transition-colors",
           childActive ? "bg-white/10 font-medium text-white" : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
         )}
       >
@@ -45,13 +45,13 @@ function NavGroup({ item, pathname, best }: { item: NavItem; pathname: string; b
         <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="mt-0.5 space-y-0.5">
+        <div className="mt-0 space-y-0">
           {item.children!.map((c) => (
             <Link
               key={c.href}
               href={c.href!}
               className={cn(
-                "flex items-center gap-3 rounded-lg py-2 pl-9 pr-3 text-[13px] transition-colors",
+                "flex items-center gap-3 rounded-lg py-1.5 pl-9 pr-3 text-[13px] transition-colors",
                 c.href && matchLen(pathname, c.href) === best && best > 0
                   ? "bg-white/10 font-medium text-white"
                   : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"
@@ -73,7 +73,7 @@ export function SideNav({ items }: { items: NavItem[] }) {
   const best = Math.max(0, ...allHrefs.map((h) => matchLen(pathname, h)));
 
   return (
-    <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
+    <nav className="flex-1 space-y-0 overflow-y-auto px-3">
       {items.map((it) => {
         if (it.children?.length) {
           return <NavGroup key={it.label} item={it} pathname={pathname} best={best} />;
@@ -83,7 +83,7 @@ export function SideNav({ items }: { items: NavItem[] }) {
             key={it.href}
             href={it.href!}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors",
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-[13.5px] transition-colors",
               it.href && matchLen(pathname, it.href) === best && best > 0
                 ? "bg-white/10 font-medium text-white"
                 : "text-[#9fb9cd] hover:bg-white/5 hover:text-white"

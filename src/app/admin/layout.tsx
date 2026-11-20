@@ -24,18 +24,8 @@ const items = [
   { href: "/admin/security", label: "Security", icon: <KeyRound className="size-4" /> },
 ];
 
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await requireRole("ADMIN");
-  // MFA enforcement, disabled during dev (no mail/authenticator testing yet).
-  // Set ADMIN_MFA_REQUIRED=true to force TOTP enrollment before admin access.
-  if (process.env.MFA_REQUIRED === "true" || process.env.ADMIN_MFA_REQUIRED === "true") {
-    const mfa = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled;
-    const path = (await headers()).get("x-pathname") ?? "";
-    if (!mfa && !path.includes("/admin/security")) redirect("/admin/security");
-  }
+  await requireRole("ADMIN");
   const [verify, modRfqs, modListings, payments, leads, complaints] = await Promise.all([
     prisma.providerProfile.count({ where: { status: "PENDING" } }).then(async (n) => n + (await prisma.supplierProfile.count({ where: { status: "PENDING" } }))),
     prisma.rfq.count({ where: { visibility: "BOARD", moderation: "PENDING" } }),

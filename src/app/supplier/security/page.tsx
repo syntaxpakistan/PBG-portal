@@ -6,5 +6,5 @@ import { SecurityCard } from "@/components/portal/security-card";
 export default async function SecurityPage() {
   const session = await requireRole("SUPPLIER");
   const enabled = (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false;
-  return <SecurityCard enabled={enabled} required={process.env.MFA_REQUIRED === "true"} returnTo="/supplier" />;
+  return <SecurityCard enabled={enabled} required={false} returnTo="/supplier" />;
 }
