@@ -13,20 +13,27 @@ const DEST: Record<string, string> = {
   CUSTOMER: "/dashboard",
 };
 
-/** Copies auth cookies onto the server-action response so JS-free logins/signups get a session. */
+/** Copies auth cookies onto the server-action response so JS-free logins/signups get a session.
+    Attributes are forwarded too — a __Secure- cookie without Secure is rejected by browsers. */
 async function forwardCookies(resHeaders: Headers) {
-  const setCookie = resHeaders.get("set-cookie");
-  if (!setCookie) return;
+  const list = typeof resHeaders.getSetCookie === "function"
+    ? resHeaders.getSetCookie()
+    : (resHeaders.get("set-cookie") ?? "").split(/,(?=\s*[^;,\s]+=)/);
   const jar = await cookies();
-  for (const c of setCookie.split(/,(?=\s*[^;,\s]+=)/)) {
+  for (const c of list) {
     const parts = c.split(";").map((s) => s.trim());
     const eq = parts[0].indexOf("=");
     if (eq < 1) continue;
     const maxAge = parts.find((p) => /^max-age=/i.test(p))?.split("=")[1];
-    jar.set(parts[0].slice(0, eq), parts[0].slice(eq + 1), {
+    const sameSite = parts.find((p) => /^samesite=/i.test(p))?.split("=")[1]?.toLowerCase();
+    const raw = parts[0].slice(eq + 1);
+    let value = raw;
+    try { value = decodeURIComponent(raw); } catch { /* keep raw */ }
+    jar.set(parts[0].slice(0, eq), value, {
       path: "/",
-      httpOnly: true,
-      sameSite: "lax",
+      httpOnly: parts.some((p) => /^httponly$/i.test(p)),
+      secure: parts.some((p) => /^secure$/i.test(p)),
+      sameSite: (sameSite === "strict" || sameSite === "none" ? sameSite : "lax") as "lax" | "strict" | "none",
       ...(maxAge ? { maxAge: Number(maxAge) } : {}),
     });
   }
