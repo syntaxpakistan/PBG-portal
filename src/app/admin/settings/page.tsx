@@ -170,6 +170,12 @@ export default async function SettingsPage() {
           const grouped = groups
             .map((g) => ({ ...g, rows: settings.filter((s) => g.match(s.key) && !seen.has(s.key) && seen.add(s.key)) }))
             .filter((g) => g.rows.length > 0);
+          const tierOrder = ["basic", "pro", "custom"];
+          for (const g of grouped) {
+            if (g.title.startsWith("Plan ")) {
+              g.rows.sort((a, b) => tierOrder.indexOf(a.key.split("_").pop()!) - tierOrder.indexOf(b.key.split("_").pop()!));
+            }
+          }
           const rest = settings.filter((s) => !seen.has(s.key));
           if (rest.length) grouped.push({ title: "Other", match: () => true, rows: rest });
           const planLabel: Record<string, string> = { basic: PLANS.BASIC.label, pro: PLANS.PRO.label, custom: PLANS.CUSTOM.label };
