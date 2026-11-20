@@ -58,7 +58,7 @@ export async function PortalShell({
         </div>
       </aside>
       {/* content */}
-      <main className="flex-1 p-4 sm:p-6 lg:ml-60 lg:p-8">{children}</main>
+      <main className="portal-content flex-1 p-4 sm:p-6 lg:ml-60 lg:p-8">{children}</main>
     </div>
   );
 }

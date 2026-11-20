@@ -209,16 +209,19 @@ body {
 }
 
 /* themed border-glow on hover, navy on light / white on dark */
-.card-glow {
+.card-glow,
+.portal-content .card {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.card-glow:hover {
+.card-glow:hover,
+.portal-content .card:hover {
   border-color: var(--color-navy);
   box-shadow:
     0 0 0 1px var(--color-navy),
     0 14px 34px -14px rgba(4, 53, 97, 0.4);
 }
-.dark .card-glow:hover {
+.dark .card-glow:hover,
+.dark .portal-content .card:hover {
   border-color: rgba(255, 255, 255, 0.8);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.4),
