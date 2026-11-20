@@ -76,13 +76,13 @@ export function PromoPopup() {
               <X className="size-4.5" />
             </button>
 
-            <div className="relative aspect-[2/3] h-[min(78vh,720px)] overflow-hidden rounded-2xl shadow-2xl">
+            <div className="relative aspect-[3/2] w-[min(94vw,1100px,114vh)] overflow-hidden rounded-2xl shadow-2xl">
               <Image
-                src="/promo/launch-offer.jpeg"
+                src="/promo/launch-collage.jpeg"
                 alt="Pakistan Biotechnology Gateway launch offer, 50% off all subscriptions until 31 December 2026"
                 fill
                 priority
-                sizes="(max-width: 768px) 92vw, 480px"
+                sizes="(max-width: 1200px) 94vw, 1100px"
                 className="object-cover"
               />
             </div>
