@@ -84,6 +84,12 @@ export function Navbar() {
   const portal = session ? PORTAL_HREF[(session.user as { role?: string }).role ?? "CUSTOMER"] ?? "/dashboard" : null;
 
   useEffect(() => {
+    if (!mobileOpen) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const raf = requestAnimationFrame(() => {
       try {
         if (localStorage.getItem(PROMO_KEY) !== "1") setPromo(true);
@@ -109,17 +115,21 @@ export function Navbar() {
         />
       )}
       <div className={cn("container-x pt-3 transition-all duration-500", scrolled ? "max-w-[1100px]" : "max-w-[1200px]")}>
-        <nav
-          className={cn(
-            "flex h-[68px] items-center justify-between gap-4 rounded-full px-5 transition-all duration-500",
-            scrolled || mobileOpen ? "bg-navy/95 shadow-xl shadow-navy/20 backdrop-blur-xl" : "bg-navy-2/40 backdrop-blur-md"
-          )}
-        >
-          <Link href="/" className="flex items-center" aria-label="Pakistan Biotechnology Gateway home">
+        <nav className="relative flex h-[68px] items-center justify-between gap-4 rounded-full px-5">
+          {/* backdrop blur lives on a non-interactive layer — iOS Safari can
+              drop taps on children of a backdrop-filter element */}
+          <div
+            aria-hidden
+            className={cn(
+              "absolute inset-0 rounded-full transition-all duration-500",
+              scrolled || mobileOpen ? "bg-navy/95 shadow-xl shadow-navy/20 backdrop-blur-xl" : "bg-navy-2/40 backdrop-blur-md"
+            )}
+          />
+          <Link href="/" className="relative z-10 flex items-center" aria-label="Pakistan Biotechnology Gateway home">
             <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-14 w-auto" />
           </Link>
 
-          <ul className="hidden items-center gap-0.5 xl:flex">
+          <ul className="relative z-10 hidden items-center gap-0.5 xl:flex">
             {LINKS.map((l) =>
               l.label === "Services" ? (
                 <li key={l.href} className="group relative">
@@ -170,7 +180,7 @@ export function Navbar() {
             )}
           </ul>
 
-          <div className="flex items-center gap-2.5">
+          <div className="relative z-10 flex items-center gap-2.5">
             <ThemeToggle onDark />
             {!sessionReady ? (
               <span className="hidden h-9 w-24 rounded-full sm:inline-flex" aria-hidden />
@@ -189,9 +199,11 @@ export function Navbar() {
               </>
             )}
             <button
+              type="button"
               onClick={() => setMobileOpen((o) => !o)}
               aria-label="Toggle menu"
-              className="grid size-9 place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white xl:hidden"
+              aria-expanded={mobileOpen}
+              className="relative z-10 grid size-9 touch-manipulation place-items-center rounded-full text-white/80 transition-colors hover:bg-white/10 hover:text-white xl:hidden"
             >
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
@@ -200,12 +212,16 @@ export function Navbar() {
 
         <AnimatePresence>
           {mobileOpen && (
+            <>
+            {/* iOS Safari can drop taps inside backdrop-filter containers —
+                render the sheet outside the blurred nav, above the hero */}
+            <div className="fixed inset-0 z-[55] bg-navy/60 xl:hidden" onClick={() => setMobileOpen(false)} />
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-2 overflow-hidden xl:hidden"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-x-4 top-[108px] z-[60] mt-2 overflow-hidden xl:hidden"
             >
               <div className="rounded-2xl border border-line bg-surface p-3 shadow-2xl shadow-navy/25">
                 {LINKS.map((l) => (
@@ -252,6 +268,7 @@ export function Navbar() {
                 </div>
               </div>
             </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
