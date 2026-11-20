@@ -113,10 +113,9 @@ export function PlanPicker({ current, plans }: { current: string; plans: { key: 
             {p.tagline && <div className="mt-0.5 truncate text-[11.5px] text-muted">{p.tagline}</div>}
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <span className="flex items-baseline gap-1.5 font-display text-[18px] font-medium text-ink">
+            <span className="flex flex-wrap items-baseline justify-end gap-x-1.5 gap-y-0.5 text-right font-display text-[18px] font-medium text-ink">
               {p.discount != null && p.discount > 0 && <span className="text-[12px] font-normal text-muted line-through">PKR {p.listPrice?.toLocaleString()}</span>}
-              PKR {p.price.toLocaleString()}
-              <span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span>
+              <span>PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span></span>
               {p.discount != null && p.discount > 0 && <span className="rounded-full bg-(--st-green-bg) px-1.5 py-0.5 text-[10px] font-bold text-(--st-green-fg)">-{p.discount}%</span>}
             </span>
             {p.key !== current && (

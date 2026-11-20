@@ -415,22 +415,20 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
                     )}
                     <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
                     <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
-                    <p className="mt-4 whitespace-nowrap">
-                      {t.discount > 0 && (
-                        <span className="mr-1.5 align-middle text-[13px] font-medium text-muted line-through">
-                          PKR {t.price.toLocaleString()}
-                        </span>
-                      )}
-                      <span className="font-display text-[24px] font-semibold tracking-tight text-ink">
-                        PKR {t.final.toLocaleString()}
-                      </span>
-                      {t.discount > 0 && (
-                        <span className="ml-2 rounded-full bg-(--st-green-bg) px-1.5 py-0.5 align-middle text-[10.5px] font-bold text-(--st-green-fg)">
-                          -{t.discount}%
-                        </span>
-                      )}
-                      <span className="text-[12px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
-                    </p>
+                    <div className="mt-4">
+                      <p className="flex h-[18px] items-center gap-1.5">
+                        {t.discount > 0 && (
+                          <>
+                            <span className="text-[12.5px] font-medium text-muted line-through">PKR {t.price.toLocaleString()}</span>
+                            <span className="rounded-full bg-(--st-green-bg) px-1.5 py-0.5 text-[10px] font-bold text-(--st-green-fg)">-{t.discount}%</span>
+                          </>
+                        )}
+                      </p>
+                      <p className="mt-1">
+                        <span className="font-display text-[24px] font-semibold tracking-tight text-ink">PKR {t.final.toLocaleString()}</span>
+                        <span className="text-[12px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
+                      </p>
+                    </div>
                     <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
                       {t.features.map((f) => (
                         <li key={f} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-body">

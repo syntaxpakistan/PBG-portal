@@ -156,7 +156,7 @@ export function JoinFlow({ pricing }: { pricing: Record<PlanKey, { price: number
                     <button key={k} onClick={() => setPlan(k)} className="card card-hover group w-full p-5 text-left">
                       <div className="flex items-baseline justify-between">
                         <span className="text-[15px] font-semibold text-ink">{p.label}</span>
-                        <span className="flex items-baseline gap-2 whitespace-nowrap font-display text-[19px] font-medium text-ink">{pricing[k].discount > 0 && <span className="text-[12px] font-normal text-muted line-through">PKR {pricing[k].price.toLocaleString()}</span>}PKR {pricing[k].final.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(k)}</span>{pricing[k].discount > 0 && <span className="rounded-full bg-(--st-green-bg) px-1.5 py-0.5 text-[10px] font-bold text-(--st-green-fg)">-{pricing[k].discount}%</span>}</span>
+                        <span className="flex flex-wrap items-baseline justify-end gap-x-2 gap-y-0.5 text-right font-display text-[19px] font-medium text-ink">{pricing[k].discount > 0 && <span className="text-[12px] font-normal text-muted line-through">PKR {pricing[k].price.toLocaleString()}</span>}<span>PKR {pricing[k].final.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(k)}</span></span>{pricing[k].discount > 0 && <span className="rounded-full bg-(--st-green-bg) px-1.5 py-0.5 text-[10px] font-bold text-(--st-green-fg)">-{pricing[k].discount}%</span>}</span>
                       </div>
                       <p className="mt-0.5 text-[12px] text-muted">{p.tagline}</p>
                       <ul className="mt-3 space-y-1.5">
