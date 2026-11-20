@@ -33,20 +33,67 @@ export default async function SettingsPage() {
       <PageHead title="Platform settings" sub="Commercial parameters, changes apply to new activity only and are audit-logged." />
 
       <div className="grid items-start gap-5 md:grid-cols-2">
-        <div className="card p-6">
-          <h3 className="text-[14px] font-semibold text-ink">Platform fee</h3>
-          <p className="mt-1 text-[12.5px] text-body">
-            Percentage Syntax charges on awarded project value. Applies to new awards only.
-          </p>
-          <SettingForm settingKey={FEE_KEY} current={fee} suffix="%" min={0} max={30} step={0.1} />
+        {/* left column */}
+        <div className="space-y-5">
+          <div className="card p-6">
+            <h3 className="text-[14px] font-semibold text-ink">Platform fee</h3>
+            <p className="mt-1 text-[12.5px] text-body">
+              Percentage Syntax charges on awarded project value. Applies to new awards only.
+            </p>
+            <SettingForm settingKey={FEE_KEY} current={fee} suffix="%" min={0} max={30} step={0.1} />
+          </div>
+
+          <div className="card p-6">
+            <h3 className="text-[14px] font-semibold text-ink">Billing terms</h3>
+            <p className="mt-1 text-[12.5px] text-body">Grace window and invoice due dates across all portals.</p>
+            <div className="mt-4 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">Grace period</div>
+                  <div className="text-[11.5px] text-muted">Days paid features stay active after expiry</div>
+                </div>
+                <SettingForm settingKey="grace_days" current={graceDays} suffix="days" min={0} max={60} />
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">Invoice due window</div>
+                  <div className="text-[11.5px] text-muted">Days until new subscription invoices are due</div>
+                </div>
+                <SettingForm settingKey="invoice_due_days" current={invoiceDueDays} suffix="days" min={1} max={90} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <h3 className="text-[14px] font-semibold text-ink">Limits</h3>
+            <p className="mt-1 text-[12.5px] text-body">Anti-abuse controls applied at creation time.</p>
+            <div className="mt-4 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">RFQ rate limit</div>
+                  <div className="text-[11.5px] text-muted">Max requests a customer can post per day</div>
+                </div>
+                <SettingForm settingKey="rfq_rate_limit_per_day" current={rfqLimit} suffix="/day" min={1} max={100} />
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-[13px] font-semibold text-ink">Enquiry rate limit</div>
+                  <div className="text-[11.5px] text-muted">Max product enquiries a user can send per day</div>
+                </div>
+                <SettingForm settingKey="enquiry_rate_limit_per_day" current={enquiryLimit} suffix="/day" min={1} max={200} />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-[14px] font-semibold text-ink">Subscription plan prices</h3>
-          <p className="mt-1 text-[12.5px] text-body">
-            Term price in PKR (covers the full plan term). New invoices use the updated price; existing subscriptions keep their billed rate.
-          </p>
-          <div className="mt-4 space-y-4">
+        {/* right column */}
+        <div className="space-y-5">
+          <div className="card p-6">
+            <h3 className="text-[14px] font-semibold text-ink">Subscription plan prices</h3>
+            <p className="mt-1 text-[12.5px] text-body">
+              Term price in PKR (covers the full plan term). New invoices use the updated price; existing subscriptions keep their billed rate.
+            </p>
+            <div className="mt-4 space-y-4">
             {planRows.map((p) => (
               <div key={p.key} className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4 last:border-0 last:pb-0">
                 <div>
@@ -66,29 +113,8 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-[14px] font-semibold text-ink">Billing terms</h3>
-          <p className="mt-1 text-[12.5px] text-body">Grace window and invoice due dates across all portals.</p>
-          <div className="mt-4 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-              <div>
-                <div className="text-[13px] font-semibold text-ink">Grace period</div>
-                <div className="text-[11.5px] text-muted">Days paid features stay active after expiry</div>
-              </div>
-              <SettingForm settingKey="grace_days" current={graceDays} suffix="days" min={0} max={60} />
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-ink">Invoice due window</div>
-                <div className="text-[11.5px] text-muted">Days until new subscription invoices are due</div>
-              </div>
-              <SettingForm settingKey="invoice_due_days" current={invoiceDueDays} suffix="days" min={1} max={90} />
-            </div>
-          </div>
-        </div>
-
-        <div className="card p-6">
-          <h3 className="text-[14px] font-semibold text-ink">Payment instructions</h3>
+          <div className="card p-6">
+            <h3 className="text-[14px] font-semibold text-ink">Payment instructions</h3>
           <p className="mt-1 text-[12.5px] text-body">
             Shown on every invoice so payers know where to send money. Leave blank until your account is ready.
           </p>
@@ -112,25 +138,6 @@ export default async function SettingsPage() {
           </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-[14px] font-semibold text-ink">Limits</h3>
-          <p className="mt-1 text-[12.5px] text-body">Anti-abuse controls applied at creation time.</p>
-          <div className="mt-4 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-              <div>
-                <div className="text-[13px] font-semibold text-ink">RFQ rate limit</div>
-                <div className="text-[11.5px] text-muted">Max requests a customer can post per day</div>
-              </div>
-              <SettingForm settingKey="rfq_rate_limit_per_day" current={rfqLimit} suffix="/day" min={1} max={100} />
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <div className="text-[13px] font-semibold text-ink">Enquiry rate limit</div>
-                <div className="text-[11.5px] text-muted">Max product enquiries a user can send per day</div>
-              </div>
-              <SettingForm settingKey="enquiry_rate_limit_per_day" current={enquiryLimit} suffix="/day" min={1} max={200} />
-            </div>
-          </div>
         </div>
 
         {settings.length > 0 && (
