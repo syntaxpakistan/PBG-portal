@@ -88,8 +88,16 @@ export function JoinFlow({ pricing, error }: { pricing: Record<PlanKey, PlanPric
             ))}
           </div>
 
+          {/* scroll guides: appear after selection, native anchor jump (no JS) */}
+          <a href="#jf-form" className="jf-continue-customer btn-secondary mt-5 w-full justify-center !py-3">
+            Continue, your details below ↓
+          </a>
+          <a href="#jf-plans" className="jf-continue-org btn-secondary mt-5 w-full justify-center !py-3">
+            Continue, choose a plan below ↓
+          </a>
+
           {/* plans — only for labs & suppliers */}
-          <div className="jf-plans mt-8">
+          <div id="jf-plans" className="jf-plans mt-8">
             <h3 className="text-[15px] font-semibold text-ink">Choose your plan</h3>
             <p className="mt-1 text-[12.5px] text-body">Billed once per term after the Gateway team approves your organization, invoiced offline, no card needed now.</p>
             <div className="mt-4 space-y-3">
@@ -118,10 +126,13 @@ export function JoinFlow({ pricing, error }: { pricing: Record<PlanKey, PlanPric
                 );
               })}
             </div>
+            <a href="#jf-form" className="jf-continue-plan btn-secondary mt-5 w-full justify-center !py-3">
+              Continue, your details below ↓
+            </a>
           </div>
 
           {/* details — visible once a role is chosen */}
-          <div className="jf-form mt-8 space-y-4">
+          <div id="jf-form" className="jf-form mt-8 space-y-4">
             <Field label="Full name" name="name" required autoComplete="name" />
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Email" name="email" type="email" required autoComplete="email" />
