@@ -25,7 +25,7 @@ export default function ServicesPage() {
       <section className="relative overflow-hidden bg-navy pb-16 pt-36 sm:pt-40">
         <BgVideo
           src="/media/services-hero.mp4"
-          anim="/media/services-hero-anim.webp"
+          poster="/media/services-hero-poster.webp"
           className="pointer-events-none absolute inset-0 size-full object-cover opacity-40"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy" />

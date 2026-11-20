@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
 
 /**
- * Layered decorative hero background.
- * - `anim` (light animated WebP) always animates — even where the JS
- *   bundle can't run (iOS <16.4) or video autoplay is blocked.
- * - `src` (mp4) is in the SSR markup so iOS native autoplay can fire;
- *   with preload="none" and no poster it stays transparent until a frame
- *   actually plays, so it can never freeze over the animation beneath.
+ * Decorative autoplay background video.
+ * iOS Safari only allows autoplay when the DOM `muted` property is true at
+ * play time — React's `muted` prop doesn't reliably set it, so we set it
+ * imperatively and call play() on canplay. If iOS still refuses (Low Power
+ * Mode), the poster remains as a static fallback.
  */
-export function BgVideo({ src, anim, className }: { src: string; anim: string; className?: string }) {
+export function BgVideo({ src, poster, className }: { src: string; poster: string; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -25,20 +23,18 @@ export function BgVideo({ src, anim, className }: { src: string; anim: string; c
   }, []);
 
   return (
-    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}>
-      <img src={anim} alt="" aria-hidden="true" className="absolute inset-0 size-full object-cover" />
-      <video
-        ref={ref}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="none"
-        className="absolute inset-0 size-full object-cover"
-        aria-hidden="true"
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-    </div>
+    <video
+      ref={ref}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster={poster}
+      className={className}
+      aria-hidden="true"
+    >
+      <source src={src} type="video/mp4" />
+    </video>
   );
 }
