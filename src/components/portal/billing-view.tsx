@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageHead, StatusBadge, StatCard } from "@/components/portal/ui";
 import { FileLink } from "@/components/portal/file-link";
 import { PLANS, planTermLabel } from "@/lib/plans";
-import { getPlanPrices } from "@/lib/settings";
+import { getAllPlanPricing } from "@/lib/settings";
 import type { PartnerAccess, AnalyticsAddOnState } from "@/lib/entitlements";
 import type { Invoice, Payment, Payout } from "@prisma/client";
 import {
@@ -56,8 +56,8 @@ export async function BillingView({
   const owedByCur = sumByCurrency(openPayables, outstanding);
   const paidByCur = sumByCurrency(payables.filter((i) => i.status === "PAID"), (i) => i.total);
   const collectedByCur = sumByCurrency(receivables.filter((i) => i.status === "PAID"), (i) => i.total);
-  const planPrices = await getPlanPrices();
-  const planOptions = (Object.keys(PLANS) as (keyof typeof PLANS)[]).map((k) => ({ key: k, label: PLANS[k].label, price: planPrices[k], tagline: PLANS[k].tagline }));
+  const planPricing = await getAllPlanPricing();
+  const planOptions = (Object.keys(PLANS) as (keyof typeof PLANS)[]).map((k) => ({ key: k, label: PLANS[k].label, price: planPricing[k].final, listPrice: planPricing[k].price, discount: planPricing[k].discount, tagline: PLANS[k].tagline }));
 
   return (
     <>

@@ -2,7 +2,7 @@ export const instant = false;
 
 import type { Metadata } from "next";
 import { Landing } from "@/components/landing";
-import { getPlanPrices } from "@/lib/settings";
+import { getAllPlanPricing } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Pakistan Biotechnology Gateway, The national marketplace for biotech services",
@@ -11,6 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function GatewayLanding() {
-  const prices = await getPlanPrices();
-  return <Landing prices={prices} />;
+  const pricing = await getAllPlanPricing();
+  return <Landing pricing={pricing} />;
 }

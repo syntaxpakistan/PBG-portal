@@ -99,7 +99,7 @@ export function AttachReceiptForm({ paymentId }: { paymentId: string }) {
 }
 
 // plan list with price pinned right, used on billing pages in every portal
-export function PlanPicker({ current, plans }: { current: string; plans: { key: string; label: string; price: number; tagline?: string }[] }) {
+export function PlanPicker({ current, plans }: { current: string; plans: { key: string; label: string; price: number; listPrice?: number; discount?: number; tagline?: string }[] }) {
   const { loading, act } = useAct();
   return (
     <div className="mt-3 divide-y divide-line rounded-lg border border-line">
@@ -113,7 +113,12 @@ export function PlanPicker({ current, plans }: { current: string; plans: { key: 
             {p.tagline && <div className="mt-0.5 truncate text-[11.5px] text-muted">{p.tagline}</div>}
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <span className="font-display text-[18px] font-medium text-ink">PKR {p.price.toLocaleString()}<span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span></span>
+            <span className="flex items-baseline gap-1.5 font-display text-[18px] font-medium text-ink">
+              {p.discount != null && p.discount > 0 && <span className="text-[12px] font-normal text-muted line-through">PKR {p.listPrice?.toLocaleString()}</span>}
+              PKR {p.price.toLocaleString()}
+              <span className="text-[11px] font-normal text-muted"> / {planTermLabel(p.key as PlanKey)}</span>
+              {p.discount != null && p.discount > 0 && <span className="rounded-full bg-(--st-green-bg) px-1.5 py-0.5 text-[10px] font-bold text-(--st-green-fg)">-{p.discount}%</span>}
+            </span>
             {p.key !== current && (
               <button type="button" disabled={loading}
                 onClick={() => act(() => requestPlanChange(p.key), `Switch to ${p.label} requested, the Gateway team will confirm.`)}

@@ -7,7 +7,7 @@ import { getSession } from "@/lib/session";
 import { notify, notifyAllAdmins } from "@/lib/notify";
 import { saveUpload } from "@/lib/files";
 import { PLANS, planTermLabel, type PlanKey } from "@/lib/plans";
-import { getFeePercent, getInvoiceDueDays, getPlanPrice, getAnalyticsAddonPrice } from "@/lib/settings";
+import { discountNote, getFeePercent, getInvoiceDueDays, getPlanPricing, getAnalyticsAddonPricing } from "@/lib/settings";
 import { hasAnalyticsAccess } from "@/lib/entitlements";
 import type { Invoice, Payment, Plan } from "@prisma/client";
 import { nextRef } from "@/lib/refs";
@@ -407,7 +407,8 @@ export async function requestPlanChange(plan: string) {
   if (sub && sub.plan === plan) throw new Error("Already on this plan");
   if (!sub) {
     // no subscription yet, create one on the requested plan; invoice goes out immediately
-    const planPrice = await getPlanPrice(planKey);
+    const pricing = await getPlanPricing(planKey);
+    const planPrice = pricing.final;
     const created = await prisma.subscription.create({
       data: { userId: session.user.id, plan: planKey as Plan, pricePkr: planPrice },
     });
@@ -418,7 +419,7 @@ export async function requestPlanChange(plan: string) {
       currency: "PKR",
       dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
       note: `${PLANS[planKey].label} plan, first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term${discountNote(pricing)}`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
       `New subscription: ${planKey}`,
@@ -602,7 +603,8 @@ export async function requestAnalyticsAddOn() {
     where: { userId: session.user.id, kind: "ANALYTICS", status: "PENDING_PAYMENT" },
   });
   if (pending) throw new Error("You already have an unpaid add-on invoice, settle it from Billing to activate.");
-  const price = await getAnalyticsAddonPrice();
+  const addonPricing = await getAnalyticsAddonPricing();
+  const price = addonPricing.final;
   const addOn = await prisma.addOn.create({
     data: { userId: session.user.id, kind: "ANALYTICS", label: "Analytics add-on", pricePkr: price },
   });
@@ -613,7 +615,7 @@ export async function requestAnalyticsAddOn() {
     currency: "PKR",
     dueAt: new Date(Date.now() + (await getInvoiceDueDays()) * 864e5),
     note: "Analytics add-on, 1-year unlock",
-    items: [{ description: "Gateway Analytics add-on, sample & report analysis dashboard (1 year)", unitPrice: price }],
+    items: [{ description: `Gateway Analytics add-on, sample & report analysis dashboard (1 year)${discountNote(addonPricing)}`, unitPrice: price }],
   });
   await notifyAllAdmins(
     `Add-on requested: Analytics`,

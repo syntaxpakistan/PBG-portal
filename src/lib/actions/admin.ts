@@ -8,7 +8,7 @@ import { notifyProvidersForRfq } from "@/lib/actions/marketplace";
 import { issueInvoice } from "@/lib/actions/billing";
 import { PLANS, planTermLabel, planTermMs, type PlanKey } from "@/lib/plans";
 import { pkr } from "@/lib/constants";
-import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
+import { discountNote, getInvoiceDueDays, getPlanPricing } from "@/lib/settings";
 import type { VerificationStatus, ComplaintStatus, TxnStatus } from "@prisma/client";
 
 async function requireAdmin() {
@@ -148,6 +148,11 @@ const EDITABLE_SETTINGS: Record<string, { label: string; min: number; max: numbe
   plan_price_basic: { label: "Basic plan price", min: 0, max: 10000000, suffix: "PKR" },
   plan_price_pro: { label: "Pro plan price", min: 0, max: 10000000, suffix: "PKR" },
   plan_price_custom: { label: "Elite plan price", min: 0, max: 10000000, suffix: "PKR" },
+  plan_discount_basic: { label: "Basic plan discount", min: 0, max: 90, suffix: "%" },
+  plan_discount_pro: { label: "Pro plan discount", min: 0, max: 90, suffix: "%" },
+  plan_discount_custom: { label: "Elite plan discount", min: 0, max: 90, suffix: "%" },
+  addon_analytics_price: { label: "Analytics add-on price", min: 0, max: 10000000, suffix: "PKR" },
+  addon_analytics_discount: { label: "Analytics add-on discount", min: 0, max: 90, suffix: "%" },
   grace_days: { label: "Grace period", min: 0, max: 60, suffix: "days" },
   invoice_due_days: { label: "Invoice due window", min: 1, max: 90, suffix: "days" },
   rfq_rate_limit_per_day: { label: "RFQ rate limit", min: 1, max: 100, suffix: "per day" },
@@ -393,7 +398,8 @@ export async function extendSubscription(id: string) {
   const effectivePlan = sub.requestedPlan && sub.requestedPlan in PLANS ? sub.requestedPlan : sub.plan;
   const plan = PLANS[effectivePlan as keyof typeof PLANS];
   // renewals bill the plan's current price, a pending plan change adopts the new plan's price
-  const renewalPrice = sub.requestedPlan ? await getPlanPrice(effectivePlan as PlanKey) : sub.pricePkr;
+  const renewalPricing = sub.requestedPlan ? await getPlanPricing(effectivePlan as PlanKey) : null;
+  const renewalPrice = renewalPricing?.final ?? sub.pricePkr;
   await prisma.subscription.update({
     where: { id },
     data: {

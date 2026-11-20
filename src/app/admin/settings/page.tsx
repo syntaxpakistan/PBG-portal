@@ -4,22 +4,22 @@ import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
 import { SettingForm } from "./setting-form";
 import { TextSettingForm } from "./text-setting-form";
-import { getFeePercent, getPlanPrices, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions, getAnalyticsAddonPrice } from "@/lib/settings";
+import { getFeePercent, getAllPlanPricing, getAnalyticsAddonPricing, getGraceDays, getInvoiceDueDays, getRfqRateLimit, getEnquiryRateLimit, getPaymentInstructions } from "@/lib/settings";
 import { PLANS, type PlanKey } from "@/lib/plans";
 
 const FEE_KEY = "platform_fee_percent";
 
 export default async function SettingsPage() {
-  const [fee, planPrices, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings, addonPrice] = await Promise.all([
+  const [fee, planPricing, graceDays, invoiceDueDays, rfqLimit, enquiryLimit, payTo, settings, addonPricing] = await Promise.all([
     getFeePercent(),
-    getPlanPrices(),
+    getAllPlanPricing(),
     getGraceDays(),
     getInvoiceDueDays(),
     getRfqRateLimit(),
     getEnquiryRateLimit(),
     getPaymentInstructions(),
     prisma.platformSetting.findMany({ orderBy: { key: "asc" } }),
-    getAnalyticsAddonPrice(),
+    getAnalyticsAddonPricing(),
   ]);
 
   const planRows: { key: PlanKey; label: string; tagline: string }[] = [
@@ -99,16 +99,32 @@ export default async function SettingsPage() {
                 <div>
                   <div className="text-[13px] font-semibold text-ink">{p.label} plan</div>
                   <div className="text-[11.5px] text-muted">{p.tagline}</div>
+                  {planPricing[p.key].discount > 0 && (
+                    <div className="mt-0.5 text-[11px] font-medium text-(--st-green-fg)">
+                      Bills PKR {planPricing[p.key].final.toLocaleString()} after {planPricing[p.key].discount}% off
+                    </div>
+                  )}
                 </div>
-                <SettingForm settingKey={`plan_price_${p.key.toLowerCase()}`} current={planPrices[p.key]} suffix="PKR" min={0} max={10000000} />
+                <div className="flex flex-wrap items-center gap-x-5">
+                  <SettingForm settingKey={`plan_price_${p.key.toLowerCase()}`} current={planPricing[p.key].price} suffix="PKR" min={0} max={10000000} />
+                  <SettingForm settingKey={`plan_discount_${p.key.toLowerCase()}`} current={planPricing[p.key].discount} suffix="% off" min={0} max={90} />
+                </div>
               </div>
             ))}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <div>
                 <div className="text-[13px] font-semibold text-ink">Analytics add-on</div>
                 <div className="text-[11.5px] text-muted">Yearly price for customers &amp; Basic-tier partners</div>
+                {addonPricing.discount > 0 && (
+                  <div className="mt-0.5 text-[11px] font-medium text-(--st-green-fg)">
+                    Bills PKR {addonPricing.final.toLocaleString()} after {addonPricing.discount}% off
+                  </div>
+                )}
               </div>
-              <SettingForm settingKey="addon_analytics_price" current={addonPrice} suffix="PKR" min={0} max={10000000} />
+              <div className="flex flex-wrap items-center gap-x-5">
+                <SettingForm settingKey="addon_analytics_price" current={addonPricing.price} suffix="PKR" min={0} max={10000000} />
+                <SettingForm settingKey="addon_analytics_discount" current={addonPricing.discount} suffix="% off" min={0} max={90} />
+              </div>
             </div>
           </div>
         </div>

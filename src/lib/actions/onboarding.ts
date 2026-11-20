@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { PLANS, planTermLabel, type PlanKey } from "@/lib/plans";
 import { issueInvoice } from "@/lib/actions/billing";
-import { getInvoiceDueDays, getPlanPrice } from "@/lib/settings";
+import { discountNote, getInvoiceDueDays, getPlanPricing } from "@/lib/settings";
 import type { Plan } from "@prisma/client";
 import { normalizeUrl } from "@/lib/utils";
 import { notifyAllAdmins } from "@/lib/notify";
@@ -36,7 +36,8 @@ export async function createOrgProfile(input: {
     throw new Error("Unauthorized");
   }
   const planKey = (input.plan && input.plan in PLANS ? input.plan : "BASIC") as PlanKey;
-  const planPrice = await getPlanPrice(planKey);
+  const pricing = await getPlanPricing(planKey);
+  const planPrice = pricing.final;
   const dueIn = (await getInvoiceDueDays()) * 864e5;
 
   if (input.role === "PROVIDER") {
@@ -67,7 +68,7 @@ export async function createOrgProfile(input: {
       currency: "PKR",
       dueAt: new Date(Date.now() + dueIn),
       note: `${PLANS[planKey].label} plan, first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term${discountNote(pricing)}`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
       "New laboratory registration, approval needed",
@@ -98,7 +99,7 @@ export async function createOrgProfile(input: {
       currency: "PKR",
       dueAt: new Date(Date.now() + dueIn),
       note: `${PLANS[planKey].label} plan, first billing cycle`,
-      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term`, unitPrice: planPrice }],
+      items: [{ description: `Gateway ${PLANS[planKey].label} subscription, ${planTermLabel(planKey)} term${discountNote(pricing)}`, unitPrice: planPrice }],
     });
     await notifyAllAdmins(
       "New supplier registration, approval needed",

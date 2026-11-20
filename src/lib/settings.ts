@@ -30,9 +30,54 @@ export async function getPlanPrices(): Promise<Record<PlanKey, number>> {
   return { BASIC: basic, PRO: pro, CUSTOM: custom };
 }
 
+// ---------- plan discounts ----------
+
+export type PlanPricing = { price: number; discount: number; final: number };
+
+/** percent off, clamped 0–90; result rounded to whole PKR */
+export function applyDiscount(price: number, pct: number): number {
+  const p = Math.min(Math.max(pct, 0), 90);
+  return Math.round((price * (100 - p)) / 100);
+}
+
+/** invoice line-item suffix describing an active discount, "" when none */
+export function discountNote(p: PlanPricing): string {
+  return p.discount > 0 ? ` · ${p.discount}% off (list PKR ${p.price.toLocaleString()})` : "";
+}
+
+export async function getPlanDiscount(plan: PlanKey): Promise<number> {
+  return getNumberSetting(`plan_discount_${plan.toLowerCase()}`, 0);
+}
+
+export async function getPlanPricing(plan: PlanKey): Promise<PlanPricing> {
+  const [price, discount] = await Promise.all([getPlanPrice(plan), getPlanDiscount(plan)]);
+  return { price, discount, final: applyDiscount(price, discount) };
+}
+
+export async function getAllPlanPricing(): Promise<Record<PlanKey, PlanPricing>> {
+  const [basic, pro, custom] = await Promise.all([
+    getPlanPricing("BASIC"), getPlanPricing("PRO"), getPlanPricing("CUSTOM"),
+  ]);
+  return { BASIC: basic, PRO: pro, CUSTOM: custom };
+}
+
+/** billed amount after discount, what new invoices charge */
+export async function getEffectivePlanPrice(plan: PlanKey): Promise<number> {
+  return (await getPlanPricing(plan)).final;
+}
+
 /** Analytics add-on, yearly price for customers / Basic-tier partners (PKR) */
 export async function getAnalyticsAddonPrice(): Promise<number> {
   return getNumberSetting("addon_analytics_price", 25000);
+}
+
+export async function getAnalyticsAddonDiscount(): Promise<number> {
+  return getNumberSetting("addon_analytics_discount", 0);
+}
+
+export async function getAnalyticsAddonPricing(): Promise<PlanPricing> {
+  const [price, discount] = await Promise.all([getAnalyticsAddonPrice(), getAnalyticsAddonDiscount()]);
+  return { price, discount, final: applyDiscount(price, discount) };
 }
 
 // ---------- billing terms ----------

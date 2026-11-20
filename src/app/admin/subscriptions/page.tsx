@@ -5,7 +5,7 @@ import { PageHead, StatusBadge } from "@/components/portal/ui";
 import { Pagination, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 import { PLANS, planTermLabel } from "@/lib/plans";
 import { SubButtons } from "./buttons";
-import { getPlanPrices } from "@/lib/settings";
+import { getAllPlanPricing } from "@/lib/settings";
 
 export default async function SubscriptionsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string; plan?: string; page?: string }> }) {
   const sp = await searchParams;
@@ -25,7 +25,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
       },
     } : {}),
   };
-  const [subs, total, mrrAgg, pending, renewals, planChanges, planPrices] = await Promise.all([
+  const [subs, total, mrrAgg, pending, renewals, planChanges, planPricing] = await Promise.all([
     prisma.subscription.findMany({
       where,
       include: {
@@ -46,7 +46,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
     prisma.subscription.count({ where: { status: "PENDING_PAYMENT" } }),
     prisma.subscription.count({ where: { renewRequestedAt: { not: null } } }),
     prisma.subscription.count({ where: { planChangeRequestedAt: { not: null } } }),
-    getPlanPrices(),
+    getAllPlanPricing(),
   ]);
   const mrr = mrrAgg._sum.pricePkr ?? 0;
 
@@ -110,7 +110,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
                     {s.renewRequestedAt && <div className="mt-0.5 text-[10.5px] font-medium text-(--st-blue-fg)">renewal requested</div>}
                   </td>
                   <td className="px-5 py-3"><StatusBadge status={s.status} /></td>
-                  <td className="px-5 py-3"><SubButtons id={s.id} status={s.status} plan={s.plan} renewRequested={!!s.renewRequestedAt} requestedPlan={s.requestedPlan} prices={planPrices} /></td>
+                  <td className="px-5 py-3"><SubButtons id={s.id} status={s.status} plan={s.plan} renewRequested={!!s.renewRequestedAt} requestedPlan={s.requestedPlan} prices={{ BASIC: planPricing.BASIC.final, PRO: planPricing.PRO.final, CUSTOM: planPricing.CUSTOM.final }} /></td>
                 </tr>
               );
             })}

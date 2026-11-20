@@ -105,11 +105,11 @@ const EXCHANGE_EXTRA: ExchangeCard[] = [
   { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", img: "/media/consult-real.webp", cta: "Request a consultation", href: "/#contact" },
 ];
 
-export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
+export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number; discount: number; final: number }> }) {
   const TIERS = [
     {
       key: "CUSTOMER", icon: Users, label: "Customer", tagline: "For researchers, universities, hospitals & industry",
-      price: 0, popular: false,
+      price: 0, discount: 0, final: 0, popular: false,
       features: [
         "Submit unlimited RFQs, free",
         "Compare sealed quotes side-by-side",
@@ -121,7 +121,7 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
     ...(["BASIC", "PRO", "CUSTOM"] as const).map((key) => ({
       key, icon: key === "CUSTOM" ? Crown : key === "PRO" ? Rocket : Sprout,
       label: PLANS[key].label, tagline: PLANS[key].tagline,
-      price: prices[key], popular: key === "PRO",
+      price: pricing[key].price, discount: pricing[key].discount, final: pricing[key].final, popular: key === "PRO",
       duration: key === "BASIC" ? "1 year" : key === "PRO" ? "3 years" : "5 years",
       features: [...PLANS[key].features],
       cta: `Start with ${PLANS[key].label}`,
@@ -416,9 +416,19 @@ export function Landing({ prices }: { prices: Record<PlanKey, number> }) {
                     <h3 className="mt-1 text-[17px] font-semibold text-ink">{t.label}</h3>
                     <p className="mt-1 min-h-9 text-[12.5px] leading-snug text-body">{t.tagline}</p>
                     <p className="mt-4 whitespace-nowrap">
+                      {t.discount > 0 && (
+                        <span className="mr-1.5 align-middle text-[13px] font-medium text-muted line-through">
+                          PKR {t.price.toLocaleString()}
+                        </span>
+                      )}
                       <span className="font-display text-[24px] font-semibold tracking-tight text-ink">
-                        PKR {t.price.toLocaleString()}
+                        PKR {t.final.toLocaleString()}
                       </span>
+                      {t.discount > 0 && (
+                        <span className="ml-2 rounded-full bg-(--st-green-bg) px-1.5 py-0.5 align-middle text-[10.5px] font-bold text-(--st-green-fg)">
+                          -{t.discount}%
+                        </span>
+                      )}
                       <span className="text-[12px] text-muted"> / {"duration" in t && t.duration ? t.duration : "term"}</span>
                     </p>
                     <ul className="mt-5 flex-1 space-y-2 border-t border-line pt-5">
