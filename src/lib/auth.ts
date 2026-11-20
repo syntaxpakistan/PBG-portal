@@ -80,6 +80,8 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "http://localhost:3200",
+    "https://biotechnologygateway.com",
+    "https://www.biotechnologygateway.com",
     "https://pbg-portal-theta.vercel.app",
     "https://pbg-teal.vercel.app",
     "https://pbg.syntaxpakistan.com",
