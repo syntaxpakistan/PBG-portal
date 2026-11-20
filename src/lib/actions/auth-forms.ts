@@ -22,12 +22,19 @@ async function forwardCookies(resHeaders: Headers) {
     const parts = c.split(";").map((s) => s.trim());
     const eq = parts[0].indexOf("=");
     if (eq < 1) continue;
-    const maxAge = parts.find((p) => /^max-age=/i.test(p))?.split("=")[1];
-    jar.set(parts[0].slice(0, eq), parts[0].slice(eq + 1), {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
+    const attr = (k: string) => parts.find((p) => p.toLowerCase().startsWith(`${k}=`))?.split("=")[1];
+    const maxAge = attr("max-age");
+    const expires = attr("expires");
+    const sameSite = attr("samesite")?.toLowerCase();
+    let value = parts[0].slice(eq + 1);
+    try { value = decodeURIComponent(value); } catch { /* leave as-is */ }
+    jar.set(parts[0].slice(0, eq), value, {
+      path: attr("path") ?? "/",
+      httpOnly: parts.some((p) => /^httponly$/i.test(p)),
+      secure: parts.some((p) => /^secure$/i.test(p)),
+      sameSite: sameSite === "strict" || sameSite === "none" ? sameSite : "lax",
       ...(maxAge ? { maxAge: Number(maxAge) } : {}),
+      ...(!maxAge && expires ? { expires: new Date(expires) } : {}),
     });
   }
 }

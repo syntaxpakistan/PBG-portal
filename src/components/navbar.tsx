@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 
 import { ArrowRight, ChevronDown, Cpu, Dna, Menu, TestTubes, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -127,7 +127,7 @@ export function Navbar() {
             )}
           />
           <Link href="/" className="relative z-10 flex items-center" aria-label="Pakistan Biotechnology Gateway home">
-            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-14 w-auto" />
+            <BrandLogo priority className="h-14 w-auto" />
           </Link>
 
           <ul className="relative z-10 hidden items-center gap-0.5 xl:flex">

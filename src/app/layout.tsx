@@ -37,13 +37,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${helixa.variable} ${luxora.variable} ${geistMono.variable} h-full antialiased`}
     >
-      {/* empty ontouchstart makes iOS treat every element as touchable,
-          enabling :active/:hover tap feedback — works even when the JS
-          bundle can't run (iOS <16.4) */}
-      <body
-        className="min-h-full flex flex-col bg-paper text-body"
-        {...({ ontouchstart: "" } as object)}
-      >
+      <body className="min-h-full flex flex-col bg-paper text-body">
+        {/* plain inline script (not the bundle — runs even on iOS <16.4):
+            a passive touchstart listener makes iOS treat every element as
+            touchable, enabling :active/:hover tap feedback */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.addEventListener('touchstart',function(){},{passive:true});",
+          }}
+        />
         <Providers>{children}</Providers>
         <PromoPopup />
       </body>

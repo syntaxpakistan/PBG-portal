@@ -82,6 +82,11 @@
   --st-gold: #f0c94e;
 }
 
+/* ---------- brand logo theme variants ---------- */
+.brand-logo-dark { display: none; }
+.dark .brand-logo-dark { display: inline-block; }
+.dark .brand-logo-light { display: none; }
+
 /* clip, not hidden: overflow-x:hidden makes body a scroll container on iOS
    Safari, desyncing tap hit-testing on fixed elements like the header */
 html,

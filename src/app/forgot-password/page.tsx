@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 import { forgotAction } from "@/lib/actions/auth-forms";
 
 export default async function ForgotPasswordPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
@@ -9,7 +9,7 @@ export default async function ForgotPasswordPage({ searchParams }: { searchParam
     <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-16">
       <div className="w-full max-w-sm">
         <Link href="/" className="mb-8 inline-block">
-          <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
+          <BrandLogo className="h-16 w-auto" />
         </Link>
         {sent ? (
           <>

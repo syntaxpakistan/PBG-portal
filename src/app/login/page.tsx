@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 import { TriangleAlert } from "lucide-react";
 import { loginAction } from "@/lib/actions/auth-forms";
 import { GoogleButton } from "@/components/google-button";
@@ -42,7 +43,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="flex items-center justify-center bg-paper px-6 py-16">
         <div className="w-full max-w-sm">
           <Link href="/" className="mb-8 inline-block lg:hidden">
-            <Image src="/brand/pbg-logo.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} className="h-16 w-auto" />
+            <BrandLogo className="h-16 w-auto" />
           </Link>
           <h2 className="font-display text-[26px] font-medium tracking-tight text-ink">Sign in to your portal</h2>
           <p className="mt-2 text-[13.5px] text-body">Customer, lab or supplier, one account.</p>

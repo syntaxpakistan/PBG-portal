@@ -8,16 +8,19 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { SideNav, type NavItem } from "./side-nav";
 import { PortalMobileNav } from "./mobile-nav";
 import { NotificationsBell } from "./notifications-bell";
+import { GearMenu } from "./gear-menu";
 
 export type { NavItem };
 
 export async function PortalShell({
   title,
   items,
+  gearItems,
   children,
 }: {
   title: string;
   items: NavItem[];
+  gearItems?: NavItem[];
   children: React.ReactNode;
 }) {
   const session = await getSession();
@@ -28,7 +31,7 @@ export async function PortalShell({
   return (
     <div className="flex min-h-screen flex-col bg-paper-2 lg:flex-row">
       {/* mobile top bar + drawer */}
-      <PortalMobileNav title={title} items={items} unread={unread} name={user.name} email={user.email} />
+      <PortalMobileNav title={title} items={items} gearItems={gearItems} unread={unread} name={user.name} email={user.email} />
       {/* sidebar, desktop only */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-line bg-navy lg:flex">
         <div className="px-5 pt-5">
@@ -53,7 +56,10 @@ export async function PortalShell({
           </div>
           <div className="flex items-center justify-between">
             <SignOutButton />
-            <ThemeToggle onDark />
+            <div className="flex items-center gap-1">
+              {gearItems && gearItems.length > 0 && <GearMenu items={gearItems} />}
+              <ThemeToggle onDark />
+            </div>
           </div>
         </div>
       </aside>

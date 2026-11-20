@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 import { FlaskConical, Package, Users, Check, BadgeCheck, TriangleAlert } from "lucide-react";
 import { joinAction } from "@/lib/actions/auth-forms";
 import { PLANS, SUPPLIER_FEATURES, planTermLabel, ORG_TYPES, type PlanKey } from "@/lib/plans";
@@ -32,7 +33,7 @@ export function JoinFlow({ pricing, error }: { pricing: Record<PlanKey, PlanPric
         <div className="glow-orb right-[-100px] top-1/4 size-[400px] bg-mint/15" />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="inline-block">
-            <Image src="/brand/pbg-logo-dark.webp" alt="Pakistan Biotechnology Gateway" width={1024} height={334} priority className="h-20 w-auto" />
+            <BrandLogo priority className="h-20 w-auto" />
           </Link>
           <div>
             <h1 className="h-display on-dark !text-[2.6rem]">
