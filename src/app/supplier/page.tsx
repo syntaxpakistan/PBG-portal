@@ -70,7 +70,7 @@ export default async function SupplierPage() {
       </div>
 
       {!allDone && (
-        <div className="card mb-6 p-5">
+        <div className="card card-glow mb-6 p-5">
           <h3 className="mb-3 text-[14px] font-semibold text-ink">Getting your storefront live</h3>
           <div className="space-y-2">
             {steps.map((s) => (
@@ -87,7 +87,7 @@ export default async function SupplierPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h3 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><Package className="size-4 text-blue" /> Recent products</h3>
             <Link href="/supplier/products" className="text-[12px] font-semibold text-blue hover:text-ink">Manage catalog →</Link>
@@ -111,7 +111,7 @@ export default async function SupplierPage() {
           </div>
         </div>
 
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h3 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><Inbox className="size-4 text-blue" /> Latest enquiries</h3>
             <Link href="/supplier/enquiries" className="text-[12px] font-semibold text-blue hover:text-ink">All enquiries →</Link>

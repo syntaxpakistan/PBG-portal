@@ -73,7 +73,7 @@ export default async function DashboardPage() {
 
       {/* needs your attention */}
       {actions.length > 0 && (
-        <div className="card mb-8 overflow-hidden">
+        <div className="card card-glow mb-8 overflow-hidden">
           <div className="border-b border-line px-5 py-3.5">
             <h2 className="text-[14px] font-semibold text-ink">Needs your attention</h2>
           </div>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* RFQs */}
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h2 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><FileText className="size-4 text-muted" /> Your RFQs</h2>
             <Link href="/dashboard/rfqs" className="text-[12px] font-medium text-blue hover:underline">View all →</Link>
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Projects */}
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h2 className="flex items-center gap-2 text-[14px] font-semibold text-ink"><FolderKanban className="size-4 text-muted" /> Projects</h2>
             <Link href="/dashboard/projects" className="text-[12px] font-medium text-blue hover:underline">View all →</Link>

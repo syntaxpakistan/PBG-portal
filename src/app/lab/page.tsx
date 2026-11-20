@@ -184,7 +184,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
 
       {/* performance, SLA score, funnel, bench backlog */}
       <div className="mb-8 grid gap-4 lg:grid-cols-3">
-        <div className="card flex items-center gap-5 p-5">
+        <div className="card card-glow flex items-center gap-5 p-5">
           <SlaScore pct={slaScore} />
           <div>
             <div className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted">SLA compliance</div>
@@ -194,7 +194,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
             <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted"><Gauge className="size-3" /> on-time delivery vs quoted TAT</div>
           </div>
         </div>
-        <div className="card p-5">
+        <div className="card card-glow p-5">
           <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted">Quote funnel</div>
           <div className="space-y-2">
             <FunnelBar label="Submitted" value={funnel.submitted} max={funnel.submitted} tone="bg-(--st-blue-bd) text-(--st-blue-fg)" />
@@ -202,7 +202,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
             <FunnelBar label="Not selected" value={funnel.lost} max={funnel.submitted} tone="bg-paper-2 text-body" />
           </div>
         </div>
-        <div className="card p-5">
+        <div className="card card-glow p-5">
           <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted">Bench backlog</div>
           {stageBacklog.length === 0 ? (
             <p className="py-3 text-center text-[12px] text-muted">No in-lab stages active right now.</p>
@@ -224,7 +224,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       </div>
 
       {catRows.length > 0 && (
-        <div className="card mb-8 p-5">
+        <div className="card card-glow mb-8 p-5">
           <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted">Win rate by service category</div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {catRows.map((c) => {
@@ -245,7 +245,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       )}
 
       {complaints.length > 0 && (
-        <div className="card mb-8 overflow-hidden">
+        <div className="card card-glow mb-8 overflow-hidden">
           <div className="border-b border-line px-5 py-3.5"><h3 className="text-[14px] font-semibold text-ink">Complaints on your projects</h3></div>
           <div className="divide-y divide-line">
             {complaints.map((c) => (
@@ -278,7 +278,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
           <Link href="/lab/rfqs?invited=1" className="rounded-full px-3 py-1 text-[11.5px] font-medium border border-line text-body hover:bg-paper-2">Invited only →</Link>
         </span>
       </h2>
-      <div className="card mb-8 overflow-hidden">
+      <div className="card card-glow mb-8 overflow-hidden">
         <div className="divide-y divide-line">
           {!approved && <p className="px-5 py-8 text-center text-[13px] text-muted">RFQs appear here once you&rsquo;re verified.</p>}
           {approved && inbox.length === 0 && <p className="px-5 py-8 text-center text-[13px] text-muted">No open RFQs right now, you&rsquo;ll be emailed when one routes to you.</p>}
@@ -302,7 +302,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="border-b border-line px-5 py-3.5"><h3 className="text-[14px] font-semibold text-ink">Your quotes</h3></div>
           <div className="divide-y divide-line">
             {profile.quotes.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No quotes yet.</p>}
@@ -317,7 +317,7 @@ export default async function LabPage({ searchParams }: { searchParams: Promise<
             ))}
           </div>
         </div>
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h3 id="projects" className="text-[14px] font-semibold text-ink">Projects</h3>
             <Link href="/lab/projects" className="text-[12px] font-medium text-blue hover:underline">View all →</Link>

@@ -208,6 +208,23 @@ body {
   box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.5);
 }
 
+/* themed border-glow on hover, navy on light / white on dark */
+.card-glow {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-glow:hover {
+  border-color: var(--color-navy);
+  box-shadow:
+    0 0 0 1px var(--color-navy),
+    0 14px 34px -14px rgba(4, 53, 97, 0.4);
+}
+.dark .card-glow:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 14px 34px -14px rgba(255, 255, 255, 0.22);
+}
+
 /* ---------- buttons with rotating rainbow border on hover ---------- */
 
 .btn-wrap {

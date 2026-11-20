@@ -175,7 +175,7 @@ export default async function AdminPage() {
       </div>
 
       {/* this month at a glance */}
-      <div className="card mb-8 flex flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3.5">
+      <div className="card card-glow mb-8 flex flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3.5">
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">This month</span>
         <span className="text-[13px] text-body"><strong className="font-semibold text-ink">{pkr(monthFees._sum.feeAmount ?? 0)}</strong> fees collected</span>
         <span className="text-[13px] text-body"><strong className="font-semibold text-ink">{pkr(monthGmv._sum.quotedValue ?? 0)}</strong> marketplace volume</span>
@@ -194,14 +194,14 @@ export default async function AdminPage() {
       </div>
 
       {actionTotal === 0 && (
-        <div className="card mb-4 flex items-center gap-3 px-5 py-4">
+        <div className="card card-glow mb-4 flex items-center gap-3 px-5 py-4">
           <CircleCheck className="size-5 shrink-0 text-(--st-green-fg)" />
           <p className="text-[13.5px] text-body">All clear, nothing is waiting on your approval right now.</p>
         </div>
       )}
       <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {queues.map((q) => (
-            <div key={q.title} className="card flex flex-col overflow-hidden">
+            <div key={q.title} className="card card-glow flex flex-col overflow-hidden">
               <div className="flex items-center justify-between border-b border-line px-4.5 py-3">
                 <span className="flex items-center gap-2 text-[15.5px] font-bold text-ink">
                   <span className="text-(--st-blue-fg)">{q.icon}</span>{q.title}
@@ -239,7 +239,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h3 className="text-[15.5px] font-bold text-ink">Recent transactions</h3>
             <Link href="/admin/transactions" className="text-[12px] font-medium text-blue hover:underline">All →</Link>
@@ -257,7 +257,7 @@ export default async function AdminPage() {
             {txns.length === 0 && <p className="px-5 py-6 text-center text-[12.5px] text-muted">No transactions yet.</p>}
           </div>
         </div>
-        <div className="card overflow-hidden">
+        <div className="card card-glow overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
             <h3 className="text-[15.5px] font-bold text-ink">Latest activity</h3>
             <Link href="/admin/audit" className="text-[12px] font-medium text-blue hover:underline">Audit log →</Link>
