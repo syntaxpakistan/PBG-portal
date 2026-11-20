@@ -351,22 +351,7 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
               </p>
             </div>
           </Reveal>
-          <Reveal className="mt-10">
-            <div className="card-dark flex flex-col items-start justify-between gap-4 px-7 py-5 sm:flex-row sm:items-center">
-              <div>
-                <p className="text-[15px] font-semibold text-white">For Partner Labs</p>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">
-                  Offer 50% discount on each category, choose a 1, 3 or 5 year commitment.
-                </p>
-              </div>
-              <div className="flex gap-2.5">
-                {["1 year", "3 years", "5 years"].map((d) => (
-                  <span key={d} className="rounded-full border border-white/20 px-4 py-1.5 text-[12px] font-semibold text-white/90">{d}</span>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-          <Stagger className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,300px)_1fr]">
+          <Stagger className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,300px)_1fr]">
             {(() => {
               const t = TIERS[0];
               return (
