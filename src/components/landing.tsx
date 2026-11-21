@@ -171,7 +171,7 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
                 <span className="inline-flex items-center gap-1.5"><BadgeCheck className="size-4 text-mint" /> Verified nationwide network</span>
                 <span className="inline-flex items-center gap-1.5"><Eye className="size-4 text-mint" /> Blind competitive quotes</span>
                 <span className="inline-flex items-center gap-1.5"><Landmark className="size-4 text-mint" /> Escrow-protected payments</span>
-                <span className="inline-flex items-center gap-1.5"><Lock className="size-4 text-mint" /> No raw genomic data hosted</span>
+                <span className="inline-flex items-center gap-1.5"><Lock className="size-4 text-mint" /> Guaranteed Data Security</span>
               </div>
             </Reveal>
           </div>
