@@ -61,7 +61,7 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
     .join("\n");
 
   try {
-    await sendEmail({ to: LEAD_INBOXES[type], subject, text: body });
+    await sendEmail({ to: LEAD_INBOXES[type], subject, text: body, replyTo: email });
   } catch (e) {
     console.error("[lead] email delivery failed:", e);
   }

@@ -2,7 +2,7 @@
  * Transactional email via Resend. Falls back to console logging when
  * RESEND_API_KEY is not configured, so dev environments keep working.
  */
-export async function sendEmail(opts: { to: string; subject: string; text?: string; html?: string }) {
+export async function sendEmail(opts: { to: string; subject: string; text?: string; html?: string; replyTo?: string }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     console.log(`[email→${opts.to}] ${opts.subject}`);
@@ -17,6 +17,7 @@ export async function sendEmail(opts: { to: string; subject: string; text?: stri
       subject: opts.subject,
       text: opts.text,
       html: opts.html,
+      ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
     }),
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
