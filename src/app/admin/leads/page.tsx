@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHead } from "@/components/portal/ui";
 import { Pagination, SearchBar, PAGE_SIZE, pageOf, qs } from "@/components/portal/pagination";
 import { HandledButton } from "./handled-button";
+import { DeleteLeadButton } from "./delete-button";
 
 export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const sp = await searchParams;
@@ -64,7 +65,10 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                 </div>
                 {l.message && <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-body">{l.message}</p>}
               </div>
-              {!l.handled && <HandledButton id={l.id} />}
+              <div className="flex shrink-0 items-center gap-2">
+                {!l.handled && <HandledButton id={l.id} />}
+                <DeleteLeadButton id={l.id} leadNo={l.leadNo} />
+              </div>
             </div>
           </div>
         ))}

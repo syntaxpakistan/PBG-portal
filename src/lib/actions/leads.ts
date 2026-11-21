@@ -85,3 +85,11 @@ export async function markLeadHandled(leadId: string) {
   await requireRole("ADMIN");
   await prisma.lead.update({ where: { id: leadId }, data: { handled: true } });
 }
+
+export async function deleteLead(leadId: string) {
+  const session = await requireRole("ADMIN");
+  const lead = await prisma.lead.delete({ where: { id: leadId } });
+  await prisma.auditLog.create({
+    data: { actorId: session.user.id, action: "LEAD_DELETED", entity: "Lead", entityId: leadId, meta: `${lead.leadNo} <${lead.email}>` },
+  });
+}
