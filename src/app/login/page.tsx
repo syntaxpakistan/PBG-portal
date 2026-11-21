@@ -38,6 +38,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <p className="text-[12px] text-[#7a97b0]">© 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.</p>
         </div>
+        <div className="absolute bottom-10 right-10 flex items-center gap-3">
+          <span className="text-[10.5px] font-medium uppercase tracking-[0.16em] text-white/50">Project by</span>
+          <Image src="/brand/syntax-logo-dark.webp" alt="Syntax of Life" width={820} height={269} className="h-7 w-auto" />
+        </div>
       </div>
 
       {/* right form — native POST to a server action, works without JS */}
@@ -85,6 +89,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <Link href="/biogateway" className="font-semibold text-blue hover:text-ink">Create an account</Link>
           </p>
         </div>
+      </div>
+
+      <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-line bg-white px-3.5 py-2 shadow-md lg:hidden">
+        <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-[#5a6b80]">Project by</span>
+        <Image src="/brand/syntax-logo.webp" alt="Syntax of Life" width={820} height={269} className="h-5 w-auto" />
       </div>
     </main>
   );
