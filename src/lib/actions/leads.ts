@@ -73,7 +73,7 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
         userId: a.id,
         subject,
         body: `${email}${org ? ` · ${org}` : ""}${interest ? ` · ${interest}` : ""}`,
-        href: "/admin/leads",
+        href: `/admin/leads?q=${lead.leadNo}`,
       })),
     });
   }
@@ -81,14 +81,25 @@ export async function submitLead(_prev: LeadResult | null, formData: FormData): 
   return { ok: true };
 }
 
+/** Matches notifications raised for a lead — new format by ref, old
+    format (plain /admin/leads link) by email in the body. */
+const leadNotifWhere = (lead: { leadNo: string; email: string }) => ({
+  OR: [
+    { href: `/admin/leads?q=${lead.leadNo}` },
+    { href: "/admin/leads", body: { startsWith: lead.email } },
+  ],
+});
+
 export async function markLeadHandled(leadId: string) {
   await requireRole("ADMIN");
-  await prisma.lead.update({ where: { id: leadId }, data: { handled: true } });
+  const lead = await prisma.lead.update({ where: { id: leadId }, data: { handled: true } });
+  await prisma.notification.updateMany({ where: { readAt: null, ...leadNotifWhere(lead) }, data: { readAt: new Date() } });
 }
 
 export async function deleteLead(leadId: string) {
   const session = await requireRole("ADMIN");
   const lead = await prisma.lead.delete({ where: { id: leadId } });
+  await prisma.notification.deleteMany({ where: leadNotifWhere(lead) });
   await prisma.auditLog.create({
     data: { actorId: session.user.id, action: "LEAD_DELETED", entity: "Lead", entityId: leadId, meta: `${lead.leadNo} <${lead.email}>` },
   });

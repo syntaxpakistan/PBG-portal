@@ -11,6 +11,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
   const page = pageOf(sp);
   const where = sp.q ? {
     OR: [
+      { leadNo: { contains: sp.q } },
       { firstName: { contains: sp.q } },
       { lastName: { contains: sp.q } },
       { email: { contains: sp.q } },
