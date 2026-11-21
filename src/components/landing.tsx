@@ -329,7 +329,7 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
       </section>
 
       {/* ── Pricing ─────────────────────────────────────────── */}
-      <section id="pricing" className="scroll-mt-24 bg-paper-2 py-20 sm:py-24">
+      <section className="bg-paper-2 py-20 sm:py-24">
         <div className="container-x">
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
@@ -341,6 +341,7 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
               </p>
             </div>
           </Reveal>
+          <div id="pricing" className="scroll-mt-24">
           <Stagger className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,300px)_1fr]">
             {(() => {
               const t = TIERS[0];
@@ -424,6 +425,7 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
               </div>
             </div>
           </Stagger>
+          </div>
           <Reveal className="mt-8">
             <p className="text-center text-[12.5px] text-muted">
               A small platform fee applies to awarded projects, shown transparently on every invoice.
