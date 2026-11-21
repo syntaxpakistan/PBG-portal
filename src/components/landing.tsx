@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 
 import {
   ArrowRight, BadgeCheck, Boxes, Building2, CircleCheck, Cpu, Crown, Dna, Eye, FileText,
@@ -89,21 +88,20 @@ type ExchangeCard = {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   desc: string;
-  img: string;
   cta?: string;
   href?: string;
 };
 
 const EXCHANGE: ExchangeCard[] = [
-  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger, matched to declared instrument capacity.", img: "/media/seq-real.webp", href: "/services/sequencing", cta: "Explore sequencing" },
-  { icon: Cpu, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", img: "/media/bioinfo-real.webp", href: "/services/bioinformatics", cta: "Explore bioinformatics" },
-  { icon: FlaskConical, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", img: "/media/supplies-real.webp", href: "/marketplace", cta: "Browse supplies" },
-  { icon: Building2, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", img: "/media/registry-real.webp", href: "/registry", cta: "Open the registry" },
+  { icon: Dna, title: "Sequencing services", desc: "WGS, amplicons, targeted panels, Sanger, matched to declared instrument capacity.", href: "/services/sequencing", cta: "Explore sequencing" },
+  { icon: Cpu, title: "Bioinformatics", desc: "Downstream analysis, annotation and reporting as priced, optional add-ons.", href: "/services/bioinformatics", cta: "Explore bioinformatics" },
+  { icon: FlaskConical, title: "Supplies catalogue", desc: "Reagents, kits, media, plasticware and equipment from national suppliers.", href: "/marketplace", cta: "Browse supplies" },
+  { icon: Building2, title: "Facility registry", desc: "Browse verified laboratories and suppliers by capability, city and accreditation.", href: "/registry", cta: "Open the registry" },
 ];
 
 const EXCHANGE_EXTRA: ExchangeCard[] = [
-  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories.", img: "/media/molbio-real.webp", href: "/services/molecular-biology", cta: "Explore molecular biology" },
-  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", img: "/media/consult-real.webp", cta: "Request a consultation", href: "/#contact" },
+  { icon: TestTubes, title: "Molecular biology services", desc: "Request DNA extraction, RNA extraction, PCR or quantitative PCR (qPCR) from verified laboratories.", href: "/services/molecular-biology", cta: "Explore molecular biology" },
+  { icon: MessagesSquare, title: "Consult an expert to plan your experiment", desc: "Get guidance on experimental design, sample requirements, sequencing platforms and bioinformatics before you start.", cta: "Request a consultation", href: "/#contact" },
 ];
 
 export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number; discount: number; final: number }> }) {
@@ -313,12 +311,8 @@ export function Landing({ pricing }: { pricing: Record<PlanKey, { price: number;
             {[...EXCHANGE, ...EXCHANGE_EXTRA].map((c) => (
               <div key={c.title} className="card-dark group flex flex-col overflow-hidden p-0 transition-colors hover:border-white/25">
                 <Link href={c.href ?? "/marketplace"} className="flex flex-1 flex-col">
-                  <div className="relative h-36 w-full">
-                    <Image src={c.img} alt="" fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-navy-2/90 via-navy/20 to-transparent" />
-                    <c.icon className="absolute bottom-3 left-5 size-6 text-mint" />
-                  </div>
-                  <div className="flex flex-1 flex-col p-6 pt-4">
+                  <div className="flex flex-1 flex-col p-6">
+                    <c.icon className="mb-4 size-6 text-mint" />
                     <h3 className="text-[15px] font-semibold text-white">{c.title}</h3>
                     <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-[#a2c1d7]">{c.desc}</p>
                     {c.cta && (
