@@ -76,7 +76,7 @@ const WHY = [
   },
   {
     icon: Lock, title: "Privacy by design",
-    desc: "Raw genomic data (FASTQ/BAM/VCF) never lives on the platform, only documents and metadata. Samples and data move directly between parties.",
+    desc: "Guaranteed data security on every exchange, only documents and metadata live on the platform. Samples and data move directly between parties.",
   },
   {
     icon: ShieldCheck, title: "Administered & auditable",
