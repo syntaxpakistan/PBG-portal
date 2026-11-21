@@ -24,3 +24,20 @@ users.md
 
 # downloaded source media (compressed copies live in public/media/)
 data/
+
+# local-only assets/docs — kept on disk, not shipped in the repo
+PROJECT-REPORT.md
+prisma/seed.mjs
+public/file.svg
+public/globe.svg
+public/next.svg
+public/vercel.svg
+public/window.svg
+public/brand/pbg-mark.webp
+public/media/*-real.webp
+public/media/consumables.webp
+public/media/expert-scientist.webp
+public/media/lab-interior.webp
+public/media/lab-scientist.webp
+public/media/molbio-pipette.webp
+public/media/seq-platform.webp
