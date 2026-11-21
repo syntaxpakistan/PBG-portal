@@ -129,6 +129,10 @@ export function Footer() {
           <p className="text-[12.5px] text-[#7a97b0]">
             © 2026 PBG | Pakistan Biotechnology Gateway. All rights reserved.
           </p>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] uppercase tracking-[0.16em] text-[#7a97b0]">Project by</span>
+            <Image src="/brand/syntax-logo-dark.webp" alt="Syntax of Life" width={820} height={269} className="h-7 w-auto sm:h-8" />
+          </div>
         </div>
       </div>
     </footer>
