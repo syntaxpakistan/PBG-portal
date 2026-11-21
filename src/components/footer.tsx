@@ -104,7 +104,7 @@ export function Footer() {
                 <ShieldCheck className="size-3.5 text-yellow" /> Independently operated · non-governmental
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11.5px] text-[#c5d2e1]">
-                <Lock className="size-3.5 text-yellow" /> No raw genomic data hosted
+                <Lock className="size-3.5 text-yellow" /> Guaranteed Data Security
               </span>
             </div>
           </div>
